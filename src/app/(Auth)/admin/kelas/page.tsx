@@ -5,10 +5,13 @@ import { AdminLayout } from "@/components/admin-layout"
 import { DataTable } from "@/components/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { apiService } from "@/lib/api"
 import type { Kelas } from "@/types/api"
+import { deleteKelas } from "@/api/admin/kelas/index"
+import { getKelas } from "@/api/admin/kelas/index"
+import { useRouter } from "next/navigation"
 
 export default function KelasManagement() {
+  const router = useRouter()
   const [kelas, setKelas] = useState<Kelas[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,8 +23,8 @@ export default function KelasManagement() {
   const loadKelas = async () => {
     try {
       setLoading(true)
-      const response = await apiService.getKelas({ limit: 100 })
-      setKelas(response.data || [])
+      const response = await getKelas()
+      setKelas(response.data.data || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load kelas data')
     } finally {
@@ -31,15 +34,15 @@ export default function KelasManagement() {
 
   const handleLogout = async () => {
     try {
-      await apiService.logout()
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      // await apiService.logout()
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     } catch (err) {
       console.error('Logout failed:', err)
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     }
   }
 
@@ -56,7 +59,7 @@ export default function KelasManagement() {
   const handleDelete = async (row: Kelas) => {
     if (confirm(`Are you sure you want to delete ${row.nama}?`)) {
       try {
-        await apiService.delete(`/api/kelas/${row.id}`)
+        await deleteKelas(row.id)
         loadKelas() // Refresh the list
       } catch (err) {
         console.error('Failed to delete kelas:', err)

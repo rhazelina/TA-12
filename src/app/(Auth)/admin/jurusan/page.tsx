@@ -4,10 +4,13 @@ import { useEffect, useState } from "react"
 import { AdminLayout } from "@/components/admin-layout"
 import { DataTable } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
-import { apiService } from "@/lib/api"
 import type { Jurusan } from "@/types/api"
+import { useRouter } from "next/navigation"
+import { getJurusan } from "@/api/admin/jurusan/index."
+import { deleteJurusan } from "@/api/admin/jurusan/index."
 
 export default function JurusanManagement() {
+  const router = useRouter()
   const [jurusan, setJurusan] = useState<Jurusan[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -19,8 +22,8 @@ export default function JurusanManagement() {
   const loadJurusan = async () => {
     try {
       setLoading(true)
-      const response = await apiService.getJurusan({ limit: 100 })
-      setJurusan(response.data || [])
+      const response = await getJurusan()
+      setJurusan(response.data.data || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load jurusan data')
     } finally {
@@ -30,15 +33,15 @@ export default function JurusanManagement() {
 
   const handleLogout = async () => {
     try {
-      await apiService.logout()
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      // await apiService.logout()
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     } catch (err) {
       console.error('Logout failed:', err)
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     }
   }
 
@@ -55,7 +58,7 @@ export default function JurusanManagement() {
   const handleDelete = async (row: Jurusan) => {
     if (confirm(`Are you sure you want to delete ${row.nama}?`)) {
       try {
-        await apiService.delete(`/api/jurusan/${row.id}`)
+        await deleteJurusan(row.id)
         loadJurusan() // Refresh the list
       } catch (err) {
         console.error('Failed to delete jurusan:', err)

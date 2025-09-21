@@ -4,10 +4,12 @@ import { useEffect, useState } from "react"
 import { AdminLayout } from "@/components/admin-layout"
 import { DataTable } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
-import { apiService } from "@/lib/api"
 import type { Siswa } from "@/types/api"
+import { deleteSiswa, getSiswa } from "@/api/admin/siswa/index"
+import { useRouter } from "next/navigation"
 
 export default function SiswaManagement() {
+  const router = useRouter()
   const [siswa, setSiswa] = useState<Siswa[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -19,8 +21,8 @@ export default function SiswaManagement() {
   const loadSiswa = async () => {
     try {
       setLoading(true)
-      const response = await apiService.getSiswa({ limit: 100 })
-      setSiswa(response.data || [])
+      const response = await getSiswa()
+      setSiswa(response.data.data || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load siswa data')
     } finally {
@@ -30,14 +32,13 @@ export default function SiswaManagement() {
 
   const handleLogout = async () => {
     try {
-      await apiService.logout()
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
       window.location.href = '/login'
     } catch (err) {
       console.error('Logout failed:', err)
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
       window.location.href = '/login'
     }
   }
@@ -55,7 +56,7 @@ export default function SiswaManagement() {
   const handleDelete = async (row: Siswa) => {
     if (confirm(`Are you sure you want to delete ${row.nama_lengkap}?`)) {
       try {
-        await apiService.delete(`/api/siswa/${row.id}`)
+        await deleteSiswa(row.id)
         loadSiswa() // Refresh the list
       } catch (err) {
         console.error('Failed to delete siswa:', err)

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -21,7 +22,9 @@ import {
   LogOut,
   Menu,
   X,
-  User
+  User,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -45,38 +48,79 @@ const navigation = [
 
 export function AdminLayout({ children, onLogout, user }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
+
+  // Function to check if current path matches navigation item
+  const isActive = (href: string) => {
+    if (href === '/admin') {
+      return pathname === '/admin'
+    }
+    return pathname.startsWith(href)
+  }
+
+  const sidebarWidth = collapsed ? "w-16" : "w-64"
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50/40">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 lg:hidden" 
+          onClick={() => setSidebarOpen(false)} 
+        />
+      )}
+
       {/* Mobile sidebar */}
       <div className={cn(
-        "fixed inset-0 z-50 lg:hidden",
-        sidebarOpen ? "block" : "hidden"
+        "fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-xl transition-transform duration-300 ease-in-out lg:hidden",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-        <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white">
-          <div className="flex h-16 items-center justify-between px-4">
-            <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+        <div className="flex h-full flex-col">
+          {/* Mobile header */}
+          <div className="flex h-16 items-center justify-between px-4 border-b">
+            <div className="flex items-center space-x-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <LayoutDashboard className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className="text-lg font-semibold">Admin Panel</span>
+            </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
+
+          {/* Mobile navigation */}
+          <nav className="flex-1 space-y-1 px-3 py-4">
             {navigation.map((item) => {
               const Icon = item.icon
+              const active = isActive(item.href)
               return (
-                <a
+                <Button
                   key={item.name}
-                  href={item.href}
-                  className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  variant="ghost"
+                  onClick={() => {
+                    router.push(item.href)
+                    setSidebarOpen(false)
+                  }}
+                  className={cn(
+                    "w-full justify-start rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-gray-100",
+                    active
+                      ? "bg-[#641E20] text-white hover:bg-[#641E20]/90"
+                      : "text-gray-700 hover:text-gray-900"
+                  )}
                 >
-                  <Icon className="mr-3 h-5 w-5" />
+                  <Icon className={cn(
+                    "mr-3 h-5 w-5 flex-shrink-0",
+                    active ? "text-white" : "text-gray-400 group-hover:text-gray-600"
+                  )} />
                   {item.name}
-                </a>
+                </Button>
               )
             })}
           </nav>
@@ -84,80 +128,149 @@ export function AdminLayout({ children, onLogout, user }: AdminLayoutProps) {
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
-          <div className="flex h-16 items-center px-4">
-            <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-40 hidden bg-white shadow-sm transition-all duration-300 lg:block",
+        sidebarWidth
+      )}>
+        <div className="flex h-full flex-col border-r border-gray-200">
+          {/* Desktop header */}
+          <div className="flex h-16 items-center justify-between px-4 border-b">
+            <div className={cn(
+              "flex items-center space-x-2 transition-opacity duration-200",
+              collapsed ? "opacity-0" : "opacity-100"
+            )}>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <LayoutDashboard className="h-4 w-4 text-primary-foreground" />
+              </div>
+              {!collapsed && <span className="text-lg font-semibold">Admin Panel</span>}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCollapsed(!collapsed)}
+              className="h-8 w-8 p-0"
+            >
+              {collapsed ? (
+                <ChevronRight className="h-4 w-4" />
+              ) : (
+                <ChevronLeft className="h-4 w-4" />
+              )}
+            </Button>
           </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
+
+          {/* Desktop navigation */}
+          <nav className="flex-1 space-y-1 px-3 py-4">
             {navigation.map((item) => {
               const Icon = item.icon
+              const active = isActive(item.href)
               return (
-                <a
+                <Button
                   key={item.name}
-                  href={item.href}
-                  className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  variant="ghost"
+                  onClick={() => router.push(item.href)}
+                  className={cn(
+                    "w-full justify-start rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-gray-100",
+                    active
+                      ? "bg-[#641E20] text-white hover:bg-[#641E20]/90"
+                      : "text-gray-700 hover:text-gray-900",
+                    collapsed && "justify-center"
+                  )}
+                  title={collapsed ? item.name : undefined}
                 >
-                  <Icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </a>
+                  <Icon className={cn(
+                    "h-5 w-5 flex-shrink-0",
+                    active ? "text-white" : "text-gray-400 group-hover:text-gray-600",
+                    collapsed ? "mr-0" : "mr-3"
+                  )} />
+                  <span className={cn(
+                    "transition-opacity duration-200",
+                    collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
+                  )}>
+                    {item.name}
+                  </span>
+                </Button>
               )
             })}
           </nav>
+
+          {/* Sidebar footer */}
+          <div className="border-t p-3">
+            <div className={cn(
+              "flex items-center space-x-3 rounded-lg p-2 transition-colors hover:bg-gray-100",
+              collapsed && "justify-center"
+            )}>
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="" alt={user?.username} />
+                <AvatarFallback>
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              {!collapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {user?.username}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {user?.role}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className={cn(
+        "transition-all duration-300",
+        collapsed ? "lg:pl-16" : "lg:pl-64"
+      )}>
         {/* Top bar */}
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 shadow-sm sm:px-6 lg:px-8">
           <Button
             variant="ghost"
             size="sm"
             className="lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-5 w-5" />
           </Button>
 
-          <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <div className="flex flex-1" />
-            <div className="flex items-center gap-x-4 lg:gap-x-6">
-              {/* User menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="" alt={user?.username} />
-                      <AvatarFallback>
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.username}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.role}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onLogout} className="text-red-600">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          <div className="flex flex-1 items-center justify-end gap-4">
+            {/* User menu - Always in top right */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src="" alt={user?.username} />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user?.username}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.role}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onLogout} className="text-red-600 focus:text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </div>
+        </header>
 
         {/* Page content */}
-        <main className="py-6">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <main className="flex-1 p-6">
+          <div className="mx-auto max-w-7xl">
             {children}
           </div>
         </main>

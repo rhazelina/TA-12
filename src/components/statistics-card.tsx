@@ -6,11 +6,11 @@ import { LucideIcon } from "lucide-react"
 
 interface StatisticsCardProps {
   title: string
-  value: number
+  value?: number
   description?: string
   icon: LucideIcon
   trend?: {
-    value: number
+    value?: number
     isPositive: boolean
   }
   variant?: 'default' | 'success' | 'warning' | 'destructive'
@@ -18,12 +18,16 @@ interface StatisticsCardProps {
 
 export function StatisticsCard({
   title,
-  value,
+  value = 0,
   description,
   icon: Icon,
   trend,
   variant = 'default'
 }: StatisticsCardProps) {
+  // Helper function to ensure safe numeric display
+  const safeNumber = (num?: number, fallback = 0): number => {
+    return (num != null && !isNaN(num)) ? num : fallback
+  }
   const getVariantStyles = () => {
     switch (variant) {
       case 'success':
@@ -59,7 +63,7 @@ export function StatisticsCard({
         <Icon className={`h-4 w-4 ${getIconStyles()}`} />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value.toLocaleString()}</div>
+        <div className="text-2xl font-bold">{safeNumber(value).toLocaleString()}</div>
         {description && (
           <p className="text-xs text-muted-foreground mt-1">
             {description}
@@ -71,7 +75,7 @@ export function StatisticsCard({
               variant={trend.isPositive ? 'success' : 'destructive'}
               className="text-xs"
             >
-              {trend.isPositive ? '+' : ''}{trend.value}%
+              {trend.isPositive ? '+' : ''}{safeNumber(trend.value)}%
             </Badge>
             <span className="text-xs text-muted-foreground ml-2">
               from last month

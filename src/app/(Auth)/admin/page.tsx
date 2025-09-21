@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { AdminLayout } from "@/components/admin-layout"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { StatisticsCard } from "@/components/statistics-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { apiService } from "@/lib/api"
 import type { DashboardStats } from "@/types/api"
 import { 
   Users, 
@@ -17,11 +17,16 @@ import {
   TrendingUp,
   Clock
 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import axiosInstance from "@/utils/axios"
+import { useAuth } from "@/hooks/useAuth"
 
-export default function AdminDashboard() {
+function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const { user } = useAuth()
 
   useEffect(() => {
     loadDashboardStats()
@@ -30,8 +35,9 @@ export default function AdminDashboard() {
   const loadDashboardStats = async () => {
     try {
       setLoading(true)
-      const response = await apiService.getDashboardStats()
-      setStats(response.data)
+      const response = await axiosInstance.get('/api/admin/dashboard')
+      setStats(response.data.data)
+      console.log(response.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dashboard stats')
     } finally {
@@ -41,16 +47,16 @@ export default function AdminDashboard() {
 
   const handleLogout = async () => {
     try {
-      await apiService.logout()
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      // await apiService.logout()
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     } catch (err) {
       console.error('Logout failed:', err)
       // Still redirect even if logout fails
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     }
   }
 
@@ -109,7 +115,13 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout onLogout={handleLogout}>
+    <AdminLayout 
+      onLogout={handleLogout}
+      user={user ? {
+        username: user.username || 'Admin',
+        role: user.role || 'adm'
+      } : undefined}
+    >
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -121,28 +133,28 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatisticsCard
             title="Total Users"
-            value={stats.total_users}
+            value={stats?.total_users}
             description="All system users"
             icon={Users}
             variant="default"
           />
           <StatisticsCard
             title="Guru"
-            value={stats.total_guru}
-            description={`${stats.guru_users} active`}
+            value={stats?.total_guru}
+            description={`${stats?.guru_users || 0} active`}
             icon={GraduationCap}
             variant="success"
           />
           <StatisticsCard
             title="Siswa"
-            value={stats.total_siswa}
-            description={`${stats.siswa_users} active`}
+            value={stats?.total_siswa}
+            description={`${stats?.siswa_users || 0} active`}
             icon={UserCheck}
             variant="warning"
           />
           <StatisticsCard
             title="Admin Users"
-            value={stats.admin_users}
+            value={stats?.admin_users}
             description="System administrators"
             icon={Users}
             variant="destructive"
@@ -153,21 +165,21 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <StatisticsCard
             title="Jurusan"
-            value={stats.total_jurusan}
+            value={stats?.total_jurusan}
             description="Study programs"
             icon={BookOpen}
             variant="default"
           />
           <StatisticsCard
             title="Kelas"
-            value={stats.total_kelas}
+            value={stats?.total_kelas}
             description="Classes"
             icon={School}
             variant="success"
           />
           <StatisticsCard
             title="Industri"
-            value={stats.total_industri}
+            value={stats?.total_industri}
             description="Industry partners"
             icon={Building2}
             variant="warning"
@@ -187,7 +199,7 @@ export default function AdminDashboard() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Total Active Users</span>
                 <Badge variant="success">
-                  {stats.guru_users + stats.siswa_users + stats.admin_users}
+                  {(stats?.guru_users || 0) + (stats?.siswa_users || 0) + (stats?.admin_users || 0)}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
@@ -221,60 +233,16 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-              <a
-                href="/admin/guru"
-                className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <GraduationCap className="h-8 w-8 text-blue-600 mb-2" />
-                <span className="text-sm font-medium">Manage Guru</span>
-              </a>
-              <a
-                href="/admin/siswa"
-                className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <UserCheck className="h-8 w-8 text-green-600 mb-2" />
-                <span className="text-sm font-medium">Manage Siswa</span>
-              </a>
-              <a
-                href="/admin/jurusan"
-                className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <BookOpen className="h-8 w-8 text-purple-600 mb-2" />
-                <span className="text-sm font-medium">Manage Jurusan</span>
-              </a>
-              <a
-                href="/admin/kelas"
-                className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <School className="h-8 w-8 text-orange-600 mb-2" />
-                <span className="text-sm font-medium">Manage Kelas</span>
-              </a>
-              <a
-                href="/admin/industri"
-                className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Building2 className="h-8 w-8 text-red-600 mb-2" />
-                <span className="text-sm font-medium">Manage Industri</span>
-              </a>
-              <a
-                href="/admin/reports"
-                className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <TrendingUp className="h-8 w-8 text-indigo-600 mb-2" />
-                <span className="text-sm font-medium">Reports</span>
-              </a>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </AdminLayout>
+  )
+}
+
+// Wrap dengan ProtectedRoute untuk admin
+export default function ProtectedAdminDashboard() {
+  return (
+    <ProtectedRoute requiredRole="admin">
+      <AdminDashboard />
+    </ProtectedRoute>
   )
 }

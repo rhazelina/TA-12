@@ -102,17 +102,6 @@ export function DataTable<T = Record<string, unknown>>({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        {title && (
-          <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-        )}
-        {onAdd && (
-          <Button onClick={onAdd} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            {addButtonText}
-          </Button>
-        )}
-      </div>
 
       <div className="flex items-center space-x-2">
         <div className="relative flex-1 max-w-sm">
@@ -124,6 +113,12 @@ export function DataTable<T = Record<string, unknown>>({
             className="pl-8"
           />
         </div>
+        {onAdd && (
+          <Button onClick={onAdd} className="flex items-center gap-2 cursor-pointer">
+            <Plus className="h-4 w-4" />
+            {addButtonText}
+          </Button>
+        )}
       </div>
 
       <div className="rounded-md border">
@@ -189,7 +184,7 @@ export function DataTable<T = Record<string, unknown>>({
                         {onDelete && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => onDelete(row)}
                               className="text-destructive"
                             >

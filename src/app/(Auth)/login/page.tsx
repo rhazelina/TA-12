@@ -1,47 +1,70 @@
-import { GalleryVerticalEnd } from "lucide-react"
+'use client'
+
 import Image from "next/image"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 import { LoginForm } from "@/components/login-form"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function LoginPage() {
+  const { isLoggedIn, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    // Jika user sudah login, redirect ke admin dashboard
+    if (!loading && isLoggedIn) {
+      console.log('✅ User already logged in, redirecting to admin...')
+      router.push('/admin')
+    }
+  }, [isLoggedIn, loading, router])
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // If user is already logged in, show redirecting message
+  if (isLoggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p>Redirecting to dashboard...</p>
+        </div>
+      </div>
+    )
+  }
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
+    <div className="grid min-h-svh lg:grid-cols-2 bg-primary">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="#" className="flex items-center gap-2 font-medium">
             <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-4" />
+              <Image src="/img/icon.png" className="rounded-full" alt="Logo" width={24} height={24} />
             </div>
             Management Sistem PKL
           </a>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <LoginForm className="bg-white dark:bg-black"/>
           </div>
         </div>
       </div>
       <div className="relative hidden lg:block">
         <Image
-          src="/gambar login.png"
+          src="/img/icon.png"
           alt="Login Background"
           fill
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <div className="text-center text-white">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h2 className="text-3xl font-bold mb-4">Management Sistem PKL</h2>
-              <p className="text-lg opacity-90">Platform digital untuk mengelola Praktik Kerja Lapangan</p>
-              <div className="mt-6 flex justify-center">
-                <div className="bg-primary text-primary-foreground p-4 rounded-full">
-                  <GalleryVerticalEnd className="size-8" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

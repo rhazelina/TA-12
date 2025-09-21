@@ -5,10 +5,12 @@ import { AdminLayout } from "@/components/admin-layout"
 import { DataTable } from "@/components/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { apiService } from "@/lib/api"
 import type { Industri } from "@/types/api"
+import { deleteIndustri, getIndustri } from "@/api/admin/industri"
+import { useRouter } from "next/navigation"
 
 export default function IndustriManagement() {
+  const router = useRouter()
   const [industri, setIndustri] = useState<Industri[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,8 +22,8 @@ export default function IndustriManagement() {
   const loadIndustri = async () => {
     try {
       setLoading(true)
-      const response = await apiService.getIndustri({ limit: 100 })
-      setIndustri(response.data || [])
+      const response = await getIndustri()
+      setIndustri(response.data.data || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load industri data')
     } finally {
@@ -31,15 +33,14 @@ export default function IndustriManagement() {
 
   const handleLogout = async () => {
     try {
-      await apiService.logout()
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     } catch (err) {
       console.error('Logout failed:', err)
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     }
   }
 
@@ -56,7 +57,7 @@ export default function IndustriManagement() {
   const handleDelete = async (row: Industri) => {
     if (confirm(`Are you sure you want to delete ${row.nama}?`)) {
       try {
-        await apiService.delete(`/api/industri/${row.id}`)
+        await deleteIndustri(row.id)
         loadIndustri() // Refresh the list
       } catch (err) {
         console.error('Failed to delete industri:', err)

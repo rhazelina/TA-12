@@ -5,10 +5,12 @@ import { AdminLayout } from "@/components/admin-layout"
 import { DataTable } from "@/components/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { apiService } from "@/lib/api"
 import type { Guru } from "@/types/api"
+import { deleteGuru, getGuru } from "@/api/admin/guru"
+import { useRouter } from "next/navigation"
 
 export default function GuruManagement() {
+  const router = useRouter()
   const [guru, setGuru] = useState<Guru[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,8 +22,8 @@ export default function GuruManagement() {
   const loadGuru = async () => {
     try {
       setLoading(true)
-      const response = await apiService.getGuru({ limit: 100 })
-      setGuru(response.data || [])
+      const response = await getGuru()
+      setGuru(response.data.data || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load guru data')
     } finally {
@@ -31,15 +33,15 @@ export default function GuruManagement() {
 
   const handleLogout = async () => {
     try {
-      await apiService.logout()
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      // await apiService.logout()
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     } catch (err) {
       console.error('Logout failed:', err)
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      window.location.href = '/login'
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      router.push('/login')
     }
   }
 
@@ -56,7 +58,7 @@ export default function GuruManagement() {
   const handleDelete = async (row: Guru) => {
     if (confirm(`Are you sure you want to delete ${row.nama}?`)) {
       try {
-        await apiService.delete(`/api/guru/${row.id}`)
+        await deleteGuru(row.id)
         loadGuru() // Refresh the list
       } catch (err) {
         console.error('Failed to delete guru:', err)
