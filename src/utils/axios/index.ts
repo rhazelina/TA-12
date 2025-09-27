@@ -42,9 +42,32 @@ const decryptData = (encryptedData: string): string | null => {
   }
 };
 
+// Mendapatkan base URL berdasarkan environment
+const getBaseURL = () => {
+  // Jika ada environment variable, gunakan itu
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+  
+  // Detect environment
+  if (typeof window !== 'undefined') {
+    // Di browser
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      // Development: langsung ke API HTTP
+      return 'http://sispkl.gedanggoreng.com:8000';
+    } else {
+      // Production (Vercel): gunakan proxy route untuk bypass mixed content
+      return '/api/proxy';
+    }
+  }
+  
+  // Server-side rendering: gunakan proxy route
+  return '/api/proxy';
+};
+
 // Membuat instance axios dengan konfigurasi dasar
 const axiosInstance = axios.create({
-  baseURL: 'http://sispkl.gedanggoreng.com:8000',
+  baseURL: getBaseURL(),
   timeout: 10000, // Timeout 10 detik
   headers: {
     'Content-Type': 'application/json',
@@ -129,7 +152,7 @@ const refreshAccessToken = async (): Promise<string> => {
 
   try {
     // Melakukan request untuk mendapatkan access token baru
-    const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://sispkl.gedanggoreng.com:8000';
+    const baseURL = getBaseURL();
     const response = await axios.post(`${baseURL}/auth/refresh`, {
       refreshToken: refreshToken
     });
