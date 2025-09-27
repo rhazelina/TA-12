@@ -44,30 +44,36 @@ const decryptData = (encryptedData: string): string | null => {
 
 // Mendapatkan base URL berdasarkan environment
 const getBaseURL = () => {
-  // Jika ada environment variable, gunakan itu
+  // Priority 1: Environment variable (Vercel setting)
   if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    console.log('🔧 Using environment variable:', process.env.NEXT_PUBLIC_API_BASE_URL);
     return process.env.NEXT_PUBLIC_API_BASE_URL;
   }
   
-  // Detect environment
+  // Priority 2: Detect if in browser
   if (typeof window !== 'undefined') {
-    // Di browser
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    const isLocal = window.location.hostname === 'localhost' || 
+                   window.location.hostname === '127.0.0.1';
+    
+    if (isLocal) {
       // Development: langsung ke API HTTP
+      console.log('🏠 Development mode: direct API call');
       return 'http://sispkl.gedanggoreng.com:8000';
     } else {
-      // Production (Vercel): gunakan proxy route untuk bypass mixed content
+      // Production (Vercel): WAJIB gunakan proxy route
+      console.log('☁️ Production mode: using proxy route');
       return '/api/proxy';
     }
   }
   
-  // Server-side rendering: gunakan proxy route
+  // Priority 3: Server-side rendering - always use proxy
+  console.log('🖥️ Server-side: using proxy route');
   return '/api/proxy';
 };
 
 // Membuat instance axios dengan konfigurasi dasar
 const axiosInstance = axios.create({
-  baseURL: getBaseURL(),
+  // Tidak set baseURL di sini, akan di-set dinamis
   timeout: 10000, // Timeout 10 detik
   headers: {
     'Content-Type': 'application/json',
@@ -170,9 +176,15 @@ const refreshAccessToken = async (): Promise<string> => {
   }
 };
 
-// Interceptor untuk request (permintaan) - menambahkan access token ke setiap request
+// Interceptor untuk request (permintaan) - menambahkan access token dan set baseURL dinamis
 axiosInstance.interceptors.request.use(
   (config) => {
+    // Set baseURL secara dinamis di setiap request
+    const dynamicBaseURL = getBaseURL();
+    config.baseURL = dynamicBaseURL;
+    
+    console.log('🚀 Axios request to:', dynamicBaseURL + config.url);
+    
     // Mengambil access token dari localStorage
     const accessToken = getAccessToken();
     
