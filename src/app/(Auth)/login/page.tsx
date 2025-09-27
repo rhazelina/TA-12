@@ -41,30 +41,9 @@ export default function LoginPage() {
     )
   }
   return (
-    <div className="grid min-h-svh lg:grid-cols-2 bg-primary">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
-            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-              <Image src="/img/icon.png" className="rounded-full" alt="Logo" width={24} height={24} />
-            </div>
-            Management Sistem PKL
-          </a>
-        </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <LoginForm className="bg-white dark:bg-black"/>
-          </div>
-        </div>
-      </div>
-      <div className="relative hidden lg:block">
-        <Image
-          src="/img/icon.png"
-          alt="Login Background"
-          fill
-          className="object-cover"
-          priority
-        />
+    <div className="min-h-svh bg-gray-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-4xl">
+        <LoginForm />
       </div>
     </div>
   )

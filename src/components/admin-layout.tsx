@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -80,11 +81,15 @@ export function AdminLayout({ children, onLogout, user }: AdminLayoutProps) {
         <div className="flex h-full flex-col">
           {/* Mobile header */}
           <div className="flex h-16 items-center justify-between px-4 border-b">
-            <div className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <LayoutDashboard className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-semibold">Admin Panel</span>
+            <div className="flex items-center space-x-3">
+              <Image
+                src="/logo/logo_magangHub.png"
+                alt="MagangHub Logo"
+                width={100}
+                height={28}
+                className="h-7 w-auto"
+              />
+              <span className="text-sm font-medium text-gray-500">Admin</span>
             </div>
             <Button
               variant="ghost"
@@ -136,13 +141,17 @@ export function AdminLayout({ children, onLogout, user }: AdminLayoutProps) {
           {/* Desktop header */}
           <div className="flex h-16 items-center justify-between px-4 border-b">
             <div className={cn(
-              "flex items-center space-x-2 transition-opacity duration-200",
+              "flex items-center space-x-3 transition-opacity duration-200",
               collapsed ? "opacity-0" : "opacity-100"
             )}>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <LayoutDashboard className="h-4 w-4 text-primary-foreground" />
-              </div>
-              {!collapsed && <span className="text-lg font-semibold">Admin Panel</span>}
+              <Image
+                src="/logo/logo_magangHub.png"
+                alt="MagangHub Logo"
+                width={100}
+                height={28}
+                className="h-7 w-auto"
+              />
+              {!collapsed && <span className="text-sm font-medium text-gray-500">Admin</span>}
             </div>
             <Button
               variant="ghost"
