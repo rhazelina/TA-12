@@ -11,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from 'next/navigation'
 import axiosInstance, { setTokens } from '@/utils/axios'
 import { toast } from "sonner"
-import axios from 'axios'
 
 // Type untuk error handling
 interface ApiError {
@@ -40,7 +39,7 @@ export function LoginForm({
     setLoading(true)
     
     try {
-      const response = await axiosInstance.post('/api/login', {
+      const response = await axiosInstance.post('/auth/login', {
         username: adminData.username,
         password: adminData.password,
       });

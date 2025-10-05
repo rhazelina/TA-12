@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { getJurusanById } from "@/api/admin/jurusan/index."
+import { getJurusanById } from "@/api/admin/jurusan"
 import { ArrowLeft, GraduationCap, Edit, BookOpen, Calendar } from "lucide-react"
 import { toast } from "sonner"
 
@@ -23,7 +23,7 @@ export default function ViewJurusanPage() {
     const router = useRouter()
     const params = useParams()
     const id = params.id as string
-    
+
     const [loading, setLoading] = useState(true)
     const [jurusanData, setJurusanData] = useState<JurusanData | null>(null)
 
@@ -46,7 +46,7 @@ export default function ViewJurusanPage() {
             try {
                 setLoading(true)
                 const response = await getJurusanById(parseInt(id))
-                
+
                 if (response && response.data) {
                     setJurusanData(response.data)
                 } else {
@@ -203,7 +203,7 @@ export default function ViewJurusanPage() {
                         <ArrowLeft className="h-4 w-4" />
                         <span>Kembali ke Daftar</span>
                     </Button>
-                    
+
                     <Button
                         onClick={handleEdit}
                         className="flex items-center space-x-2"

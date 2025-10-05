@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { createKelas } from "@/api/admin/kelas"
-import { getJurusan } from "@/api/admin/jurusan/index."
-import { ArrowLeft, Save, School, AlertCircle, Users } from "lucide-react"
+import { getJurusan } from "@/api/admin/jurusan"
+import { ArrowLeft, Save, School, AlertCircle, Users, Check } from "lucide-react"
 import { toast } from "sonner"
 
 interface KelasFormData {
@@ -36,6 +37,7 @@ export default function CreateKelasPage() {
     const [formData, setFormData] = useState<KelasFormData>(initialFormData)
     const [errors, setErrors] = useState<Partial<Record<keyof KelasFormData, string>>>({})
     const [jurusanOptions, setJurusanOptions] = useState<JurusanOption[]>([])
+    const [open, setOpen] = useState(false)
 
     const handleLogout = async () => {
         try {
@@ -151,8 +153,8 @@ export default function CreateKelasPage() {
     }
 
     const handleBack = () => {
-        if (Object.values(formData).some(value => 
-            (typeof value === 'string' && value.trim() !== '') || 
+        if (Object.values(formData).some(value =>
+            (typeof value === 'string' && value.trim() !== '') ||
             (typeof value === 'number' && value !== 0)
         )) {
             if (confirm('Ada data yang belum disimpan. Yakin ingin kembali?')) {
@@ -235,27 +237,51 @@ export default function CreateKelasPage() {
                                             <span className="ml-2 text-sm text-gray-500">Memuat jurusan...</span>
                                         </div>
                                     ) : (
-                                        <Select
-                                            value={formData.jurusan_id.toString()}
-                                            onValueChange={(value) => handleInputChange('jurusan_id', parseInt(value))}
-                                        >
-                                            <SelectTrigger className={errors.jurusan_id ? 'border-red-500' : ''}>
-                                                <SelectValue placeholder="Pilih jurusan" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {jurusanOptions.map((jurusan) => (
-                                                    <SelectItem key={jurusan.id} value={jurusan.id.toString()}>
-                                                        <div className="flex items-center space-x-2">
-                                                            <span className="font-mono text-sm font-semibold">
-                                                                {jurusan.kode}
-                                                            </span>
-                                                            <span>-</span>
-                                                            <span>{jurusan.nama}</span>
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <Popover open={open} onOpenChange={setOpen}>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    aria-expanded={open}
+                                                    className={`w-full justify-between ${errors.jurusan_id ? 'border-red-500' : ''} ${!formData.jurusan_id || formData.jurusan_id === 0 ? 'text-muted-foreground' : ''}`}
+                                                    disabled={loadingJurusan}
+                                                >
+                                                    {formData.jurusan_id && formData.jurusan_id !== 0
+                                                        ? jurusanOptions.find((jurusan) => jurusan.id === formData.jurusan_id)?.nama
+                                                        : "Pilih jurusan..."}
+                                                    <School className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-full p-0">
+                                                <Command>
+                                                    <CommandInput placeholder="Cari jurusan..." />
+                                                    <CommandList>
+                                                        <CommandEmpty>Jurusan tidak ditemukan.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            {jurusanOptions.map((jurusan) => (
+                                                                 <CommandItem
+                                                                     key={jurusan.id}
+                                                                     value={`${jurusan.kode} ${jurusan.nama}`}
+                                                                     onSelect={() => {
+                                                                         handleInputChange('jurusan_id', jurusan.id)
+                                                                         setOpen(false)
+                                                                     }}
+                                                                 >
+                                                                     <Check className={`mr-2 h-4 w-4 ${formData.jurusan_id === jurusan.id ? 'opacity-100' : 'opacity-0'}`} />
+                                                                     <div className="flex items-center space-x-2">
+                                                                         <span className="font-mono text-sm font-semibold">
+                                                                             {jurusan.kode}
+                                                                         </span>
+                                                                         <span>-</span>
+                                                                         <span>{jurusan.nama}</span>
+                                                                     </div>
+                                                                 </CommandItem>
+                                                            ))}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
                                     )}
                                     {errors.jurusan_id && (
                                         <p className="text-sm text-red-500 flex items-center">

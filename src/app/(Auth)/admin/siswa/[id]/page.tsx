@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { getSiswaById } from "@/api/admin/siswa"
+import { getKelasById } from "@/api/admin/kelas/index"
 import { ArrowLeft, User, Edit, Phone, MapPin, GraduationCap, Calendar } from "lucide-react"
 import { toast } from "sonner"
+import { formatDate, formatDateTime, calculateAge } from "@/utils/date"
 
 interface SiswaData {
     id: number
@@ -24,6 +26,12 @@ interface SiswaData {
     updated_at: string
 }
 
+interface KelasData {
+    id: number
+    nama: string
+    jurusan_id: number
+}
+
 export default function ViewSiswaPage() {
     const router = useRouter()
     const params = useParams()
@@ -31,6 +39,7 @@ export default function ViewSiswaPage() {
     
     const [loading, setLoading] = useState(true)
     const [siswaData, setSiswaData] = useState<SiswaData | null>(null)
+    const [kelasData, setKelasData] = useState<KelasData | null>(null)
 
     const handleLogout = async () => {
         try {
@@ -53,7 +62,16 @@ export default function ViewSiswaPage() {
                 const response = await getSiswaById(parseInt(id))
                 
                 if (response && response.data) {
-                    setSiswaData(response.data)
+                    const siswa = response.data
+                    setSiswaData(siswa)
+                    
+                    // Load kelas data if kelas_id exists
+                    if (siswa.kelas_id) {
+                        const kelasResponse = await getKelasById(siswa.kelas_id)
+                        if (kelasResponse && kelasResponse.data) {
+                            setKelasData(kelasResponse.data)
+                        }
+                    }
                 } else {
                     toast.error('Data siswa tidak ditemukan')
                     router.push('/admin/siswa')
@@ -80,50 +98,7 @@ export default function ViewSiswaPage() {
         router.push(`/admin/siswa/edit/${id}`)
     }
 
-    const formatDate = (dateString?: string) => {
-        if (!dateString) return '-'
-        try {
-            return new Date(dateString).toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            })
-        } catch {
-            return dateString
-        }
-    }
 
-    const formatDateTime = (dateString: string) => {
-        if (!dateString) return '-'
-        try {
-            return new Date(dateString).toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            })
-        } catch {
-            return dateString
-        }
-    }
-
-    const calculateAge = (birthDate?: string) => {
-        if (!birthDate) return '-'
-        try {
-            const birth = new Date(birthDate)
-            const today = new Date()
-            const age = today.getFullYear() - birth.getFullYear()
-            const monthDiff = today.getMonth() - birth.getMonth()
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                return age - 1
-            }
-            return age
-        } catch {
-            return '-'
-        }
-    }
 
     if (loading) {
         return (
@@ -211,10 +186,10 @@ export default function ViewSiswaPage() {
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700 flex items-center space-x-1">
                                     <GraduationCap className="h-4 w-4" />
-                                    <span>ID Kelas</span>
+                                    <span>Kelas</span>
                                 </Label>
                                 <Input
-                                    value={siswaData.kelas_id.toString()}
+                                    value={kelasData ? kelasData.nama : `Kelas ID: ${siswaData.kelas_id}`}
                                     readOnly
                                     className="bg-gray-50 cursor-default"
                                 />
@@ -247,7 +222,7 @@ export default function ViewSiswaPage() {
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Usia</Label>
                                 <Input
-                                    value={`${calculateAge(siswaData.tanggal_lahir)} tahun`}
+                                    value={`${calculateAge(siswaData.tanggal_lahir) || '-'} tahun`}
                                     readOnly
                                     className="bg-gray-50 cursor-default"
                                 />
@@ -279,15 +254,6 @@ export default function ViewSiswaPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-sm font-medium text-gray-700">ID Siswa</Label>
-                                <Input
-                                    value={siswaData.id.toString()}
-                                    readOnly
-                                    className="bg-gray-50 cursor-default"
-                                />
-                            </div>
-
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Status</Label>
                                 <Input

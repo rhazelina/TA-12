@@ -4,28 +4,37 @@ import { useEffect, useState } from "react"
 import { AdminLayout } from "@/components/admin-layout"
 import { DataTable } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
-import type { Siswa } from "@/types/api"
+import type { Siswa, Kelas } from "@/types/api"
 import { deleteSiswa, getSiswa } from "@/api/admin/siswa/index"
+import { getKelas } from "@/api/admin/kelas/index"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { formatDate } from "@/utils/date"
 
 export default function SiswaManagement() {
   const router = useRouter()
   const [siswa, setSiswa] = useState<Siswa[]>([])
+  const [kelas, setKelas] = useState<Kelas[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadSiswa()
+    loadData()
   }, [])
 
-  const loadSiswa = async () => {
+  const loadData = async () => {
     try {
       setLoading(true)
-      const response = await getSiswa()
-      setSiswa(response.data.data || [])
+      // Load both siswa and kelas data in parallel
+      const [siswaResponse, kelasResponse] = await Promise.all([
+        getSiswa(),
+        getKelas()
+      ])
+
+      setSiswa(siswaResponse?.data?.data || [])
+      setKelas(kelasResponse?.data?.data || [])
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load siswa data')
+      setError(err instanceof Error ? err.message : 'Failed to load data')
     } finally {
       setLoading(false)
     }
@@ -56,7 +65,7 @@ export default function SiswaManagement() {
     try {
       await deleteSiswa(row.id)
       toast.success(`Data siswa ${row.nama_lengkap} berhasil dihapus`)
-      loadSiswa() // Refresh the list
+      loadData() // Refresh the list
     } catch (err) {
       console.error('Failed to delete siswa:', err)
       toast.error('Gagal menghapus data siswa')
@@ -67,9 +76,10 @@ export default function SiswaManagement() {
     router.push(`/admin/siswa/${row.id}`)
   }
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-'
-    return new Date(dateString).toLocaleDateString('id-ID')
+  // Helper function to get kelas name by id
+  const getKelasName = (kelasId: number) => {
+    const kelasItem = kelas.find(k => k.id === kelasId)
+    return kelasItem ? kelasItem.nama : `Kelas ID: ${kelasId}`
   }
 
   const columns = [
@@ -85,8 +95,17 @@ export default function SiswaManagement() {
     },
     {
       key: 'kelas_id',
-      label: 'Kelas ID',
+      label: 'Kelas',
       sortable: true,
+      render: (value: unknown) => {
+        const kelasId = value as number
+        const kelasName = getKelasName(kelasId)
+        return (
+          <>
+            {kelasName}
+          </>
+        )
+      },
     },
     {
       key: 'no_telp',
@@ -129,7 +148,7 @@ export default function SiswaManagement() {
             <div className="text-red-600 text-6xl mb-4">⚠️</div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
             <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={loadSiswa}>
+            <Button onClick={loadData}>
               Try Again
             </Button>
           </div>

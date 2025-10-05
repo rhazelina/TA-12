@@ -7,12 +7,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { Kelas } from "@/types/api"
 import { deleteKelas, getKelas } from "@/api/admin/kelas/index"
+import type { Jurusan } from "@/types/api"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { getJurusan } from "@/api/admin/jurusan"
 
 export default function KelasManagement() {
   const router = useRouter()
   const [kelas, setKelas] = useState<Kelas[]>([])
+  const [jurusan, setJurusan] = useState<Jurusan[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,10 +24,24 @@ export default function KelasManagement() {
   }, [])
 
   const loadKelas = async () => {
+    setLoading(true)
+    setError(null)
     try {
-      setLoading(true)
-      const response = await getKelas()
-      setKelas(response.data.data || [])
+      // Load both kelas and jurusan data in parallel
+      const [kelasResponse, jurusanResponse] = await Promise.all([
+        getKelas(),
+        getJurusan()
+      ])
+
+      if (kelasResponse && kelasResponse.data) {
+        setKelas(kelasResponse.data.data || [])
+      } else {
+        setError('Failed to load kelas data')
+      }
+
+      if (jurusanResponse && jurusanResponse.data) {
+        setJurusan(jurusanResponse.data.data || [])
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load kelas data')
     } finally {
@@ -73,6 +90,13 @@ export default function KelasManagement() {
     return new Date(dateString).toLocaleDateString('id-ID')
   }
 
+  // Helper function to get jurusan name by id
+  const getJurusanName = (jurusanId: number) => {
+    const jurusanItem = jurusan.find(j => j.id === jurusanId)
+    const result = jurusanItem ? jurusanItem.nama : `Jurusan ID: ${jurusanId}`
+    return result
+  }
+
   const columns = [
     {
       key: 'nama',
@@ -81,11 +105,13 @@ export default function KelasManagement() {
     },
     {
       key: 'jurusan_id',
-      label: 'Jurusan ID',
+      label: 'Jurusan',
       sortable: true,
-      render: (value: unknown) => (
-        <Badge variant="outline">Jurusan {value as number}</Badge>
-      ),
+      render: (value: unknown) => {
+        const jurusanId = value as number
+        const jurusanName = getJurusanName(jurusanId)
+        return <Badge variant="outline">{jurusanName}</Badge>
+      },
     },
     {
       key: 'created_at',

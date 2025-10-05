@@ -8,10 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { getIndustriById, updateIndustri } from "@/api/admin/industri"
-import { getJurusan } from "@/api/admin/jurusan/index."
-import { ArrowLeft, Save, Building, AlertCircle, Mail, Phone, User, MapPin, Briefcase } from "lucide-react"
+import { getJurusan } from "@/api/admin/jurusan"
+import { ArrowLeft, Save, Building, AlertCircle, Mail, Phone, User, MapPin, Briefcase, Check } from "lucide-react"
 import { toast } from "sonner"
 
 interface IndustriFormData {
@@ -46,13 +47,14 @@ export default function EditIndustriPage() {
     const router = useRouter()
     const params = useParams()
     const id = params.id as string
-    
+
     const [loading, setLoading] = useState(false)
     const [loadingData, setLoadingData] = useState(true)
     const [loadingJurusan, setLoadingJurusan] = useState(true)
     const [formData, setFormData] = useState<IndustriFormData>(initialFormData)
     const [errors, setErrors] = useState<Partial<Record<keyof IndustriFormData, string>>>({})
     const [jurusanOptions, setJurusanOptions] = useState<JurusanOption[]>([])
+    const [open, setOpen] = useState(false)
 
     const handleLogout = async () => {
         try {
@@ -95,7 +97,7 @@ export default function EditIndustriPage() {
             try {
                 setLoadingData(true)
                 const response = await getIndustriById(parseInt(id))
-                
+
                 if (response && response.data) {
                     const industriData = response.data
                     setFormData({
@@ -326,34 +328,58 @@ export default function EditIndustriPage() {
                                     <Label htmlFor="jurusan_id">
                                         Jurusan Terkait <span className="text-red-500">*</span>
                                     </Label>
-                                    {loadingJurusan ? (
-                                        <div className="flex items-center justify-center h-10 border rounded-md bg-gray-50">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
-                                            <span className="ml-2 text-sm text-gray-500">Memuat jurusan...</span>
-                                        </div>
-                                    ) : (
-                                        <Select
-                                            value={formData.jurusan_id.toString()}
-                                            onValueChange={(value) => handleInputChange('jurusan_id', parseInt(value))}
-                                        >
-                                            <SelectTrigger className={errors.jurusan_id ? 'border-red-500' : ''}>
-                                                <SelectValue placeholder="Pilih jurusan" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {jurusanOptions.map((jurusan) => (
-                                                    <SelectItem key={jurusan.id} value={jurusan.id.toString()}>
-                                                        <div className="flex items-center space-x-2">
-                                                            <span className="font-mono text-sm font-semibold">
-                                                                {jurusan.kode}
-                                                            </span>
-                                                            <span>-</span>
-                                                            <span>{jurusan.nama}</span>
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
+                                     {loadingJurusan ? (
+                                         <div className="flex items-center justify-center h-10 border rounded-md bg-gray-50">
+                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                                             <span className="ml-2 text-sm text-gray-500">Memuat jurusan...</span>
+                                         </div>
+                                     ) : (
+                                         <Popover open={open} onOpenChange={setOpen}>
+                                             <PopoverTrigger asChild>
+                                                 <Button
+                                                     variant="outline"
+                                                     role="combobox"
+                                                     aria-expanded={open}
+                                                     className={`w-full justify-between ${errors.jurusan_id ? 'border-red-500' : ''} ${!formData.jurusan_id || formData.jurusan_id === 0 ? 'text-muted-foreground' : ''}`}
+                                                     disabled={loadingJurusan}
+                                                 >
+                                                     {formData.jurusan_id && formData.jurusan_id !== 0
+                                                         ? jurusanOptions.find((jurusan) => jurusan.id === formData.jurusan_id)?.nama
+                                                         : "Pilih jurusan..."}
+                                                     <Building className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                 </Button>
+                                             </PopoverTrigger>
+                                             <PopoverContent className="w-full p-0">
+                                                 <Command>
+                                                     <CommandInput placeholder="Cari jurusan..." />
+                                                     <CommandList>
+                                                         <CommandEmpty>Jurusan tidak ditemukan.</CommandEmpty>
+                                                         <CommandGroup>
+                                                             {jurusanOptions.map((jurusan) => (
+                                                                 <CommandItem
+                                                                     key={jurusan.id}
+                                                                     value={`${jurusan.kode} ${jurusan.nama}`}
+                                                                     onSelect={() => {
+                                                                         handleInputChange('jurusan_id', jurusan.id)
+                                                                         setOpen(false)
+                                                                     }}
+                                                                 >
+                                                                     <Check className={`mr-2 h-4 w-4 ${formData.jurusan_id === jurusan.id ? 'opacity-100' : 'opacity-0'}`} />
+                                                                     <div className="flex items-center space-x-2">
+                                                                         <span className="font-mono text-sm font-semibold">
+                                                                             {jurusan.kode}
+                                                                         </span>
+                                                                         <span>-</span>
+                                                                         <span>{jurusan.nama}</span>
+                                                                     </div>
+                                                                 </CommandItem>
+                                                             ))}
+                                                         </CommandGroup>
+                                                     </CommandList>
+                                                 </Command>
+                                             </PopoverContent>
+                                         </Popover>
+                                     )}
                                     {errors.jurusan_id && (
                                         <p className="text-sm text-red-500 flex items-center">
                                             <AlertCircle className="h-4 w-4 mr-1" />

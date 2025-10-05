@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { getIndustriById } from "@/api/admin/industri"
-import { getJurusanById } from "@/api/admin/jurusan/index."
+import { getJurusanById } from "@/api/admin/jurusan"
 import { ArrowLeft, Building, Edit, Mail, Phone, User, MapPin, Briefcase, Calendar, GraduationCap } from "lucide-react"
 import { toast } from "sonner"
 
@@ -39,7 +39,7 @@ export default function ViewIndustriPage() {
     const router = useRouter()
     const params = useParams()
     const id = params.id as string
-    
+
     const [loading, setLoading] = useState(true)
     const [industriData, setIndustriData] = useState<IndustriData | null>(null)
     const [jurusanData, setJurusanData] = useState<JurusanData | null>(null)
@@ -63,11 +63,11 @@ export default function ViewIndustriPage() {
             try {
                 setLoading(true)
                 const response = await getIndustriById(parseInt(id))
-                
+
                 if (response && response.data) {
                     const industri = response.data
                     setIndustriData(industri)
-                    
+
                     // Load jurusan data
                     if (industri.jurusan_id) {
                         const jurusanResponse = await getJurusanById(industri.jurusan_id)
@@ -423,7 +423,7 @@ export default function ViewIndustriPage() {
                         <ArrowLeft className="h-4 w-4" />
                         <span>Kembali ke Daftar</span>
                     </Button>
-                    
+
                     <Button
                         onClick={handleEdit}
                         className="flex items-center space-x-2"

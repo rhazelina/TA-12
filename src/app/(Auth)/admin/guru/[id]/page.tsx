@@ -304,15 +304,6 @@ export default function ViewGuruPage() {
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-sm font-medium text-gray-700">ID Guru</Label>
-                                <Input
-                                    value={guruData.id.toString()}
-                                    readOnly
-                                    className="bg-gray-50 cursor-default"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
                                 <Label className="text-sm font-medium text-gray-700">Status</Label>
                                 <Input
                                     value={guruData.is_active ? 'Aktif' : 'Tidak Aktif'}

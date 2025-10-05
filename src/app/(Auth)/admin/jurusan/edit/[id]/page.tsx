@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { getJurusanById, updateJurusan } from "@/api/admin/jurusan/index."
+import { getJurusanById, updateJurusan } from "@/api/admin/jurusan"
 import { ArrowLeft, Save, GraduationCap, AlertCircle, BookOpen } from "lucide-react"
 import { toast } from "sonner"
 
@@ -25,7 +25,7 @@ export default function EditJurusanPage() {
     const router = useRouter()
     const params = useParams()
     const id = params.id as string
-    
+
     const [loading, setLoading] = useState(false)
     const [loadingData, setLoadingData] = useState(true)
     const [formData, setFormData] = useState<JurusanFormData>(initialFormData)
@@ -50,7 +50,7 @@ export default function EditJurusanPage() {
             try {
                 setLoadingData(true)
                 const response = await getJurusanById(parseInt(id))
-                
+
                 if (response && response.data) {
                     const jurusanData = response.data
                     setFormData({

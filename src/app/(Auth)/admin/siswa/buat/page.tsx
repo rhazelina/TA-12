@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { AdminLayout } from "@/components/admin-layout"
 import { Button } from "@/components/ui/button"
@@ -8,8 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { createSiswa } from "@/api/admin/siswa"
-import { ArrowLeft, Save, User, AlertCircle, Calendar, Phone, MapPin, GraduationCap } from "lucide-react"
+import { getKelas } from "@/api/admin/kelas"
+import { Kelas } from "@/types/api"
+import { ArrowLeft, Save, User, AlertCircle, Calendar, Phone, MapPin, GraduationCap, Check } from "lucide-react"
 import { toast } from "sonner"
 
 interface SiswaFormData {
@@ -35,6 +39,28 @@ export default function CreateSiswaPage() {
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState<SiswaFormData>(initialFormData)
     const [errors, setErrors] = useState<Partial<Record<keyof SiswaFormData, string>>>({})
+    const [kelasList, setKelasList] = useState<Kelas[]>([])
+    const [kelasLoading, setKelasLoading] = useState(false)
+    const [open, setOpen] = useState(false)
+
+    useEffect(() => {
+        const loadKelas = async () => {
+            setKelasLoading(true)
+            try {
+                const response = await getKelas()
+                if (response && response.data) {
+                    setKelasList(response.data.data || [])
+                }
+            } catch (error) {
+                console.error('Failed to load kelas:', error)
+                toast.error('Gagal memuat data kelas')
+            } finally {
+                setKelasLoading(false)
+            }
+        }
+
+        loadKelas()
+    }, [])
 
     const handleLogout = async () => {
         try {
@@ -92,7 +118,7 @@ export default function CreateSiswaPage() {
             const birthDate = new Date(formData.tanggal_lahir)
             const today = new Date()
             const age = today.getFullYear() - birthDate.getFullYear()
-            
+
             if (birthDate > today) {
                 newErrors.tanggal_lahir = 'Tanggal lahir tidak boleh di masa depan'
             } else if (age > 25) {
@@ -103,8 +129,8 @@ export default function CreateSiswaPage() {
         }
 
         // Kelas ID validation
-        if (formData.kelas_id && (formData.kelas_id < 1 || formData.kelas_id > 999)) {
-            newErrors.kelas_id = 'ID Kelas harus antara 1-999'
+        if (!formData.kelas_id || formData.kelas_id === 0) {
+            newErrors.kelas_id = 'Kelas wajib dipilih'
         }
 
         setErrors(newErrors)
@@ -243,18 +269,50 @@ export default function CreateSiswaPage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="kelas_id" className="flex items-center space-x-1">
                                         <GraduationCap className="h-4 w-4" />
-                                        <span>ID Kelas <span className="text-red-500">*</span></span>
+                                        <span>Kelas <span className="text-red-500">*</span></span>
                                     </Label>
-                                    <Input
-                                        id="kelas_id"
-                                        type="number"
-                                        value={formData.kelas_id || ''}
-                                        onChange={(e) => handleInputChange('kelas_id', parseInt(e.target.value) || 0)}
-                                        placeholder="Masukkan ID kelas"
-                                        min={1}
-                                        max={999}
-                                        className={errors.kelas_id ? 'border-red-500' : ''}
-                                    />
+                                     <Popover open={open} onOpenChange={setOpen}>
+                                         <PopoverTrigger asChild>
+                                             <Button
+                                                 variant="outline"
+                                                 role="combobox"
+                                                 aria-expanded={open}
+                                                 className={`w-[200px] justify-between ${errors.kelas_id ? 'border-red-500' : ''} ${!formData.kelas_id || formData.kelas_id === 0 ? 'text-muted-foreground' : ''}`}
+                                                 disabled={kelasLoading}
+                                             >
+                                                 {formData.kelas_id && formData.kelas_id !== 0
+                                                     ? kelasList.find((kelas) => kelas.id === formData.kelas_id)?.nama
+                                                     : kelasLoading
+                                                         ? "Memuat kelas..."
+                                                         : "Pilih kelas..."}
+                                                 <GraduationCap className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                             </Button>
+                                         </PopoverTrigger>
+                                         <PopoverContent className="w-[200px] p-0">
+                                             <Command>
+                                                 <CommandInput placeholder="Cari kelas..." />
+                                                 <CommandList>
+                                                     <CommandEmpty>Kelas tidak ditemukan.</CommandEmpty>
+                                                     <CommandGroup>
+                                                         {kelasList.map((kelas) => (
+                                                              <CommandItem
+                                                                  key={kelas.id}
+                                                                  value={kelas.nama}
+                                                                  onSelect={() => {
+                                                                      handleInputChange('kelas_id', kelas.id)
+                                                                      setOpen(false)
+                                                                  }}
+                                                              >
+                                                                  <Check className={`mr-2 h-4 w-4 ${formData.kelas_id === kelas.id ? 'opacity-100' : 'opacity-0'}`} />
+                                                                  <GraduationCap className="mr-2 h-4 w-4" />
+                                                                  {kelas.nama}
+                                                              </CommandItem>
+                                                         ))}
+                                                     </CommandGroup>
+                                                 </CommandList>
+                                             </Command>
+                                         </PopoverContent>
+                                     </Popover>
                                     {errors.kelas_id && (
                                         <p className="text-sm text-red-500 flex items-center">
                                             <AlertCircle className="h-4 w-4 mr-1" />

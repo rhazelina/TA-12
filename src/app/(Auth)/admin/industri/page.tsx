@@ -7,12 +7,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { Industri } from "@/types/api"
 import { deleteIndustri, getIndustri } from "@/api/admin/industri"
+import { getJurusan } from "@/api/admin/jurusan"
+import type { Jurusan } from "@/types/api"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 export default function IndustriManagement() {
   const router = useRouter()
   const [industri, setIndustri] = useState<Industri[]>([])
+  const [jurusan, setJurusan] = useState<Jurusan[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,10 +24,26 @@ export default function IndustriManagement() {
   }, [])
 
   const loadIndustri = async () => {
+    setLoading(true)
+    setError(null)
     try {
-      setLoading(true)
-      const response = await getIndustri()
-      setIndustri(response.data.data || [])
+      // Load both industri and jurusan data in parallel
+      const [industriResponse, jurusanResponse] = await Promise.all([
+        getIndustri(),
+        getJurusan()
+      ])
+
+      if (industriResponse && industriResponse.data) {
+        setIndustri(industriResponse.data.data || [])
+      } else {
+        setError('Failed to load industri data')
+      }
+
+      if (jurusanResponse && jurusanResponse.data) {
+        const jurusanData = jurusanResponse.data.data || []
+        setJurusan(jurusanData)
+        console.log('Jurusan data set in industri page:', jurusanData)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load industri data')
     } finally {
@@ -68,6 +87,14 @@ export default function IndustriManagement() {
     router.push(`/admin/industri/${row.id}`)
   }
 
+  // Helper function to get jurusan name by id
+  const getJurusanName = (jurusanId: number) => {
+    console.log('Looking for jurusanId in industri page:', jurusanId, 'in jurusan:', jurusan)
+    const jurusanItem = jurusan.find(j => j.id === jurusanId)
+    const result = jurusanItem ? jurusanItem.nama : `Jurusan ID: ${jurusanId}`
+    console.log('getJurusanName result in industri page:', result)
+    return result
+  }
 
   const columns = [
     {
@@ -90,11 +117,13 @@ export default function IndustriManagement() {
     },
     {
       key: 'jurusan_id',
-      label: 'Jurusan ID',
+      label: 'Jurusan',
       sortable: true,
-      render: (value: unknown) => (
-        <Badge variant="outline">Jurusan {value as number}</Badge>
-      ),
+      render: (value: unknown) => {
+        const jurusanId = value as number
+        const jurusanName = getJurusanName(jurusanId)
+        return <Badge variant="outline">{jurusanName}</Badge>
+      },
     },
     {
       key: 'email',

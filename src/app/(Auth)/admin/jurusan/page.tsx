@@ -6,8 +6,9 @@ import { DataTable } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
 import type { Jurusan } from "@/types/api"
 import { useRouter } from "next/navigation"
-import { getJurusan, deleteJurusan } from "@/api/admin/jurusan/index."
+import { getJurusan, deleteJurusan } from "@/api/admin/jurusan"
 import { toast } from "sonner"
+import { formatDate } from "@/utils/date"
 
 export default function JurusanManagement() {
   const router = useRouter()
@@ -68,9 +69,6 @@ export default function JurusanManagement() {
     router.push(`/admin/jurusan/${row.id}`)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID')
-  }
 
   const columns = [
     {

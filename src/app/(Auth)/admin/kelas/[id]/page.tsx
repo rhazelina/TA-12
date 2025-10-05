@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { getKelasById } from "@/api/admin/kelas"
-import { getJurusanById } from "@/api/admin/jurusan/index."
+import { getJurusanById } from "@/api/admin/jurusan"
 import { ArrowLeft, School, Edit, Users, Calendar, GraduationCap } from "lucide-react"
 import { toast } from "sonner"
 
