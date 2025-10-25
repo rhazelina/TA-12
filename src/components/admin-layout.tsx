@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Header } from "@/components/header"
+import Link from "next/link"
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -40,7 +41,6 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const pathname = usePathname()
-  const router = useRouter()
 
   // Load collapsed state from localStorage on mount
   useEffect(() => {
@@ -160,26 +160,24 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
               const Icon = item.icon
               const active = isActive(item.href)
               return (
-                <Button
-                  key={item.name}
-                  variant="ghost"
-                  onClick={() => {
-                    router.push(item.href)
-                    setSidebarOpen(false)
-                  }}
-                  className={cn(
-                    "w-full justify-start rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-gray-100",
-                    active
-                      ? "bg-[#641E20] text-white hover:bg-[#641E20]/90"
-                      : "text-gray-700 hover:text-gray-900"
-                  )}
-                >
-                  <Icon className={cn(
-                    "mr-3 h-5 w-5 flex-shrink-0",
-                    active ? "text-white" : "text-gray-400 group-hover:text-gray-600"
-                  )} />
-                  {item.name}
-                </Button>
+                <Link key={item.name} href={item.href}>
+                  <Button
+                    key={item.name}
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-gray-100",
+                      active
+                        ? "bg-[#641E20] text-white hover:bg-[#641E20]/90"
+                        : "text-gray-700 hover:text-gray-900"
+                    )}
+                  >
+                    <Icon className={cn(
+                      "mr-3 h-5 w-5 flex-shrink-0",
+                      active ? "text-white" : "text-gray-400 group-hover:text-gray-600"
+                    )} />
+                    {item.name}
+                  </Button>
+                </Link>
               )
             })}
           </nav>
@@ -224,31 +222,32 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
               const Icon = item.icon
               const active = isActive(item.href)
               return (
-                <Button
-                  key={item.name}
-                  variant="ghost"
-                  onClick={() => router.push(item.href)}
-                  className={cn(
-                    "w-full justify-start rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-gray-100",
-                    active
-                      ? "bg-[#641E20] text-white hover:bg-[#641E20]/90"
-                      : "text-gray-700 hover:text-gray-900",
-                    collapsed && "justify-center"
-                  )}
-                  title={collapsed ? item.name : undefined}
-                >
-                  <Icon className={cn(
-                    "h-5 w-5 flex-shrink-0",
-                    active ? "text-white" : "text-gray-400 group-hover:text-gray-600",
-                    collapsed ? "mr-0" : "mr-3"
-                  )} />
-                  <span className={cn(
-                    "transition-opacity duration-200",
-                    collapsed ? "hidden" : "block"
-                  )}>
-                    {item.name}
-                  </span>
-                </Button>
+                <Link key={item.name} href={item.href} >
+                  <Button
+                    key={item.name}
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-gray-100",
+                      active
+                        ? "bg-[#641E20] text-white hover:bg-[#641E20]/90"
+                        : "text-gray-700 hover:text-gray-900",
+                      collapsed && "justify-center"
+                    )}
+                    title={collapsed ? item.name : undefined}
+                  >
+                    <Icon className={cn(
+                      "h-5 w-5 flex-shrink-0",
+                      active ? "text-white" : "text-gray-400 group-hover:text-gray-600",
+                      collapsed ? "mr-0" : "mr-3"
+                    )} />
+                    <span className={cn(
+                      "transition-opacity duration-200",
+                      collapsed ? "hidden" : "block"
+                    )}>
+                      {item.name}
+                    </span>
+                  </Button>
+                </Link>
               )
             })}
           </nav>
