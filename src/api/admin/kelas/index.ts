@@ -1,9 +1,14 @@
 import axiosInstance from "@/utils/axios"
 import { Kelas } from "@/types/api"
 
-export const getKelas = async () => {
+export const getKelas = async (search?: string, page: number = 1) => {
     try {
-        const response = await axiosInstance.get('/api/kelas')
+        const params = new URLSearchParams()
+        if (search) params.append('search', search)
+        params.append('page', page.toString())
+        
+        const url = `/api/kelas?${params.toString()}`
+        const response = await axiosInstance.get(url)
         return response.data
     } catch (error) {
         console.error('Get kelas failed:', error)

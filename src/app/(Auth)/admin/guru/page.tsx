@@ -13,22 +13,59 @@ export default function GuruManagement() {
   const router = useRouter()
   const [guru, setGuru] = useState<Guru[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     loadGuru()
   }, [])
 
-  const loadGuru = async () => {
+  const loadGuru = async (search?: string, page: number = 1, isSearch = false) => {
     try {
-      setLoading(true)
-      const response = await getGuru()
-      setGuru(response.data.data || [])
+      if (isSearch) {
+        setSearchLoading(true)
+      } else {
+        setLoading(true)
+      }
+      const response = await getGuru(search, page)
+      const data = response.data.data || []
+      const totalAll = response.data.total_all || 0
+      
+      // Calculate total pages (10 items per page)
+      const calculatedTotalPages = Math.ceil(totalAll / 10)
+      setTotalPages(calculatedTotalPages)
+      setCurrentPage(page)
+
+      // Sort data by name (ascending)
+      const sortedData = [...data].sort((a, b) => {
+        const nameA = (a.nama || '').toLowerCase()
+        const nameB = (b.nama || '').toLowerCase()
+        return nameA.localeCompare(nameB)
+      })
+
+      setGuru(sortedData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load guru data')
     } finally {
-      setLoading(false)
+      if (isSearch) {
+        setSearchLoading(false)
+      } else {
+        setLoading(false)
+      }
     }
+  }
+
+  const handleSearch = (search: string) => {
+    setSearchTerm(search)
+    setCurrentPage(1)
+    loadGuru(search, 1, true)
+  }
+
+  const handlePageChange = (page: number) => {
+    loadGuru(searchTerm, page, true)
   }
 
   const handleLogout = async () => {
@@ -56,7 +93,7 @@ export default function GuruManagement() {
   const handleDelete = async (row: Guru) => {
     try {
       await deleteGuru(row.id)
-      loadGuru() // Refresh the list
+      loadGuru(searchTerm, currentPage, !!searchTerm) // Refresh the list
     } catch (err) {
       console.error('Failed to delete guru:', err)
       alert('Failed to delete guru')
@@ -132,7 +169,7 @@ export default function GuruManagement() {
             <div className="text-red-600 text-6xl mb-4">⚠️</div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
             <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={loadGuru}>
+            <Button onClick={() => loadGuru(searchTerm)}>
               Try Again
             </Button>
           </div>
@@ -156,7 +193,12 @@ export default function GuruManagement() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onView={handleView}
-          searchPlaceholder="Search by name, kode guru, or NIP..."
+          onSearch={handleSearch}
+          isSearching={searchLoading}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          searchPlaceholder="Cari berdasarkan nama..."
           title="Guru List"
           addButtonText="Add New Guru"
         />

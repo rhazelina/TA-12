@@ -1,9 +1,14 @@
 import { Siswa } from "@/types/api"
 import axiosInstance from "@/utils/axios"
 
-export const getSiswa = async () => {
+export const getSiswa = async (search?: string, page: number = 1) => {
     try {
-        const response = await axiosInstance.get('/api/siswa')
+        const params = new URLSearchParams()
+        if (search) params.append('search', search)
+        params.append('page', page.toString())
+        
+        const url = `/api/siswa?${params.toString()}`
+        const response = await axiosInstance.get(url)
         return response.data
     } catch (error) {
         console.error('Get siswa failed:', error)

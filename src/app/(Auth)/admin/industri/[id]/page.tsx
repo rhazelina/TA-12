@@ -105,9 +105,9 @@ export default function ViewIndustriPage() {
         if (!dateString) return '-'
         try {
             return new Date(dateString).toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
                 day: 'numeric',
+                month: 'short',
+                year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             })

@@ -1,9 +1,14 @@
 import { Guru } from "@/types/api"
 import axiosInstance from "@/utils/axios"
 
-export const getGuru = async () => {
+export const getGuru = async (search?: string, page: number = 1) => {
     try {
-        const response = await axiosInstance.get('/api/guru')
+        const params = new URLSearchParams()
+        if (search) params.append('search', search)
+        params.append('page', page.toString())
+        
+        const url = `/api/guru?${params.toString()}`
+        const response = await axiosInstance.get(url)
         return response.data
     } catch (error) {
         console.error('Get guru failed:', error)

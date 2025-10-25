@@ -17,24 +17,47 @@ export default function IndustriManagement() {
   const [industri, setIndustri] = useState<Industri[]>([])
   const [jurusan, setJurusan] = useState<Jurusan[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     loadIndustri()
   }, [])
 
-  const loadIndustri = async () => {
-    setLoading(true)
+  const loadIndustri = async (search?: string, page: number = 1, isSearch = false) => {
+    if (isSearch) {
+      setSearchLoading(true)
+    } else {
+      setLoading(true)
+    }
     setError(null)
     try {
       // Load both industri and jurusan data in parallel
       const [industriResponse, jurusanResponse] = await Promise.all([
-        getIndustri(),
+        getIndustri(search, page),
         getJurusan()
       ])
 
       if (industriResponse && industriResponse.data) {
-        setIndustri(industriResponse.data.data || [])
+        const industriData = industriResponse.data.data || []
+        const totalAll = industriResponse.data.total_all || 0
+        
+        // Calculate total pages (10 items per page)
+        const calculatedTotalPages = Math.ceil(totalAll / 10)
+        setTotalPages(calculatedTotalPages)
+        setCurrentPage(page)
+        
+        // Sort industri by name (ascending)
+        const sortedIndustri = [...industriData].sort((a, b) => {
+          const nameA = (a.nama || '').toLowerCase()
+          const nameB = (b.nama || '').toLowerCase()
+          return nameA.localeCompare(nameB)
+        })
+        
+        setIndustri(sortedIndustri)
       } else {
         setError('Failed to load industri data')
       }
@@ -47,8 +70,22 @@ export default function IndustriManagement() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load industri data')
     } finally {
-      setLoading(false)
+      if (isSearch) {
+        setSearchLoading(false)
+      } else {
+        setLoading(false)
+      }
     }
+  }
+
+  const handleSearch = (search: string) => {
+    setSearchTerm(search)
+    setCurrentPage(1)
+    loadIndustri(search, 1, true)
+  }
+
+  const handlePageChange = (page: number) => {
+    loadIndustri(searchTerm, page, true)
   }
 
   const handleLogout = async () => {
@@ -76,7 +113,7 @@ export default function IndustriManagement() {
     try {
       await deleteIndustri(row.id)
       toast.success(`Data industri ${row.nama} berhasil dihapus`)
-      loadIndustri() // Refresh the list
+      loadIndustri(searchTerm, currentPage, !!searchTerm) // Refresh the list
     } catch (err) {
       console.error('Failed to delete industri:', err)
       toast.error('Gagal menghapus data industri')
@@ -162,7 +199,7 @@ export default function IndustriManagement() {
             <div className="text-red-600 text-6xl mb-4">⚠️</div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
             <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={loadIndustri}>
+            <Button onClick={() => loadIndustri(searchTerm)}>
               Try Again
             </Button>
           </div>
@@ -186,7 +223,12 @@ export default function IndustriManagement() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onView={handleView}
-          searchPlaceholder="Cari berdasarkan nama, alamat, atau bidang..."
+          onSearch={handleSearch}
+          isSearching={searchLoading}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          searchPlaceholder="Cari berdasarkan nama..."
           title="Daftar Industri"
           addButtonText="Tambah Industri Baru"
         />

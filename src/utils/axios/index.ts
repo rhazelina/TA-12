@@ -125,7 +125,7 @@ const getRefreshToken = (): string | null => {
   return decryptData(encryptedToken);
 };
 
-// Fungsi untuk menyimpan kedua token ke localStorage dalam bentuk terenkripsi
+// Fungsi untuk menyimpan kedua token ke localStorage dan cookie dalam bentuk terenkripsi
 const setTokens = (accessToken: string, refreshToken: string) => {
   try {
     if (!accessToken || !refreshToken) {
@@ -136,20 +136,30 @@ const setTokens = (accessToken: string, refreshToken: string) => {
     const encryptedAccessToken = encryptData(accessToken);
     const encryptedRefreshToken = encryptData(refreshToken);
 
+    // Simpan ke localStorage
     localStorage.setItem("accessToken", encryptedAccessToken);
     localStorage.setItem("refreshToken", encryptedRefreshToken);
 
-    console.log("✅ Token berhasil disimpan ke localStorage");
+    // Simpan juga ke cookie agar middleware bisa akses
+    // Cookie expires dalam 7 hari (sesuaikan dengan kebutuhan)
+    document.cookie = `accessToken=${encryptedAccessToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Strict`;
+    document.cookie = `refreshToken=${encryptedRefreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Strict`;
+
+    console.log("✅ Token berhasil disimpan ke localStorage dan cookie");
   } catch (error) {
     console.error("❌ Error saat menyimpan token:", error);
     throw error; // Re-throw error agar bisa ditangani di level atas
   }
 };
 
-// Fungsi untuk menghapus kedua token dari localStorage
+// Fungsi untuk menghapus kedua token dari localStorage dan cookie
 const clearTokens = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
+  
+  // Hapus cookie dengan set expires ke masa lalu
+  document.cookie = "accessToken=; path=/; max-age=0; SameSite=Strict";
+  document.cookie = "refreshToken=; path=/; max-age=0; SameSite=Strict";
 };
 
 // Fungsi untuk refresh access token menggunakan refresh token terenkripsi

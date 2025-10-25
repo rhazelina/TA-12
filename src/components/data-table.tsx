@@ -43,9 +43,14 @@ interface DataTableProps<T = Record<string, unknown>> {
   onEdit?: (row: T) => void
   onDelete?: (row: T) => void
   onView?: (row: T) => void
+  onSearch?: (searchTerm: string) => void
   searchPlaceholder?: string
   title?: string
   addButtonText?: string
+  isSearching?: boolean
+  currentPage?: number
+  totalPages?: number
+  onPageChange?: (page: number) => void
 }
 
 export function DataTable<T = Record<string, unknown>>({
@@ -55,11 +60,17 @@ export function DataTable<T = Record<string, unknown>>({
   onEdit,
   onDelete,
   onView,
+  onSearch,
   searchPlaceholder = "Search...",
   title,
-  addButtonText = "Add New"
+  addButtonText = "Add New",
+  isSearching = false,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("")
+  const [activeSearchTerm, setActiveSearchTerm] = useState("")
   const [sortConfig, setSortConfig] = useState<{
     key: string
     direction: 'asc' | 'desc'
@@ -67,11 +78,29 @@ export function DataTable<T = Record<string, unknown>>({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<T | null>(null)
 
-  const filteredData = data.filter((row) =>
-    Object.values(row as Record<string, unknown>).some((value) =>
-      String(value).toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  )
+  // Handle search action
+  const handleSearch = () => {
+    if (onSearch) {
+      setActiveSearchTerm(searchTerm)
+      onSearch(searchTerm)
+    }
+  }
+
+  // Handle enter key press
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
+
+  // Client-side filtering only if onSearch is not provided
+  const filteredData = onSearch 
+    ? data 
+    : data.filter((row) =>
+        Object.values(row as Record<string, unknown>).some((value) =>
+          String(value).toLowerCase().includes(activeSearchTerm.toLowerCase())
+        )
+      )
 
   const sortedData = [...filteredData].sort((a, b) => {
     if (!sortConfig) return 0
@@ -144,9 +173,18 @@ export function DataTable<T = Record<string, unknown>>({
             placeholder={searchPlaceholder}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={handleKeyPress}
             className="pl-8"
           />
         </div>
+        <Button 
+          onClick={handleSearch} 
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Search className="h-4 w-4" />
+          Search
+        </Button>
         {onAdd && (
           <Button onClick={onAdd} className="flex items-center gap-2 cursor-pointer">
             <Plus className="h-4 w-4" />
@@ -179,7 +217,16 @@ export function DataTable<T = Record<string, unknown>>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedData.length === 0 ? (
+            {isSearching ? (
+              <TableRow>
+                <TableCell colSpan={columns.length + 1} className="h-24 text-center">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <p className="ml-3 text-gray-600">Mencari data...</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : sortedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length + 1} className="h-24 text-center">
                   No data found.
@@ -236,6 +283,63 @@ export function DataTable<T = Record<string, unknown>>({
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {onPageChange && totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Halaman {currentPage} dari {totalPages}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            
+            {/* Page Numbers */}
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNumber: number
+                
+                if (totalPages <= 5) {
+                  pageNumber = i + 1
+                } else if (currentPage <= 3) {
+                  pageNumber = i + 1
+                } else if (currentPage >= totalPages - 2) {
+                  pageNumber = totalPages - 4 + i
+                } else {
+                  pageNumber = currentPage - 2 + i
+                }
+                
+                return (
+                  <Button
+                    key={pageNumber}
+                    variant={currentPage === pageNumber ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => onPageChange(pageNumber)}
+                    className="min-w-[40px]"
+                  >
+                    {pageNumber}
+                  </Button>
+                )
+              })}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

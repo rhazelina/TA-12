@@ -14,22 +14,59 @@ export default function JurusanManagement() {
   const router = useRouter()
   const [jurusan, setJurusan] = useState<Jurusan[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     loadJurusan()
   }, [])
 
-  const loadJurusan = async () => {
+  const loadJurusan = async (search?: string, page: number = 1, isSearch = false) => {
     try {
-      setLoading(true)
-      const response = await getJurusan()
-      setJurusan(response.data.data || [])
+      if (isSearch) {
+        setSearchLoading(true)
+      } else {
+        setLoading(true)
+      }
+      const response = await getJurusan(search, page)
+      const data = response.data.data || []
+      const totalAll = response.data.total_all || 0
+      
+      // Calculate total pages (10 items per page)
+      const calculatedTotalPages = Math.ceil(totalAll / 10)
+      setTotalPages(calculatedTotalPages)
+      setCurrentPage(page)
+      
+      // Sort data by name (ascending)
+      const sortedData = [...data].sort((a, b) => {
+        const nameA = (a.nama || '').toLowerCase()
+        const nameB = (b.nama || '').toLowerCase()
+        return nameA.localeCompare(nameB)
+      })
+      
+      setJurusan(sortedData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load jurusan data')
     } finally {
-      setLoading(false)
+      if (isSearch) {
+        setSearchLoading(false)
+      } else {
+        setLoading(false)
+      }
     }
+  }
+
+  const handleSearch = (search: string) => {
+    setSearchTerm(search)
+    setCurrentPage(1)
+    loadJurusan(search, 1, true)
+  }
+
+  const handlePageChange = (page: number) => {
+    loadJurusan(searchTerm, page, true)
   }
 
   const handleLogout = async () => {
@@ -58,7 +95,7 @@ export default function JurusanManagement() {
     try {
       await deleteJurusan(row.id)
       toast.success(`Data jurusan ${row.nama} berhasil dihapus`)
-      loadJurusan() // Refresh the list
+      loadJurusan(searchTerm, currentPage, !!searchTerm) // Refresh the list
     } catch (err) {
       console.error('Failed to delete jurusan:', err)
       toast.error('Gagal menghapus data jurusan')
@@ -114,7 +151,7 @@ export default function JurusanManagement() {
             <div className="text-red-600 text-6xl mb-4">⚠️</div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
             <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={loadJurusan}>
+            <Button onClick={() => loadJurusan(searchTerm)}>
               Try Again
             </Button>
           </div>
@@ -138,7 +175,12 @@ export default function JurusanManagement() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onView={handleView}
-          searchPlaceholder="Cari berdasarkan kode atau nama..."
+          onSearch={handleSearch}
+          isSearching={searchLoading}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          searchPlaceholder="Cari berdasarkan nama..."
           title="Daftar Jurusan"
           addButtonText="Tambah Jurusan Baru"
         />

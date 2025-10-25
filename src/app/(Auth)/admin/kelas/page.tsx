@@ -17,24 +17,47 @@ export default function KelasManagement() {
   const [kelas, setKelas] = useState<Kelas[]>([])
   const [jurusan, setJurusan] = useState<Jurusan[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     loadKelas()
   }, [])
 
-  const loadKelas = async () => {
-    setLoading(true)
+  const loadKelas = async (search?: string, page: number = 1, isSearch = false) => {
+    if (isSearch) {
+      setSearchLoading(true)
+    } else {
+      setLoading(true)
+    }
     setError(null)
     try {
       // Load both kelas and jurusan data in parallel
       const [kelasResponse, jurusanResponse] = await Promise.all([
-        getKelas(),
+        getKelas(search, page),
         getJurusan()
       ])
 
       if (kelasResponse && kelasResponse.data) {
-        setKelas(kelasResponse.data.data || [])
+        const kelasData = kelasResponse.data.data || []
+        const totalAll = kelasResponse.data.total_all || 0
+        
+        // Calculate total pages (10 items per page)
+        const calculatedTotalPages = Math.ceil(totalAll / 10)
+        setTotalPages(calculatedTotalPages)
+        setCurrentPage(page)
+        
+        // Sort kelas by name (ascending)
+        const sortedKelas = [...kelasData].sort((a, b) => {
+          const nameA = (a.nama || '').toLowerCase()
+          const nameB = (b.nama || '').toLowerCase()
+          return nameA.localeCompare(nameB)
+        })
+        
+        setKelas(sortedKelas)
       } else {
         setError('Failed to load kelas data')
       }
@@ -45,8 +68,22 @@ export default function KelasManagement() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load kelas data')
     } finally {
-      setLoading(false)
+      if (isSearch) {
+        setSearchLoading(false)
+      } else {
+        setLoading(false)
+      }
     }
+  }
+
+  const handleSearch = (search: string) => {
+    setSearchTerm(search)
+    setCurrentPage(1)
+    loadKelas(search, 1, true)
+  }
+
+  const handlePageChange = (page: number) => {
+    loadKelas(searchTerm, page, true)
   }
 
   const handleLogout = async () => {
@@ -75,7 +112,7 @@ export default function KelasManagement() {
     try {
       await deleteKelas(row.id)
       toast.success(`Data kelas ${row.nama} berhasil dihapus`)
-      loadKelas() // Refresh the list
+      loadKelas(searchTerm, currentPage, !!searchTerm) // Refresh the list
     } catch (err) {
       console.error('Failed to delete kelas:', err)
       toast.error('Gagal menghapus data kelas')
@@ -87,7 +124,11 @@ export default function KelasManagement() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID')
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
   }
 
   // Helper function to get jurusan name by id
@@ -146,7 +187,7 @@ export default function KelasManagement() {
             <div className="text-red-600 text-6xl mb-4">⚠️</div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
             <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={loadKelas}>
+            <Button onClick={() => loadKelas(searchTerm)}>
               Try Again
             </Button>
           </div>
@@ -170,7 +211,12 @@ export default function KelasManagement() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onView={handleView}
-          searchPlaceholder="Cari berdasarkan nama kelas atau jurusan..."
+          onSearch={handleSearch}
+          isSearching={searchLoading}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          searchPlaceholder="Cari berdasarkan nama..."
           title="Daftar Kelas"
           addButtonText="Tambah Kelas Baru"
         />
