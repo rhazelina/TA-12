@@ -9,9 +9,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, User, Menu } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
+import { useState } from "react"
 
 interface HeaderProps {
   user?: {
@@ -23,6 +35,7 @@ interface HeaderProps {
 
 export function Header({ user, onMenuClick }: HeaderProps) {
   const { logout } = useAuth()
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 shadow-sm sm:px-6 lg:px-8">
       {onMenuClick && (
@@ -59,12 +72,24 @@ export function Header({ user, onMenuClick }: HeaderProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="text-red-600 focus:text-red-600">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsLogoutDialogOpen(true)} className="text-red-600 focus:text-red-600">
+              <LogOut className="mr-2 h-4 w-4" />
+              Keluar
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {/* Logout dialog */}
+        <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Apakah Anda Yakin ingin Keluar?</AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={logout}>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </header>
   )

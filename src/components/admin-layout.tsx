@@ -143,15 +143,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                 height={28}
                 className="h-7 w-auto"
               />
-              <span className="text-sm font-medium text-gray-500">Admin</span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-5 w-5" />
-            </Button>
           </div>
 
           {/* Mobile navigation */}
