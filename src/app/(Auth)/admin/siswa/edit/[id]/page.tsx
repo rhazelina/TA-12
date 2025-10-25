@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { AdminLayout } from "@/components/admin-layout"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -66,18 +66,7 @@ export default function EditSiswaPage() {
         loadKelas()
     }, [])
 
-    const handleLogout = async () => {
-        try {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
-            router.push('/login')
-        } catch (err) {
-            console.error('Logout failed:', err)
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
-            router.push('/login')
-        }
-    }
+
 
     // Load siswa data
     useEffect(() => {
@@ -217,20 +206,17 @@ export default function EditSiswaPage() {
 
     if (loadingData) {
         return (
-            <AdminLayout>
-                <div className="flex items-center justify-center h-64">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                        <p className="mt-2 text-gray-600">Memuat data siswa...</p>
-                    </div>
+            <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Memuat data siswa...</p>
                 </div>
-            </AdminLayout>
+            </div>
         )
     }
 
     return (
-        <AdminLayout>
-            <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
@@ -447,6 +433,5 @@ export default function EditSiswaPage() {
                     </div>
                 </form>
             </div>
-        </AdminLayout>
     )
 }

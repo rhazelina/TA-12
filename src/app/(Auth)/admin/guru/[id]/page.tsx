@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { AdminLayout } from "@/components/admin-layout"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -35,18 +35,7 @@ export default function ViewGuruPage() {
     const [loading, setLoading] = useState(true)
     const [guruData, setGuruData] = useState<GuruData | null>(null)
 
-    const handleLogout = async () => {
-        try {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
-            router.push('/login')
-        } catch (err) {
-            console.error('Logout failed:', err)
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
-            router.push('/login')
-        }
-    }
+
 
     // Load guru data
     useEffect(() => {
@@ -99,38 +88,33 @@ export default function ViewGuruPage() {
     }
 
     if (loading) {
-        return (
-            <AdminLayout>
-                <div className="flex items-center justify-center h-64">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                        <p className="mt-2 text-gray-600">Memuat data guru...</p>
-                    </div>
-                </div>
-            </AdminLayout>
-        )
+    return (
+        <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600">Memuat data guru...</p>
+            </div>
+        </div>
+    )
     }
 
     if (!guruData) {
         return (
-            <AdminLayout>
-                <div className="flex items-center justify-center h-64">
-                    <div className="text-center">
-                        <div className="text-red-600 text-6xl mb-4">⚠️</div>
-                        <h2 className="text-xl font-semibold text-gray-900 mb-2">Data Tidak Ditemukan</h2>
-                        <p className="text-gray-600 mb-4">Data guru yang Anda cari tidak ditemukan</p>
-                        <Button onClick={handleBack}>
-                            Kembali ke Daftar Guru
-                        </Button>
-                    </div>
+            <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                    <div className="text-red-600 text-6xl mb-4">⚠️</div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Data Tidak Ditemukan</h2>
+                    <p className="text-gray-600 mb-4">Data guru yang Anda cari tidak ditemukan</p>
+                    <Button onClick={handleBack}>
+                        Kembali ke Daftar Guru
+                    </Button>
                 </div>
-            </AdminLayout>
+            </div>
         )
     }
 
     return (
-        <AdminLayout>
-            <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
@@ -221,8 +205,8 @@ export default function ViewGuruPage() {
                             <div className={`flex items-center space-x-3 p-4 rounded-lg border-2 ${guruData.is_kaprog ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-gray-50'
                                 }`}>
                                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${guruData.is_kaprog
-                                        ? 'border-red-500 bg-red-500'
-                                        : 'border-gray-300 bg-white'
+                                    ? 'border-red-500 bg-red-500'
+                                    : 'border-gray-300 bg-white'
                                     }`}>
                                     {guruData.is_kaprog && <span className="text-white text-xs">✓</span>}
                                 </div>
@@ -237,8 +221,8 @@ export default function ViewGuruPage() {
                             <div className={`flex items-center space-x-3 p-4 rounded-lg border-2 ${guruData.is_koordinator ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-gray-50'
                                 }`}>
                                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${guruData.is_koordinator
-                                        ? 'border-blue-500 bg-blue-500'
-                                        : 'border-gray-300 bg-white'
+                                    ? 'border-blue-500 bg-blue-500'
+                                    : 'border-gray-300 bg-white'
                                     }`}>
                                     {guruData.is_koordinator && <span className="text-white text-xs">✓</span>}
                                 </div>
@@ -253,8 +237,8 @@ export default function ViewGuruPage() {
                             <div className={`flex items-center space-x-3 p-4 rounded-lg border-2 ${guruData.is_pembimbing ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'
                                 }`}>
                                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${guruData.is_pembimbing
-                                        ? 'border-green-500 bg-green-500'
-                                        : 'border-gray-300 bg-white'
+                                    ? 'border-green-500 bg-green-500'
+                                    : 'border-gray-300 bg-white'
                                     }`}>
                                     {guruData.is_pembimbing && <span className="text-white text-xs">✓</span>}
                                 </div>
@@ -269,8 +253,8 @@ export default function ViewGuruPage() {
                             <div className={`flex items-center space-x-3 p-4 rounded-lg border-2 ${guruData.is_wali_kelas ? 'border-yellow-200 bg-yellow-50' : 'border-gray-200 bg-gray-50'
                                 }`}>
                                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${guruData.is_wali_kelas
-                                        ? 'border-yellow-500 bg-yellow-500'
-                                        : 'border-gray-300 bg-white'
+                                    ? 'border-yellow-500 bg-yellow-500'
+                                    : 'border-gray-300 bg-white'
                                     }`}>
                                     {guruData.is_wali_kelas && <span className="text-white text-xs">✓</span>}
                                 </div>
@@ -345,6 +329,5 @@ export default function ViewGuruPage() {
                     </Button>
                 </div>
             </div>
-        </AdminLayout>
     )
 }

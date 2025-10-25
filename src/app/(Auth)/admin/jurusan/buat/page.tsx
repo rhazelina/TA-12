@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { AdminLayout } from "@/components/admin-layout"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -27,18 +27,7 @@ export default function CreateJurusanPage() {
     const [formData, setFormData] = useState<JurusanFormData>(initialFormData)
     const [errors, setErrors] = useState<Partial<Record<keyof JurusanFormData, string>>>({})
 
-    const handleLogout = async () => {
-        try {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
-            router.push('/login')
-        } catch (err) {
-            console.error('Logout failed:', err)
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
-            router.push('/login')
-        }
-    }
+
 
     const handleInputChange = (field: keyof JurusanFormData, value: string) => {
         setFormData(prev => ({
@@ -135,8 +124,7 @@ export default function CreateJurusanPage() {
     }
 
     return (
-        <AdminLayout>
-            <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
@@ -253,6 +241,5 @@ export default function CreateJurusanPage() {
                     </div>
                 </form>
             </div>
-        </AdminLayout>
     )
 }

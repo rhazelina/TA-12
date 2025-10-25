@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { AdminLayout } from "@/components/admin-layout"
+
 import { DataTable } from "@/components/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -68,19 +68,7 @@ export default function GuruManagement() {
     loadGuru(searchTerm, page, true)
   }
 
-  const handleLogout = async () => {
-    try {
-      // await apiService.logout()
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-      router.push('/login')
-    } catch (err) {
-      console.error('Logout failed:', err)
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-      router.push('/login')
-    }
-  }
+
 
   const handleAdd = () => {
     router.push('/admin/guru/buat')
@@ -150,37 +138,32 @@ export default function GuruManagement() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading guru data...</p>
-          </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading guru data...</p>
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="text-red-600 text-6xl mb-4">⚠️</div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={() => loadGuru(searchTerm)}>
-              Try Again
-            </Button>
-          </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-red-600 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={() => loadGuru(searchTerm)}>
+            Try Again
+          </Button>
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Guru Management</h1>
           <p className="text-gray-600">Manage teacher accounts and information</p>
@@ -203,6 +186,5 @@ export default function GuruManagement() {
           addButtonText="Add New Guru"
         />
       </div>
-    </AdminLayout>
   )
 }
