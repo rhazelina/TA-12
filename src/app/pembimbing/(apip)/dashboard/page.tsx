@@ -4,47 +4,7 @@ export default function DashboardMagangHub() {
   return (
     <div className="min-h-screen bg-white text-gray-800 font-sans">
       <div className="flex">
-        {/* SIDEBAR */}
-        <aside className="w-20 bg-[#6b1717] text-white min-h-screen flex flex-col items-center py-6">
-          <div className="w-full flex items-center justify-center mb-6">
-            <div className="w-10 h-10 bg-white rounded flex items-center justify-center text-[#6b1717] font-bold">🎓</div>
-          </div>
-
-          <nav className="flex-1 w-full flex flex-col items-center space-y-5 mt-2">
-            <button className="w-10 h-10 rounded-full bg-[#5b1212] flex items-center justify-center opacity-90">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M3 12h18M3 6h18M3 18h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            <button className="w-10 h-10 rounded-full bg-[#6b1717] border border-white/10 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M3 12h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            <button className="w-10 h-10 rounded-full bg-transparent border border-white/10 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M4 6h16M4 12h16M4 18h16" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            <button className="w-10 h-10 rounded-full bg-transparent border border-white/10 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            <div className="mt-auto mb-4">
-              <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/30">
-                <img src="https://i.pravatar.cc/100?img=12" alt="avatar" className="w-full h-full object-cover" />
-              </div>
-            </div>
-          </nav>
-        </aside>
-
-        {/* MAIN */}
-        <main className="flex-1 p-8">
+        <div className="flex-1 p-8">
           {/* HEADER TOP */}
           <header className="flex items-center justify-between pb-6 border-b border-gray-100">
             <div className="flex items-center gap-4">
@@ -132,7 +92,7 @@ export default function DashboardMagangHub() {
 
           {/* helper spacing for wide screens */}
           <div className="h-10" />
-        </main>
+        </div>
       </div>
     </div>
   );
@@ -161,8 +121,8 @@ const sampleNotifications = [
   },
 ];
 
-function statusColor(status : string) {
-  switch (status) { 
+function statusColor(status: string) {
+  switch (status) {
     case "Menunggu":
       return "bg-amber-100 text-amber-700";
     case "Disetujui":

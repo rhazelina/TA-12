@@ -1,54 +1,17 @@
+import Image from "next/image";
 import React from "react";
 
 const DaftarIndustri = () => {
   const industries = [
-    { id: 1, name: "JV Partner Indonesia", total: "6 Anak", image: "https://via.placeholder.com/80" },
-    { id: 2, name: "JV Partner Indonesia", total: "6 Anak", image: "https://via.placeholder.com/80" },
-    { id: 3, name: "JV Partner Indonesia", total: "6 Anak", image: "https://via.placeholder.com/80" },
-    { id: 4, name: "JV Partner Indonesia", total: "6 Anak", image: "https://via.placeholder.com/80" },
-    { id: 5, name: "JV Partner Indonesia", total: "6 Anak", image: "https://via.placeholder.com/80" },
+    { id: 1, name: "JV Partner Indonesia", total: "6 Anak" },
+    { id: 2, name: "JV Partner Indonesia", total: "6 Anak" },
+    { id: 3, name: "JV Partner Indonesia", total: "6 Anak" },
+    { id: 4, name: "JV Partner Indonesia", total: "6 Anak" },
+    { id: 5, name: "JV Partner Indonesia", total: "6 Anak" },
   ];
 
   return (
     <div className="min-h-screen bg-white flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#6B0F0F] text-white flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-2 p-4 text-xl font-semibold">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="logo" className="w-8" />
-            Dashboard PKL
-          </div>
-          <nav className="flex flex-col gap-2 mt-4">
-            <button className="flex items-center gap-3 bg-[#872020] py-2 px-4 rounded-r-full">
-              <i className="fa-solid fa-house"></i> Dashboard
-            </button>
-            <button className="flex items-center gap-3 py-2 px-4 hover:bg-[#872020]">
-              <i className="fa-solid fa-folder"></i> Bukti
-            </button>
-            <button className="flex items-center gap-3 py-2 px-4 hover:bg-[#872020]">
-              <i className="fa-solid fa-triangle-exclamation"></i> Permasalahan
-            </button>
-            <button className="flex items-center gap-3 py-2 px-4 hover:bg-[#872020]">
-              <i className="fa-solid fa-calendar-check"></i> Perizinan
-            </button>
-            <button className="flex items-center gap-3 py-2 px-4 hover:bg-[#872020]">
-              <i className="fa-solid fa-right-left"></i> Persetujuan Pindah
-            </button>
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-3 bg-[#5C0D0D] px-4 py-3">
-          <img
-            src="https://via.placeholder.com/50"
-            alt="pak ilham"
-            className="w-10 h-10 rounded-full"
-          />
-          <div>
-            <p className="font-medium text-sm">Pak Ilham</p>
-            <p className="text-xs opacity-80">Koordinator</p>
-          </div>
-        </div>
-      </aside>
 
       {/* Main Content */}
       <main className="flex-1 bg-white p-8">
@@ -63,10 +26,11 @@ const DaftarIndustri = () => {
                 className="flex items-center justify-between border-b pb-3"
               >
                 <div className="flex items-center gap-3">
-                  <img
-                    src={ind.image}
-                    alt={ind.name}
-                    className="w-12 h-12 rounded-full object-cover"
+                  <Image
+                    src={'/logo/logo_header.png'}
+                    alt={'p'}
+                    width={80}
+                    height={80}
                   />
                   <div>
                     <p className="font-semibold text-gray-800">{ind.name}</p>

@@ -18,7 +18,7 @@ export default function ManajemenSiswaDashboard() {
 
             {/* Navigation */}
             <nav className="mt-4 space-y-2">
-              {navItems.map((item, i) => (
+              {/* {navItems.map((item, i) => (
                 <button
                   key={i}
                   className={`flex items-center w-full text-left px-6 py-2 hover:bg-white/10 transition ${
@@ -28,7 +28,7 @@ export default function ManajemenSiswaDashboard() {
                   <item.icon className="w-5 h-5 mr-3" />
                   <span>{item.label}</span>
                 </button>
-              ))}
+              ))} */}
             </nav>
           </div>
 
@@ -141,13 +141,13 @@ export default function ManajemenSiswaDashboard() {
 }
 
 // Navigation and sample data
-const navItems = [
-  { label: "Dashboard", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9v9H3z"/></svg> },
-  { label: "Bukti", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg> },
-  { label: "Permasalahan", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M5 19h14l-7-14z"/></svg> },
-  { label: "Perizinan", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/></svg> },
-  { label: "Persetujuan Pindah", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg> },
-];
+// const navItems = [
+//   { label: "Dashboard", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9v9H3z"/></svg> },
+//   { label: "Bukti", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg> },
+//   { label: "Permasalahan", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M5 19h14l-7-14z"/></svg> },
+//   { label: "Perizinan", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/></svg> },
+//   { label: "Persetujuan Pindah", icon: (props) => <svg {...props} fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg> },
+// ];
 
 const students = [
   { nisn: "0291201212", name: "Fatkul Amri", class: "XII BC 2", phone: "081232487921", birth: "15 Agu 2005", address: "Jl. Pahlawan No. 123..." },
