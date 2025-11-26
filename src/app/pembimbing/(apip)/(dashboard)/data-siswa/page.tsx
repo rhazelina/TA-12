@@ -4,76 +4,12 @@ export default function ManajemenSiswaDashboard() {
   return (
     <div className="min-h-screen bg-white text-gray-800 font-sans">
       <div className="flex">
-        {/* SIDEBAR */}
-        <aside className="w-64 bg-[#6b1717] text-white min-h-screen flex flex-col justify-between">
-          <div>
-            {/* Logo */}
-            <div className="flex items-center justify-between px-4 py-6 border-b border-white/10">
-              <div>
-                <h1 className="text-lg font-bold leading-tight">Dashboard PKL</h1>
-                <p className="text-xs opacity-80">Koordinator</p>
-              </div>
-              <button className="text-xs bg-white/10 px-3 py-1 rounded-md">Tutup</button>
-            </div>
-
-            {/* Navigation */}
-            <nav className="mt-4 space-y-2">
-              {/* {navItems.map((item, i) => (
-                <button
-                  key={i}
-                  className={`flex items-center w-full text-left px-6 py-2 hover:bg-white/10 transition ${
-                    i === 0 ? "bg-white/10" : ""
-                  }`}
-                >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  <span>{item.label}</span>
-                </button>
-              ))} */}
-            </nav>
-          </div>
-
-          {/* User Profile */}
-          <div className="flex items-center gap-3 px-6 py-4 border-t border-white/10">
-            <img
-              src="https://i.pravatar.cc/80?img=10"
-              alt="avatar"
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            <div>
-              <div className="font-semibold">Pak Ilham</div>
-              <div className="text-xs opacity-80">Koordinator</div>
-            </div>
-          </div>
-        </aside>
 
         {/* MAIN CONTENT */}
         <main className="flex-1 p-8">
-          {/* Header */}
-          <header className="flex items-center justify-between pb-6 border-b border-gray-100">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-[#6b1717]">MagangHub</h1>
-              <p className="text-sm text-gray-500">Ringkasan singkat mengenai sistem manajemen PKL Anda.</p>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <button className="p-2 rounded-full hover:bg-gray-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-              </div>
-              <button className="p-2 rounded-full hover:bg-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
-          </header>
 
           {/* Title Section */}
-          <section className="mt-8">
+          <section>
             <h2 className="text-2xl font-bold">Manajemen Siswa</h2>
             <p className="text-sm text-gray-500">Kelola data siswa dan informasi pribadi</p>
           </section>
@@ -150,7 +86,6 @@ export default function ManajemenSiswaDashboard() {
 // ];
 
 const students = [
-  { nisn: "0291201212", name: "Fatkul Amri", class: "XII BC 2", phone: "081232487921", birth: "15 Agu 2005", address: "Jl. Pahlawan No. 123..." },
   { nisn: "0897654583", name: "Ahmad Sahroni", class: "XII AV 2", phone: "081237262918", birth: "3 Okt 2025", address: "Jl. Saxophone No.69 Lowokwaru..." },
   { nisn: "1234567888", name: "Agil Rifatul Haq", class: "XII DKV 3", phone: "085723971833", birth: "15 Agu 2005", address: "Jl. Melati No. 24, Kel. Sukamaju..." },
   { nisn: "1234567890", name: "Bintang Firman Ardana", class: "XII TKJ 3", phone: "085737618319", birth: "27 Jan 2007", address: "Jl. Mawar Indah No. 7, Kel. Rungkut..." },

@@ -5,33 +5,8 @@ export default function DashboardMagangHub() {
     <div className="min-h-screen bg-white text-gray-800 font-sans">
       <div className="flex">
         <div className="flex-1 p-8">
-          {/* HEADER TOP */}
-          <header className="flex items-center justify-between pb-6 border-b border-gray-100">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-[#6b1717]">MagangHub</h1>
-              <p className="text-sm text-gray-500">Ringkasan singkat mengenai sistem manajemen PKL Anda.</p>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <button className="p-2 rounded-full bg-transparent hover:bg-gray-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-              </div>
-
-              <button className="p-2 rounded-full bg-transparent hover:bg-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
-          </header>
-
           {/* METRICS CARDS */}
-          <section className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <section className=" grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white rounded-xl shadow-md p-6 flex items-center justify-between border border-gray-100">
               <div>
                 <div className="text-sm text-gray-500">Siswa Aktif PKL</div>
