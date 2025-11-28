@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import axiosInstance, { setTokens } from '@/utils/axios'
 import { toast } from "sonner"
 import { getGuruDefaultPath } from '@/utils/roleHelpers'
+import { setSiswaDataStorage } from '@/hooks/useSiswaData'
 
 // Type untuk error handling
 interface ApiError {
@@ -142,7 +143,7 @@ export function LoginForm({
       setTokens(response.data.access_token, response.data.refresh_token)
 
       if (response.data.user) {
-        localStorage.setItem('siswaData', JSON.stringify(response.data.user))
+        setSiswaDataStorage(response.data.user)
       }
 
       router.push('/siswa/dashboard')

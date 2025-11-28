@@ -7,17 +7,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getJurusanById, updateJurusan } from "@/api/admin/jurusan"
-import { ArrowLeft, Save, GraduationCap, AlertCircle, BookOpen } from "lucide-react"
+import { ArrowLeft, Save, GraduationCap, AlertCircle, BookOpen, User, ChevronsUpDown, Check } from "lucide-react"
 import { toast } from "sonner"
+import { Guru } from "@/types/api"
+import { getGuru } from "@/api/admin/guru"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { cn } from "@/lib/utils"
 
 interface JurusanFormData {
     kode: string
     nama: string
+    kaprog_guru_id: number
 }
 
 const initialFormData: JurusanFormData = {
     kode: '',
-    nama: ''
+    nama: '',
+    kaprog_guru_id: 0
 }
 
 export default function EditJurusanPage() {
@@ -29,8 +36,27 @@ export default function EditJurusanPage() {
     const [loadingData, setLoadingData] = useState(true)
     const [formData, setFormData] = useState<JurusanFormData>(initialFormData)
     const [errors, setErrors] = useState<Partial<Record<keyof JurusanFormData, string>>>({})
+    const [dataKapro, setDataKapro] = useState<Guru[]>([])
+    const [loadingKapro, setLoadingKapro] = useState(true)
+    const [openKapro, setOpenKapro] = useState(false)
 
-
+    // Load kaprog data
+    useEffect(() => {
+        const loadKaproData = async () => {
+            try {
+                setLoadingKapro(true)
+                const response = await getGuru()
+                const kapro = response.data.data.filter((guru: Guru) => guru.is_kaprog === true)
+                setDataKapro(kapro)
+            } catch (error) {
+                console.log(error)
+                toast.error('Gagal memuat data Kaprog')
+            } finally {
+                setLoadingKapro(false)
+            }
+        }
+        loadKaproData()
+    }, [])
 
     // Load jurusan data
     useEffect(() => {
@@ -43,7 +69,8 @@ export default function EditJurusanPage() {
                     const jurusanData = response.data
                     setFormData({
                         kode: jurusanData.kode || '',
-                        nama: jurusanData.nama || ''
+                        nama: jurusanData.nama || '',
+                        kaprog_guru_id: jurusanData.kaprog_guru_id || 0
                     })
                 } else {
                     toast.error('Data jurusan tidak ditemukan')
@@ -63,7 +90,7 @@ export default function EditJurusanPage() {
         }
     }, [id, router])
 
-    const handleInputChange = (field: keyof JurusanFormData, value: string) => {
+    const handleInputChange = (field: keyof JurusanFormData, value: string | number) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
@@ -100,6 +127,10 @@ export default function EditJurusanPage() {
             newErrors.nama = 'Nama jurusan maksimal 100 karakter'
         }
 
+        if (!formData.kaprog_guru_id || formData.kaprog_guru_id === 0) {
+            newErrors.kaprog_guru_id = 'Kepala program studi wajib dipilih'
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -118,6 +149,7 @@ export default function EditJurusanPage() {
             const jurusanData = {
                 kode: formData.kode.trim().toUpperCase(),
                 nama: formData.nama.trim(),
+                kaprog_guru_id: formData.kaprog_guru_id,
                 // Required API fields
                 id: parseInt(id),
                 created_at: '',
@@ -143,6 +175,8 @@ export default function EditJurusanPage() {
     const handleBack = () => {
         router.push('/admin/jurusan')
     }
+
+    const selectedKaprog = dataKapro.find((guru) => guru.id === formData.kaprog_guru_id)
 
     if (loadingData) {
         return (
@@ -235,6 +269,79 @@ export default function EditJurusanPage() {
                                     </p>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Kepala Program Studi */}
+                        <div className="space-y-2">
+                            <Label className="flex items-center space-x-1">
+                                <User className="h-4 w-4" />
+                                <span>Kepala Program Studi <span className="text-red-500">*</span></span>
+                            </Label>
+                            <Popover open={openKapro} onOpenChange={setOpenKapro}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={openKapro}
+                                        className={cn(
+                                            "w-full justify-between",
+                                            errors.kaprog_guru_id ? 'border-red-500' : ''
+                                        )}
+                                        disabled={loadingKapro}
+                                    >
+                                        {selectedKaprog
+                                            ? `${selectedKaprog.nama} (${selectedKaprog.kode_guru})`
+                                            : loadingKapro
+                                            ? "Memuat..."
+                                            : "Pilih Kepala Program Studi..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-full p-0">
+                                    <Command>
+                                        <CommandInput placeholder="Cari Kaprog..." />
+                                        <CommandList>
+                                            <CommandEmpty>Kaprog tidak ditemukan.</CommandEmpty>
+                                            <CommandGroup>
+                                                {dataKapro.map((guru) => (
+                                                    <CommandItem
+                                                        key={guru.id}
+                                                        value={`${guru.nama} ${guru.kode_guru} ${guru.nip}`}
+                                                        onSelect={() => {
+                                                            handleInputChange('kaprog_guru_id', guru.id)
+                                                            setOpenKapro(false)
+                                                        }}
+                                                    >
+                                                        <Check
+                                                            className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                formData.kaprog_guru_id === guru.id
+                                                                    ? "opacity-100"
+                                                                    : "opacity-0"
+                                                            )}
+                                                        />
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{guru.nama}</span>
+                                                            <span className="text-xs text-gray-500">
+                                                                {guru.kode_guru} - NIP: {guru.nip}
+                                                            </span>
+                                                        </div>
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                            {errors.kaprog_guru_id && (
+                                <p className="text-sm text-red-500 flex items-center">
+                                    <AlertCircle className="h-4 w-4 mr-1" />
+                                    {errors.kaprog_guru_id}
+                                </p>
+                            )}
+                            <p className="text-sm text-gray-500">
+                                Pilih guru yang akan menjabat sebagai Kepala Program Studi
+                            </p>
                         </div>
 
                         {/* Preview */}

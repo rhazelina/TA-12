@@ -7,6 +7,7 @@ export interface User {
   kode_guru?: string;
   nama_lengkap?: string;
   nisn?: string;
+  kelas_id?: string;
   role: "adm" | "gru" | "ssw";
 }
 
@@ -64,6 +65,7 @@ export const getCurrentUser = (): User | null => {
       nama_lengkap: payload.nama_lengkap,
       nisn: payload.nisn,
       role: payload.rl || payload.role || "adm",
+      kelas_id: payload.kelas_id,
     };
 
     return userData;

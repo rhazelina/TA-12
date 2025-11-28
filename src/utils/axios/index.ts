@@ -159,6 +159,9 @@ const setTokens = (accessToken: string, refreshToken: string) => {
 const clearGuruData = () => {
   localStorage.removeItem("guruData");
 };
+const clearSiswaData = () => {
+  localStorage.removeItem("siswaData");
+};
 
 // Fungsi untuk menghapus kedua token dari localStorage dan cookie
 const clearTokens = () => {
@@ -166,6 +169,7 @@ const clearTokens = () => {
   localStorage.removeItem("refreshToken");
 
   clearGuruData();
+  clearSiswaData();
 
   // Hapus cookie dengan set expires ke masa lalu
   document.cookie = "accessToken=; path=/; max-age=0; SameSite=Strict";

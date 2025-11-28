@@ -58,8 +58,6 @@ export function AppSidebar({ role, guruData, ...props }: AppSidebarProps) {
       is_pembimbing: true, // default fallback
     }
 
-    console.log(guruData)
-
     const roleMenus = getMenusByRole(currentRole, currentGuruData)
     setMenus(roleMenus)
   }, [role, guruData, user])
