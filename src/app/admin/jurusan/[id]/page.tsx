@@ -10,11 +10,14 @@ import { Label } from "@/components/ui/label"
 import { getJurusanById } from "@/api/admin/jurusan"
 import { ArrowLeft, GraduationCap, Edit, BookOpen, Calendar } from "lucide-react"
 import { toast } from "sonner"
+import { Guru } from "@/types/api"
+import { getGuruById } from "@/api/admin/guru"
 
 interface JurusanData {
     id: number
     kode: string
     nama: string
+    kaprog_guru_id: number
     created_at: string
     updated_at: string
 }
@@ -26,6 +29,7 @@ export default function ViewJurusanPage() {
 
     const [loading, setLoading] = useState(true)
     const [jurusanData, setJurusanData] = useState<JurusanData | null>(null)
+    const [kaproData, setKaproData] = useState<Guru | null>(null)
 
 
 
@@ -55,6 +59,33 @@ export default function ViewJurusanPage() {
             loadJurusanData()
         }
     }, [id, router])
+
+    useEffect(() => {
+        const loadKaproData = async () => {
+            if (!jurusanData) return
+            try {
+                setLoading(true)
+                const response = await getGuruById(jurusanData.kaprog_guru_id)
+
+                if (response && response.data) {
+                    setKaproData(response.data)
+                } else {
+                    toast.error('Data kapro tidak ditemukan')
+                    router.push('/admin/jurusan')
+                }
+            } catch (error) {
+                console.error('Load jurusan error:', error)
+                toast.error('Gagal memuat data jurusan')
+                router.push('/admin/jurusan')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        if (id) {
+            loadKaproData()
+        }
+    }, [jurusanData])
 
     const handleBack = () => {
         router.push('/admin/jurusan')
@@ -90,7 +121,7 @@ export default function ViewJurusanPage() {
         )
     }
 
-    if (!jurusanData) {
+    if (!jurusanData || !kaproData) {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">
@@ -152,6 +183,14 @@ export default function ViewJurusanPage() {
                             <Label className="text-sm font-medium text-gray-700">Nama Jurusan</Label>
                             <Input
                                 value={jurusanData.nama}
+                                readOnly
+                                className="bg-gray-50 cursor-default"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700">Nama Kepala Jurusan</Label>
+                            <Input
+                                value={kaproData.nama}
                                 readOnly
                                 className="bg-gray-50 cursor-default"
                             />
