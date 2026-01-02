@@ -1,17 +1,23 @@
 "use client"
 
 import { ListGuruPembimbing } from "@/api/kapro/indext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { DaftarGuruPembimbing } from "@/types/api";
+import { Search } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 const DataPembimbingPKL = () => {
 
     const [dataPembimbing, setDataPembimbing] = useState<DaftarGuruPembimbing[]>([])
+    const [search, setSearch] = useState<string>("")
+    const [refreshing, setRefreshing] = useState<boolean>(false)
 
     useEffect(() => {
         async function fetch() {
-            const response = await ListGuruPembimbing()
+            const response = await ListGuruPembimbing(search)
             if (!response) {
                 console.log("error pada saat fetch data pembimbing pkl")
             }
@@ -19,7 +25,7 @@ const DataPembimbingPKL = () => {
             setDataPembimbing(response)
         }
         fetch()
-    }, [])
+    }, [refreshing])
 
     return (
         <div className="bg-white border rounded-2xl p-6 shadow-sm mt-5 mx-5">
@@ -27,6 +33,23 @@ const DataPembimbingPKL = () => {
                 <div>
                     <h2 className="text-lg font-semibold">Data Pembimbing PKL</h2>
                     <p className="text-sm text-gray-500">Daftar guru pembimbing praktik kerja lapangan</p>
+                </div>
+
+                <div className="flex">
+                    <InputGroup>
+                        <InputGroupInput onChange={(e) => {
+                            if (e.target.value === "") {
+                                setRefreshing(!refreshing)
+                            }
+                            setSearch(e.target.value)
+                        }} placeholder="Cari Pembimbing" />
+                        <InputGroupAddon>
+                            <Search />
+                        </InputGroupAddon>
+                    </InputGroup>
+                    <Button className="ml-2" onClick={() => setRefreshing(!refreshing)}>
+                        Cari
+                    </Button>
                 </div>
 
                 {/* <div className="flex items-center gap-3">
@@ -58,7 +81,6 @@ const DataPembimbingPKL = () => {
 
                                 <td className="p-3">
                                     <div className="flex items-center gap-3">
-                                        <Image src={""} alt={item.nama} width={50} height={50} className="w-10 h-10 object-cover rounded-full" />
                                         <div>
                                             <p className="font-medium text-gray-800">{item.nama}</p>
                                             <p className="text-gray-500 text-xs">{item.nip}</p>

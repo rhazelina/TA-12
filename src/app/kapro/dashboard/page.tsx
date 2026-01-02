@@ -1,8 +1,34 @@
 'use client'
 
+import { ListPermohonanPKL } from "@/api/kapro/indext";
+import { Spinner } from "@/components/ui/spinner";
+import { DaftarPermohonanPKL } from "@/types/api";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const DashboardAdminPKL = () => {
+    const [dataPengajuan, setDataPengajuan] = useState<DaftarPermohonanPKL[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const response = await ListPermohonanPKL("", 3);
+                if (!response) {
+                    setDataPengajuan([]);
+                } else {
+                    setDataPengajuan(response.data);
+                }
+            } catch (error) {
+                setDataPengajuan([]);
+                console.error("Error fetching pengajuan PKL:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchData();
+    }, []);
+
     const stats = [
         { icon: "👥", label: "Total Siswa PKL", value: 156 },
         { icon: "✅", label: "Pengajuan PKL Disetujui", value: 142 },
@@ -10,17 +36,15 @@ const DashboardAdminPKL = () => {
         { icon: "🏢", label: "Tempat Magang", value: 45 },
     ];
 
-    const pengajuan = [
-        { nama: "Andi Pratama", kelas: "XII RPL 1", tempat: "PT. Teknologi Digital" },
-        { nama: "Sari Dewi", kelas: "XII TKJ 2", tempat: "CV. Network Solution" },
-        { nama: "Budi Santoso", kelas: "XII MM 1", tempat: "Studio Kreatif Media" },
-    ];
-
     const perizinan = [
         { nama: "Maya Sari", info: "Izin Sakit – 2 hari", tanggal: "15–16 November 2024" },
         { nama: "Riko Permana", info: "Izin Keperluan Keluarga – 1 hari", tanggal: "18 November 2024" },
         { nama: "Lina Kartika", info: "Izin Ujian Sekolah – 1 hari", tanggal: "20 November 2024" },
     ];
+
+    if (loading) {
+        return <Spinner className="absolute top-1/2 left-1/2 w-7 h-7" />
+    }
 
     return (
         <div className="w-full p-6 max-w-6xl mx-auto space-y-10">
@@ -44,14 +68,14 @@ const DashboardAdminPKL = () => {
                     <h2 className="text-lg font-semibold mb-4">Pengajuan PKL Terbaru</h2>
 
                     <div className="space-y-4">
-                        {pengajuan.map((item, index) => (
+                        {dataPengajuan.length > 0 ? dataPengajuan.map((item, index) => (
                             <div
                                 key={index}
                                 className="flex justify-between items-center bg-gray-50 p-4 rounded-xl"
                             >
                                 <div>
-                                    <p className="font-semibold">{item.nama}</p>
-                                    <p className="text-sm text-gray-600">{item.kelas} – {item.tempat}</p>
+                                    <p className="font-semibold">{item.siswa_username}</p>
+                                    <p className="text-sm text-gray-600">{item.kelas_nama} – {item.industri_nama}</p>
                                 </div>
 
                                 <div className="flex gap-2">
@@ -59,11 +83,17 @@ const DashboardAdminPKL = () => {
                                     <button className="px-4 py-1 bg-red-600 text-white rounded-md text-sm">Tolak</button>
                                 </div>
                             </div>
-                        ))}
+                        )) : (
+                            <div>Tidak ada pengajuan PKL</div>
+                        )}
 
-                        <Link href="/kapro/pengajuan-pkl" className="text-center w-full text-red-700 font-medium mt-3">
-                            Lihat Semua Pengajuan →
-                        </Link>
+                        {
+                            dataPengajuan.length > 0 && (
+                                <Link href="/kapro/pengajuan-pkl" className="text-center w-full text-red-700 font-medium mt-3">
+                                    Lihat Semua Pengajuan →
+                                </Link>
+                            )
+                        }
                     </div>
                 </div>
 

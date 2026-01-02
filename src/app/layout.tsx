@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-sidebar-collapsed="false">
+    <html lang="en">
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -48,6 +48,7 @@ export default function RootLayout({
       </head>
       <body
         cz-shortcut-listen="true"
+        data-sidebar-collapsed="true"
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}

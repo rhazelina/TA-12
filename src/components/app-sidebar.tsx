@@ -75,7 +75,7 @@ export function AppSidebar({ role, guruData, ...props }: AppSidebarProps) {
         <NavUser user={{
           name: user?.username || "User",
           email: "user@maganghub.id",
-          avatar: "/avatars/default.jpg",
+          avatar: "/avatars/img.jpeg",
         }} />
       </SidebarFooter>
       <SidebarRail />

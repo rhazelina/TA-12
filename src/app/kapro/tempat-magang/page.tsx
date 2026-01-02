@@ -3,7 +3,7 @@
 import { ListIndustri } from "@/api/kapro/indext";
 import { DaftarIndustriPreview } from "@/types/api";
 import { useEffect, useState } from "react";
-import { Building2, Users, UserCheck, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Building2, Users, UserCheck, Clock, CheckCircle, AlertCircle, Search } from "lucide-react";
 
 export default function TempatMagangPage() {
     const [dataIndustri, setDataIndustri] = useState<DaftarIndustriPreview[]>([]);
@@ -46,7 +46,6 @@ export default function TempatMagangPage() {
             <div className="flex justify-between items-center mb-5">
                 <div>
                     <h2 className="text-lg font-semibold">Daftar Tempat Magang</h2>
-                    <p className="text-sm text-gray-500">Data industri yang bekerja sama untuk PKL</p>
                 </div>
 
                 <div className="relative w-72">
@@ -57,7 +56,7 @@ export default function TempatMagangPage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10 pr-4 py-2 border rounded-xl text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
             </div>
 

@@ -27,10 +27,11 @@ export async function ListIndustri(search?: string) {
     return null;
   }
 }
-export async function ListPermohonanPKL(search?: string) {
+export async function ListPermohonanPKL(search?: string, limit?: number) {
   try {
     const params = new URLSearchParams();
     if (search) params.append("siswa_username", search);
+    if (limit) params.append("limit", limit.toString());
     const response = await axiosInstance.get(
       `/api/pkl/applications?${params.toString()}`
     );
