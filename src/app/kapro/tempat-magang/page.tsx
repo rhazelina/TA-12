@@ -4,17 +4,26 @@ import { ListIndustri } from "@/api/kapro/indext";
 import { DaftarIndustriPreview } from "@/types/api";
 import { useEffect, useState } from "react";
 import { Building2, Users, UserCheck, Clock, CheckCircle, AlertCircle, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import axiosInstance from "@/utils/axios";
+import { toast } from "sonner";
 
 export default function TempatMagangPage() {
     const [dataIndustri, setDataIndustri] = useState<DaftarIndustriPreview[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+    const [refreshing, setRefreshing] = useState(false);
+    const [selectedIndustri, setSelectedIndustri] = useState<DaftarIndustriPreview | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [quota, setQuota] = useState<number | null>(null);
 
     useEffect(() => {
         async function fetchData() {
             try {
                 setLoading(true);
-                const response = await ListIndustri();
+                const response = await ListIndustri(searchQuery);
                 if (!response) {
                     console.log("error pada saat fetch data industri");
                     setDataIndustri([]);
@@ -29,17 +38,33 @@ export default function TempatMagangPage() {
             }
         }
         fetchData();
-    }, []);
+    }, [refreshing]);
 
-    const filteredData = dataIndustri.filter((item) =>
-        item.nama.toLowerCase().includes(searchQuery.toLowerCase())
-    );
     const getStatusColor = (remaining: number | null, quota: number | null) => {
         if (quota === null || remaining === null) return "bg-gray-100 text-gray-700";
         if (remaining === 0) return "bg-red-100 text-red-700";
         if (remaining <= quota * 0.3) return "bg-yellow-100 text-yellow-700";
         return "bg-green-100 text-green-700";
     };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            console.log("Updating quota to:", selectedIndustri?.industri_id);
+            console.log("Quota:", quota);
+            await axiosInstance.put(`/api/pkl/industri/${selectedIndustri?.industri_id}/quota`, {
+                kuota_siswa: quota
+            });
+            toast.success("Kuota berhasil diperbarui");
+            setRefreshing(!refreshing);
+        } catch (error) {
+            console.error("Error updating quota:", error);
+            toast.warning("Gagal memperbarui kuota");
+        } finally {
+            setIsModalOpen(false);
+        }
+        // Logic to update quota goes here
+    }
 
     return (
         <div className="bg-white border rounded-2xl p-6 shadow-sm mx-5 mt-5 mb-5">
@@ -48,15 +73,23 @@ export default function TempatMagangPage() {
                     <h2 className="text-lg font-semibold">Daftar Tempat Magang</h2>
                 </div>
 
-                <div className="relative w-72">
-                    <input
-                        type="text"
-                        placeholder="Cari tempat magang..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 pr-4 py-2 border rounded-xl text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <div className="flex">
+                    <div className="relative w-72">
+                        <input
+                            type="text"
+                            placeholder="Cari tempat magang..."
+                            value={searchQuery}
+                            onChange={(e) => {
+                                if (e.target.value.length === 0) {
+                                    setRefreshing(!refreshing);
+                                }
+                                setSearchQuery(e.target.value)
+                            }}
+                            className="pl-10 pr-4 py-2 border rounded-xl text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    </div>
+                    <Button className="ml-2" onClick={() => setRefreshing(!refreshing)}>Search</Button>
                 </div>
             </div>
 
@@ -65,7 +98,7 @@ export default function TempatMagangPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <span className="ml-3 text-gray-600">Memuat data...</span>
                 </div>
-            ) : filteredData.length === 0 ? (
+            ) : dataIndustri.length === 0 ? (
                 <div className="text-center py-12">
                     <Building2 className="h-12 w-12 mx-auto text-gray-300 mb-3" />
                     <p className="text-gray-500">
@@ -75,23 +108,27 @@ export default function TempatMagangPage() {
             ) : (
                 <>
                     <div className="space-y-4">
-                        {filteredData.map((item) => (
+                        {dataIndustri.map((item) => (
                             <div
                                 key={item.industri_id}
                                 className="border rounded-xl p-5 hover:shadow-md transition-shadow bg-gradient-to-br from-white to-gray-50"
                             >
                                 <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-start gap-3">
+                                    <div className="flex gap-3 w-full">
                                         <div className="bg-blue-100 p-3 rounded-lg">
                                             <Building2 className="h-6 w-6 text-blue-600" />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-gray-900 text-lg">{item.nama}</h3>
                                         </div>
+                                        <Button className="ml-auto h-7 text-xs" variant='outline' onClick={() => {
+                                            setSelectedIndustri(item)
+                                            setIsModalOpen(true)
+                                        }}>Update Quota</Button>
                                     </div>
                                     {item.kuota_siswa !== null && (
                                         <span
-                                            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ml-2 ${getStatusColor(
                                                 item.remaining_slots,
                                                 item.kuota_siswa
                                             )}`}
@@ -166,11 +203,43 @@ export default function TempatMagangPage() {
                         ))}
                     </div>
 
-                    <div className="flex justify-between items-center mt-6 text-sm text-gray-600">
-                        <p>Menampilkan {filteredData.length} dari {dataIndustri.length} data</p>
-                    </div>
+                    {/* <div className="flex justify-between items-center mt-6 text-sm text-gray-600">
+                        <p>Menampilkan {dataIndustri.length} dari {dataIndustri.length} data</p>
+                    </div> */}
                 </>
             )}
+            {/* Dialog Update Quota */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Update Data</DialogTitle>
+                    </DialogHeader>
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <Input
+                            className="border p-2 w-full"
+                            value={quota ?? ""}
+                            type="number"
+                            onChange={(e) =>
+                                setQuota(Number(e.target.value))
+                            }
+                            placeholder="Masukkan kuota baru"
+                        />
+
+                        <div className="flex justify-end gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsModalOpen(false)}
+                            >
+                                Batal
+                            </Button>
+
+                            <Button type="submit">Simpan</Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

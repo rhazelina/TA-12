@@ -3,12 +3,14 @@ import { getAccessToken, clearTokens } from "./axios";
 // Interface untuk user data
 export interface User {
   id: string;
-  username?: string;
-  kode_guru?: string;
-  nama_lengkap?: string;
-  nisn?: string;
-  kelas_id?: string;
+  kode_guru: string;
+  nama: string;
   role: "adm" | "gru" | "ssw";
+  is_active: boolean;
+  is_kaprog: boolean;
+  is_koordinator: boolean;
+  is_pembimbing: boolean;
+  is_wali_kelas: boolean;
 }
 
 // Fungsi untuk mengecek apakah user sudah login
@@ -60,11 +62,17 @@ export const getCurrentUser = (): User | null => {
     // Return user data dari payload
     const userData = {
       id: payload.sub || payload.id,
-      username: payload.usr || payload.username,
       kode_guru: payload.kode_guru,
+      nama: payload.nama, // Add this line
+      role: payload.rl || payload.role || "adm",
+      is_active: payload.is_active, // Add this line
+      is_kaprog: payload.is_kaprog, // Add this line
+      is_koordinator: payload.is_koordinator, // Add this line
+      is_pembimbing: payload.is_pembimbing, // Add this line
+      is_wali_kelas: payload.is_wali_kelas, // Add this line
+      username: payload.usr || payload.username,
       nama_lengkap: payload.nama_lengkap,
       nisn: payload.nisn,
-      role: payload.rl || payload.role || "adm",
       kelas_id: payload.kelas_id,
     };
 

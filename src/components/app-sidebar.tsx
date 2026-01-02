@@ -42,7 +42,7 @@ const teams = [
 export function AppSidebar({ role, guruData, ...props }: AppSidebarProps) {
   const [pathName, setPathName] = React.useState("")
   const [menus, setMenus] = React.useState<SidebarMenuItem[]>([])
-  const { user, } = useAuth()
+  const { user } = useAuth()
   const { open } = useSidebar()
 
   React.useEffect(() => {
@@ -72,11 +72,7 @@ export function AppSidebar({ role, guruData, ...props }: AppSidebarProps) {
         <NavProjects projects={menus} pathName={pathName} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={{
-          name: user?.username || "User",
-          email: "user@maganghub.id",
-          avatar: "/avatars/img.jpeg",
-        }} />
+        <NavUser avatar="/avatars/img.jpeg" />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

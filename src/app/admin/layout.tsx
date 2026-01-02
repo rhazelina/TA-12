@@ -16,7 +16,7 @@ export default function AdminLayoutWrapper({
   return (
     <AdminLayout
       user={user ? {
-        username: user.username || 'Admin',
+        username: user.nama || 'Admin',
         role: user.role || 'adm'
       } : undefined}
     >
