@@ -105,7 +105,7 @@ export default function PermasalahanListWaliKelas() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Badge variant={getStatusVariant(issue.status) as any} className="capitalize px-4 py-1">
+                                <Badge variant={getStatusVariant(issue.status) as "default" | "secondary" | "destructive" | "outline"} className="capitalize px-4 py-1">
                                     {issue.status}
                                 </Badge>
                                 <Button size="sm" variant="outline" className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-4" asChild>

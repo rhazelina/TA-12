@@ -5,7 +5,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-export default function PermasalahanDetailWaliKelas({ params }: { params: { id: string } }) {
+import { useParams } from "next/navigation"
+
+export default function PermasalahanDetailWaliKelas() {
+    const { id } = useParams<{ id: string }>()
     return (
         <div className="space-y-6">
             <Card>

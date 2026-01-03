@@ -9,7 +9,11 @@ import Link from "next/link"
 import { User } from "lucide-react"
 import Image from "next/image"
 
-export default function IndustriDetailWaliKelas({ params }: { params: { id: string } }) {
+import { useParams } from "next/navigation"
+
+export default function IndustriDetailWaliKelas() {
+    const params = useParams<{ id: string }>()
+    const id = params.id
     return (
         <div className="space-y-6">
             <Card>

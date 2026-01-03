@@ -6,7 +6,10 @@ import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User } from "lucide-react"
 
-export default function SiswaDetailWaliKelas({ params }: { params: { id: string } }) {
+import { useParams } from "next/navigation"
+
+export default function SiswaDetailWaliKelas() {
+    const { id } = useParams<{ id: string }>()
     return (
         <div className="space-y-6">
             <Card>

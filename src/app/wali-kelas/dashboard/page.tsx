@@ -146,7 +146,7 @@ export default function DashboardWaliKelas() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Badge variant={getStatusVariant(notif.status) as any} className="capitalize">
+                                <Badge variant={getStatusVariant(notif.status) as "default" | "secondary" | "destructive" | "outline"} className="capitalize">
                                     {notif.status}
                                 </Badge>
                                 <Button size="sm" variant="outline" className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none" asChild>
