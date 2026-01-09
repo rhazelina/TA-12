@@ -13,7 +13,16 @@ export default function DataGuruPembimbing() {
     ];
 
     return (
-        <div className="flex-1 bg-white min-h-screen text-[#333]">
+        <div className="flex-1 bg-white min-h-screen text-[#333] font-['Poppins']">
+
+            {/* HEADER */}
+            <header className="px-10 py-6">
+                <div className="logo-section">
+                    <h2 className="text-2xl font-bold text-[#333]">Magang<span className="text-[#717171] font-light">Hub</span></h2>
+                    <p className="text-[13px] text-[#717171]">Ringkasan singkat mengenai sistem manajemen PKL Anda.</p>
+                </div>
+            </header>
+
             {/* CONTENT CARD */}
             <section className="mx-10 mb-10 border border-[#e0e0e0] rounded-xl p-6 bg-white flex flex-col">
 
