@@ -8,7 +8,9 @@ export default function PindahPkl() {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState("Aksi berhasil diproses.");
 
-    const handleTolak = () => {
+    // Handlers
+    const handleTolak = (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent form submission if button is inside form
         setShowConfirmModal(true);
     };
 

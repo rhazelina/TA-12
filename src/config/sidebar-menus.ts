@@ -56,7 +56,7 @@ export const pembimbingMenus: SidebarMenuItem[] = [
     pathName: ["perizinan"],
   },
   {
-    name: "Persetujuan Pindah",
+    name: "Persetujuan Pindah PKL",
     url: "/pembimbing/persetujuan-pindah",
     icon: Inbox,
     pathName: ["persetujuan-pindah"],
@@ -102,7 +102,7 @@ export const koordinatorMenus: SidebarMenuItem[] = [
     pathName: ["pembimbing"],
   },
   {
-    name: "Pindah PKL",
+    name: "Persetujuan Pindah PKL",
     url: "/koordinator/pindah-pkl",
     icon: Inbox,
     pathName: ["pindah-pkl"],
@@ -164,7 +164,7 @@ export const kaproMenus: SidebarMenuItem[] = [
     pathName: ["perizinan"],
   },
   {
-    name: "Pindah PKL",
+    name: "Persetujuan Pindah PKL",
     url: "/kapro/pindah-pkl",
     icon: Inbox,
     pathName: ["pindah-pkl"],
