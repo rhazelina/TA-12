@@ -96,16 +96,16 @@ export const koordinatorMenus: SidebarMenuItem[] = [
     pathName: ["peserta"],
   },
   {
-    name: "Cetak Surat",
-    url: "/koordinator/cetak-surat",
-    icon: Printer,
-    pathName: ["cetak-surat"],
-  },
-  {
     name: "Pembimbing",
     url: "/koordinator/pembimbing",
     icon: Users,
     pathName: ["pembimbing"],
+  },
+  {
+    name: "Pindah PKL",
+    url: "/koordinator/pindah-pkl",
+    icon: Inbox,
+    pathName: ["pindah-pkl"],
   },
 ];
 
