@@ -211,6 +211,15 @@ export interface FormDataPermohonanKapro {
   tanggal_selesai?: string;
 }
 
+export interface TahunAjaran {
+  id?: number;
+  nama: string;
+  kode: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export type GuruListResponse = ListResponse<Guru>;
 export type SiswaListResponse = ListResponse<Siswa>;
 export type JurusanListResponse = ListResponse<Jurusan>;
