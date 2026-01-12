@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -25,7 +25,7 @@ const formSchema = z.object({
     kode: z.string().min(2, {
         message: "Kode tahun ajaran minimal 2 karakter.",
     }),
-    is_active: z.boolean().default(false),
+    is_active: z.boolean(),
 })
 
 interface TahunAjaranFormProps {
