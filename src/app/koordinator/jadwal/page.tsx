@@ -27,55 +27,76 @@ export default function JadwalPage() {
                 <h1 className="text-2xl font-bold">Garis Waktu PKL</h1>
             </div>
 
-            {/* Timeline Cards */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {[
-                    {
-                        title: "Pembekalan",
-                        icon: BookOpen,
-                        color: "text-rose-600",
-                        bg: "bg-rose-50 dark:bg-rose-900/10",
-                        desc: "Persiapan materi & mental",
-                    },
-                    {
-                        title: "Pengantaran",
-                        icon: Truck,
-                        color: "text-amber-600",
-                        bg: "bg-amber-50 dark:bg-amber-900/10",
-                        desc: "Mobilisasi ke industri",
-                    },
-                    {
-                        title: "Monitoring",
-                        icon: Users,
-                        color: "text-blue-600",
-                        bg: "bg-blue-50 dark:bg-blue-900/10",
-                        desc: "Pemantauan berkala",
-                    },
-                    {
-                        title: "Penjemputan",
-                        icon: Package,
-                        color: "text-emerald-600",
-                        bg: "bg-emerald-50 dark:bg-emerald-900/10",
-                        desc: "Penarikan peserta",
-                    },
-                ].map((item, i) => (
-                    <Card key={i} className="relative overflow-hidden transition-all hover:shadow-md">
-                        <CardHeader className="pb-2">
-                            <div className={`mb-2 inline-flex h-12 w-12 items-center justify-center rounded-lg ${item.bg} ${item.color}`}>
-                                <item.icon className="h-6 w-6" />
-                            </div>
-                            <CardTitle className="text-lg">{item.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <CardDescription>{item.desc}</CardDescription>
-                            {i < 3 && (
-                                <div className="absolute -right-3 top-1/2 hidden -translate-y-1/2 lg:block text-muted-foreground/30">
-                                    <MoveRight className="h-8 w-8" />
+            {/* Premium Horizontal Timeline UI */}
+            <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-background via-muted/20 to-muted/50 p-1 shadow-2xl">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent)] pointer-events-none" />
+                <Card className="border-none bg-transparent shadow-none">
+                    <CardContent className="p-10">
+                        <div className="relative flex flex-col md:flex-row justify-between items-center gap-12 md:gap-4 px-4">
+                            {/* Timeline Track */}
+                            <div className="absolute top-[32px] left-8 right-8 h-[2px] bg-gradient-to-r from-rose-200 via-blue-200 to-emerald-200 hidden md:block opacity-30 z-0" />
+
+                            {[
+                                {
+                                    title: "Pembekalan",
+                                    icon: BookOpen,
+                                    color: "text-rose-600",
+                                    iconBg: "bg-rose-500/10",
+                                    border: "border-rose-200",
+                                    desc: "Materi & Persiapan",
+                                    status: "Selesai"
+                                },
+                                {
+                                    title: "Pengantaran",
+                                    icon: Truck,
+                                    color: "text-amber-600",
+                                    iconBg: "bg-amber-500/10",
+                                    border: "border-amber-200",
+                                    desc: "Mobilisasi Industri",
+                                    status: "Aktif"
+                                },
+                                {
+                                    title: "Monitoring",
+                                    icon: Users,
+                                    color: "text-blue-600",
+                                    iconBg: "bg-blue-500/10",
+                                    border: "border-blue-200",
+                                    desc: "Pemantauan Berkala",
+                                    status: "Mendatang"
+                                },
+                                {
+                                    title: "Penjemputan",
+                                    icon: Package,
+                                    color: "text-emerald-600",
+                                    iconBg: "bg-emerald-500/10",
+                                    border: "border-emerald-200",
+                                    desc: "Penarikan Peserta",
+                                    status: "Mendatang"
+                                },
+                            ].map((item, i) => (
+                                <div key={i} className="relative z-10 flex flex-col items-center text-center group cursor-default">
+                                    <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl border ${item.border} bg-white dark:bg-zinc-900 border-opacity-50 shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                                        <div className={`absolute inset-0 rounded-2xl ${item.iconBg} opacity-20`} />
+                                        <item.icon className={`h-7 w-7 ${item.color} relative z-10`} />
+
+                                        {item.status === "Aktif" && (
+                                            <div className="absolute -top-1 -right-1 flex h-4 w-4">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500"></span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="mt-6 space-y-1.5 px-2">
+                                        <h3 className="font-bold text-sm tracking-tight text-foreground/90">{item.title}</h3>
+                                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.1em]">{item.desc}</p>
+                                        <div className="mx-auto h-0.5 w-0 transition-all duration-500 group-hover:w-full bg-gradient-to-r from-transparent via-foreground/10 to-transparent mt-1" />
+                                    </div>
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                ))}
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             <div className="grid gap-6 md:grid-cols-7">
