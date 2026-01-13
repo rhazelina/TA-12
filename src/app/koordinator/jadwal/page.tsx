@@ -179,7 +179,7 @@ export default function JadwalPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-6">
+                        <div className="space-y-2">
                             {loading ? (
                                 Array.from({ length: 3 }).map((_, i) => (
                                     <div key={i} className="flex gap-4 p-3">
@@ -205,7 +205,7 @@ export default function JadwalPage() {
                                     const sDate = new Date(item.tanggal_selesai);
 
                                     return (
-                                        <div key={item.id} className="group flex items-start gap-4 rounded-xl bg-background p-4 border border-transparent transition-all hover:border-border hover:bg-muted/30 hover:shadow-sm">
+                                        <div key={item.id} className="group flex items-start gap-4 rounded-xl bg-background p-3 border border-transparent transition-all hover:border-border hover:bg-muted/30 hover:shadow-sm">
                                             {/* Date Badge */}
                                             <div className={`flex h-14 w-14 flex-col items-center justify-center rounded-xl border ${config.bg} ${config.color} ${config.border} shadow-sm shrink-0`}>
                                                 <span className="text-xl font-bold leading-none">{format(mDate, "dd")}</span>
@@ -289,19 +289,25 @@ export default function JadwalPage() {
                         <CardContent className="space-y-4">
                             <Button onClick={() => {
                                 router.push(`${pathname}/pembekalan`)
-                            }} className="w-full justify-start text-left h-auto py-3 bg-[#5A1B1B] hover:bg-[#4a1616] text-white whitespace-normal" size="lg">
+                            }} variant='outline' className="w-full justify-start text-left h-auto py-3 whitespace-normal" size="lg">
                                 <Plus className="mr-2 h-5 w-5" />
                                 Tambah Jadwal Pembekalan
                             </Button>
-                            <Button variant="outline" className="w-full justify-start h-auto py-3 text-left whitespace-normal" size="lg">
+                            <Button onClick={() => {
+                                router.push(`${pathname}/pengantaran`)
+                            }} variant="outline" className="w-full justify-start h-auto py-3 text-left whitespace-normal" size="lg">
                                 <Truck className="mr-2 h-5 w-5 shrink-0" />
                                 <span>Tambah Jadwal Pengantaran</span>
                             </Button>
-                            <Button variant="outline" className="w-full justify-start h-auto py-3 text-left whitespace-normal" size="lg">
+                            <Button onClick={() => {
+                                router.push(`${pathname}/monitoring`)
+                            }} variant="outline" className="w-full justify-start h-auto py-3 text-left whitespace-normal" size="lg">
                                 <Users className="mr-2 h-5 w-5 shrink-0" />
                                 <span>Tambah Jadwal Monitoring</span>
                             </Button>
-                            <Button variant="outline" className="w-full justify-start h-auto py-3 text-left whitespace-normal" size="lg">
+                            <Button onClick={() => {
+                                router.push(`${pathname}/penjemputan`)
+                            }} variant="outline" className="w-full justify-start h-auto py-3 text-left whitespace-normal" size="lg">
                                 <Package className="mr-2 h-5 w-5 shrink-0" />
                                 <span>Tambah Jadwal Penjemputan</span>
                             </Button>
