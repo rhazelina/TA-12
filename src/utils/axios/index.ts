@@ -46,10 +46,6 @@ const decryptData = (encryptedData: string): string | null => {
 const getBaseURL = () => {
   // Priority 1: Environment variable (Vercel setting)
   if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-    console.log(
-      "🔧 Using environment variable:",
-      process.env.NEXT_PUBLIC_API_BASE_URL
-    );
     return process.env.NEXT_PUBLIC_API_BASE_URL;
   }
 
@@ -210,8 +206,6 @@ axiosInstance.interceptors.request.use(
     // Set baseURL secara dinamis di setiap request
     const dynamicBaseURL = getBaseURL();
     config.baseURL = dynamicBaseURL;
-
-    console.log("🚀 Axios request to:", dynamicBaseURL + config.url);
 
     // Mengambil access token dari localStorage
     const accessToken = getAccessToken();
