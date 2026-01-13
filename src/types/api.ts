@@ -236,6 +236,68 @@ export interface jadwalPkl {
   status?: string;
 }
 
+export interface PostRealisasiKegiatanPkl {
+  bukti_foto_urls: string[]; // Array berisi string URL
+  catatan: string;
+  industri_id: number;
+  kegiatan_id: number;
+  tanggal_realisasi: string;
+}
+
+// 1. Bagian Industri
+interface IIndustri {
+  id: number;
+  nama: string;
+  alamat: string;
+  jenis_industri: string;
+}
+
+// 2. Bagian Siswa
+interface ISiswa {
+  id: number;
+  nama: string;
+  username: string;
+  nisn: string;
+  kelas: string;
+}
+
+// 3. Bagian Detail Kegiatan di dalam Task
+interface IKegiatanDetail {
+  id: number;
+  jenis: string;
+  tanggal_mulai: string;
+  tanggal_selesai: string;
+  deskripsi: string;
+  is_active: boolean;
+  can_submit: boolean;
+}
+
+// 4. Bagian Task
+interface ITask {
+  kegiatan: IKegiatanDetail;
+}
+
+// 5. Objek Utama di dalam Array "data"
+interface IDataJadwal {
+  industri: IIndustri;
+  siswa_count: number;
+  siswa: ISiswa[];
+  tasks: ITask[];
+}
+
+// 6. Bagian Summary
+interface ISummary {
+  total_industri: number;
+  total_tasks: number;
+  completed_tasks: number;
+  pending_tasks: number;
+}
+
+export interface TasksRealisasiPkl {
+  data: IDataJadwal[];
+  summary: ISummary;
+}
+
 export type GuruListResponse = ListResponse<Guru>;
 export type SiswaListResponse = ListResponse<Siswa>;
 export type JurusanListResponse = ListResponse<Jurusan>;
