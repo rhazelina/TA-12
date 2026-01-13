@@ -223,7 +223,13 @@ export interface TahunAjaran {
 export interface jadwalPkl {
   id?: number;
   deskripsi: string;
-  jenis_kegiatan: "Pembekalan" | "Pengantaran" | "Monitoring" | "Penjemputan";
+  jenis_kegiatan:
+    | "Pembekalan"
+    | "Pengantaran"
+    | "Monitoring1"
+    | "Monitoring2"
+    | "Penjemputan"
+    | null;
   tahun_ajaran_id: number;
   tanggal_mulai: string;
   tanggal_selesai: string;

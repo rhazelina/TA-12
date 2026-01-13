@@ -21,21 +21,15 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-// import {
-//     Select,
-//     SelectContent,
-//     SelectItem,
-//     SelectTrigger,
-//     SelectValue,
-// } from "@/components/ui/select"
-// import {
-//     Table,
-//     TableBody,
-//     TableCell,
-//     TableHead,
-//     TableHeader,
-//     TableRow,
-// } from "@/components/ui/table"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 import { createJadwal, getActiveTahunAjaran } from "@/api/koordinator"
@@ -49,13 +43,12 @@ export default function PembekalanPage() {
     const [tahunAjaranId, setTahunAjaranId] = useState<number>(0)
     const [data, setData] = useState<jadwalPkl>({
         deskripsi: "",
-        jenis_kegiatan: "Pembekalan",
+        jenis_kegiatan: null,
         tahun_ajaran_id: 0,
         tanggal_mulai: "",
         tanggal_selesai: "",
     })
     const router = useRouter()
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -88,10 +81,29 @@ export default function PembekalanPage() {
                 <Card className="lg:col-span-1 border-none shadow-sm h-fit">
                     <CardHeader className="space-y-1">
                         <div className="flex items-center gap-2 mb-2">
-                            <CardTitle className="text-xl">Tambah Jadwal Pembekalan</CardTitle>
+                            <CardTitle className="text-xl">Tambah Jadwal Monitoring</CardTitle>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Select value={data.jenis_kegiatan || ""} onValueChange={(value: "Monitoring1" | "Monitoring2") => {
+                                setData({
+                                    ...data,
+                                    jenis_kegiatan: value,
+                                })
+                            }}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Pilih Monitoring" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Monitoring</SelectLabel>
+                                        <SelectItem value="Monitoring1">Monitoring 1</SelectItem>
+                                        <SelectItem value="Monitoring2">Monitoring 2</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Tanggal Mulai</Label>
@@ -165,7 +177,7 @@ export default function PembekalanPage() {
                             }} />
                         </div>
 
-                        <Button className="w-full bg-[#5A1B1B] hover:bg-[#4a1616] text-white" size="lg" onClick={handleSubmit}>
+                        <Button className="w-full bg-[#5A1B1B] hover:bg-[#4a1616] text-white" size="lg" onClick={() => handleSubmit()}>
                             <Save className="mr-2 h-4 w-4" />
                             Simpan Jadwal
                         </Button>

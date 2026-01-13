@@ -43,13 +43,13 @@ import { jadwalPkl } from "@/types/api"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
-export default function PembekalanPage() {
+export default function PengantaranPage() {
     const [startDate, setStartDate] = useState<Date | undefined>()
     const [endDate, setEndDate] = useState<Date | undefined>()
     const [tahunAjaranId, setTahunAjaranId] = useState<number>(0)
     const [data, setData] = useState<jadwalPkl>({
         deskripsi: "",
-        jenis_kegiatan: "Pembekalan",
+        jenis_kegiatan: "Pengantaran",
         tahun_ajaran_id: 0,
         tanggal_mulai: "",
         tanggal_selesai: "",
@@ -75,6 +75,7 @@ export default function PembekalanPage() {
             })
             toast.success("Jadwal berhasil ditambahkan")
             router.push('/koordinator/jadwal')
+            console.log(res)
         } catch (error) {
             console.log(error)
             toast.error("Gagal menambahkan jadwal")
@@ -88,7 +89,7 @@ export default function PembekalanPage() {
                 <Card className="lg:col-span-1 border-none shadow-sm h-fit">
                     <CardHeader className="space-y-1">
                         <div className="flex items-center gap-2 mb-2">
-                            <CardTitle className="text-xl">Tambah Jadwal Pembekalan</CardTitle>
+                            <CardTitle className="text-xl">Tambah Jadwal Pengantaran</CardTitle>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-4">

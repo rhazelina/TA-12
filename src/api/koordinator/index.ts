@@ -7,7 +7,7 @@ export async function getActiveTahunAjaran() {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 }
 
@@ -17,7 +17,7 @@ export async function createJadwal(data: jadwalPkl) {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 }
 
@@ -29,7 +29,7 @@ export async function getJadwalByTahunAjaran(tahun_ajaran_id: number) {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 }
 
@@ -39,7 +39,7 @@ export async function updateJadwal(id: number, data: jadwalPkl) {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 }
 
@@ -49,6 +49,6 @@ export async function deleteJadwal(id: number) {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 }
