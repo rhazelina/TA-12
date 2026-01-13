@@ -170,7 +170,7 @@ export default function PindahPklPage() {
                         <button className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
                             Simpan sebagai Draft
                         </button>
-                        <button className="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                        <button className="flex-1 px-6 py-3 bg-[#7b2121] text-white font-semibold rounded-lg hover:bg-[#7b2121]/80 transition-colors flex items-center justify-center gap-2">
                             <Send size={18} /> Kirim Permohonan
                         </button>
                     </div>
