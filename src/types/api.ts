@@ -298,6 +298,19 @@ export interface TasksRealisasiPkl {
   summary: ISummary;
 }
 
+export interface IBuktiKegiatan {
+  id: number;
+  kegiatan_id: number;
+  industri_id: number;
+  pembimbing_id: number;
+  bukti_foto_urls: string[];
+  catatan: string;
+  status: string;
+  tanggal_realisasi: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type GuruListResponse = ListResponse<Guru>;
 export type SiswaListResponse = ListResponse<Siswa>;
 export type JurusanListResponse = ListResponse<Jurusan>;

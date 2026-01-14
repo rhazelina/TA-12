@@ -41,10 +41,10 @@ export const pembimbingMenus: SidebarMenuItem[] = [
     pathName: ["jadwal", "bukti"],
   },
   {
-    name: "Hasil Bukti",
-    url: "/pembimbing/hasil/bukti",
+    name: "Bukti Kegiatan",
+    url: "/pembimbing/bukti-kegiatan",
     icon: FileUp,
-    pathName: ["hasil", "bukti"],
+    pathName: ["bukti-kegiatan"],
   },
   {
     name: "Permasalahan",

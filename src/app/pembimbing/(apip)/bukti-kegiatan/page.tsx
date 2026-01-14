@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {
   Table,
   TableBody,
   TableCell,
@@ -28,6 +27,7 @@ import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import { realisasiKegiatanPkl } from "@/api/pembimbing"
 import { Spinner } from "@/components/ui/spinner"
+import { IBuktiKegiatan } from "@/types/api"
 
 // Mock if needed, but let's try to fetch
 const mockData = [
@@ -46,7 +46,7 @@ const mockData = [
 ]
 
 export default function HasilBukti() {
-  const [data, setData] = useState<any[]>([])
+  const [data, setData] = useState<IBuktiKegiatan[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
 
