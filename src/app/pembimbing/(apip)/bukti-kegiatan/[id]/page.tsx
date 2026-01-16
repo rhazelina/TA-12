@@ -105,8 +105,8 @@ export default function BuktiKegiatanDetail() {
                         <Badge
                             variant={data.status === "Selesai" || data.status === "Disetujui" ? "default" : "secondary"}
                             className={`${data.status === "Selesai" || data.status === "Disetujui"
-                                    ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-200"
-                                    : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border-yellow-200"
+                                ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-200"
+                                : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border-yellow-200"
                                 } px-3 py-1 text-xs uppercase tracking-wide font-semibold shadow-sm`}
                         >
                             {data.status || "Pending"}
@@ -115,7 +115,7 @@ export default function BuktiKegiatanDetail() {
 
                     <CardContent className="p-6 space-y-8">
                         {/* Metadata Info */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2    bg-gray-50 rounded-xl border border-gray-100">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm text-gray-500">
                                     <Building className="w-5 h-5" />
@@ -142,9 +142,9 @@ export default function BuktiKegiatanDetail() {
                                 <CheckCircle2 className="w-5 h-5 text-gray-400" />
                                 Catatan Kegiatan
                             </h3>
-                            <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 text-gray-700 leading-relaxed text-sm lg:text-base">
+                            <div className="bg-gray-50 p-3 rounded-2xl border border-gray-100 text-gray-700 leading-relaxed text-sm lg:text-base">
                                 {data.catatan || (
-                                    <span className="text-gray-400 italic">Tidak ada catatan yang ditambahkan.</span>
+                                    <span className="text-gray-400 italic">-</span>
                                 )}
                             </div>
                         </div>
