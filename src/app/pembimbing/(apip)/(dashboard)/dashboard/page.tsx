@@ -133,18 +133,20 @@ export default function Dashboard() {
                     </TableHeader>
                     <TableBody>
                       {item.siswa.length > 0 ? (
-                        item.siswa.map((siswa) => (
-                          <TableRow key={siswa.id} className="hover:bg-gray-50/50 border-b border-gray-50 last:border-0">
-                            <TableCell className="pl-6 font-medium text-gray-900">{siswa.nama}</TableCell>
-                            <TableCell className="text-gray-500">@{siswa.username}</TableCell>
-                            <TableCell className="text-gray-500">{siswa.nisn}</TableCell>
-                            <TableCell className="text-right pr-6">
-                              <Badge variant="secondary" className="bg-gray-100 text-gray-700 font-normal">
-                                {siswa.kelas}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                        item.siswa.map((siswa) => {
+                          return (
+                            <TableRow key={siswa.id} className="hover:bg-gray-50/50 border-b border-gray-50 last:border-0">
+                              <TableCell className="pl-6 font-medium text-gray-900">{siswa.nama}</TableCell>
+                              <TableCell className="text-gray-500">@{siswa.username}</TableCell>
+                              <TableCell className="text-gray-500">{siswa.nisn}</TableCell>
+                              <TableCell className="text-right pr-6">
+                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 font-normal">
+                                  {siswa.kelas}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })
                       ) : (
                         <TableRow>
                           <TableCell colSpan={4} className="h-20 text-center text-gray-400 text-sm">

@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
   Search,
   Filter,
@@ -20,36 +20,20 @@ import {
   Trash2,
   Image as ImageIcon,
   Calendar,
-  Clock,
-  FileText,
-  MoreVertical
+  FileText
 } from "lucide-react"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import { realisasiKegiatanPkl } from "@/api/pembimbing"
 import { Spinner } from "@/components/ui/spinner"
 import { IBuktiKegiatan } from "@/types/api"
-
-// Mock if needed, but let's try to fetch
-const mockData = [
-  {
-    "bukti_foto_urls": ["url1", "url2"],
-    "catatan": "Kegiatan berjalan lancar, semua siswa hadir.",
-    "created_at": "2026-01-13T17:25:23.942Z",
-    "id": 1,
-    "industri_id": 51,
-    "kegiatan_id": 36,
-    "pembimbing_id": 26,
-    "status": "Belum",
-    "tanggal_realisasi": "2026-01-13",
-    "updated_at": "2026-01-13T17:25:23.942Z"
-  }
-]
+import { useRouter } from "next/navigation"
 
 export default function HasilBukti() {
   const [data, setData] = useState<IBuktiKegiatan[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const router = useRouter()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,8 +43,6 @@ export default function HasilBukti() {
         setData(Array.isArray(response) ? response : response.data || [])
       } catch (error) {
         console.error("Error fetching hasil bukti:", error)
-        // Fallback to mock for UI demonstration if API fails or is empty
-        setData(mockData)
       } finally {
         setLoading(false)
       }
@@ -166,15 +148,11 @@ export default function HasilBukti() {
                           size="icon"
                           variant="ghost"
                           className="h-9 w-9 text-gray-500 hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 rounded-lg"
+                          onClick={() => {
+                            router.push(`/pembimbing/bukti-kegiatan/${item.id}`)
+                          }}
                         >
                           <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-9 w-9 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                        >
-                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
