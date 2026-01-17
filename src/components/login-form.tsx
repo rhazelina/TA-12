@@ -178,9 +178,9 @@ export function LoginForm({
                     className="w-40 h-10 object-contain"
                   />
                 </div>
-                <h1 className="text-2xl font-bold">Selamat Datang Kembali</h1>
+                <h1 className="text-2xl font-bold">SMK NEGERI 2 SINGOSARI</h1>
                 <p className="text-muted-foreground text-balance">
-                  Masuk ke akun MagangHub Anda
+                  Sistem Informasi Manajemen Magang
                 </p>
               </div>
 
@@ -221,7 +221,7 @@ export function LoginForm({
                         className="w-full bg-[#641E20] hover:bg-[#641E20]/90 text-white"
                         disabled={loading}
                       >
-                        {loading ? 'Masuk...' : 'Masuk sebagai Admin'}
+                        {loading ? 'Masuk...' : 'Masuk'}
                       </Button>
                     </div>
                   </form>
@@ -257,7 +257,7 @@ export function LoginForm({
                         className="w-full bg-[#641E20] hover:bg-[#641E20]/90 text-white"
                         disabled={loading}
                       >
-                        {loading ? 'Masuk...' : 'Masuk sebagai Guru'}
+                        {loading ? 'Masuk...' : 'Masuk'}
                       </Button>
                     </div>
                   </form>
@@ -293,7 +293,7 @@ export function LoginForm({
                         className="w-full bg-[#641E20] hover:bg-[#641E20]/90 text-white"
                         disabled={loading}
                       >
-                        {loading ? 'Masuk...' : 'Masuk sebagai Siswa'}
+                        {loading ? 'Masuk...' : 'Masuk'}
                       </Button>
                     </div>
                   </form>

@@ -275,28 +275,10 @@ export default function PerizinanPage() {
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        {item.status === "Menunggu" ? (
-                                            <div className="flex justify-end gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-[#7a0f0f] hover:bg-[#5c0b0b] text-white"
-                                                    onClick={() => handleAction(item.id, "Disetujui")}
-                                                >
-                                                    Konfirmasi
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="destructive"
-                                                    onClick={() => handleAction(item.id, "Ditolak")}
-                                                >
-                                                    Tolak
-                                                </Button>
-                                            </div>
-                                        ) : (
                                             <span className="text-xs text-muted-foreground italic">
-                                                {item.status === "Disetujui" ? `Disetujui oleh ${item.approved_by || "-"}` : "Alasan tidak valid"}
+                                                {item.status === "Disetujui" ? `Disetujui oleh ${item.approved_by || "Pembimbing"}` : 
+                                                 item.status === "Ditolak" ? "Ditolak" : "Menunggu keputusan Pembimbing"}
                                             </span>
-                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -305,7 +287,7 @@ export default function PerizinanPage() {
                 </Table>
             </div>
             <div className="text-xs text-muted-foreground">
-                Menampilkan {filteredData.length} dari {data.length} data
+                Menampilkan {filteredData.length} dari {data.length} data. (Kapro hanya melihat rekapitulasi)
             </div>
         </div>
     );

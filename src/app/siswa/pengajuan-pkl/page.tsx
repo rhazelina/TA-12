@@ -10,7 +10,7 @@ import { getIndustri } from "@/api/admin/industri";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useJurusanSiswaLogin } from "@/hooks/useSiswaData";
+import { useJurusanSiswaLogin, useSiswaPengajuanData } from "@/hooks/useSiswaData";
 import { createPengajuan } from "@/api/admin/siswa";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +27,10 @@ export default function FormIndustri() {
     const [industriId, setIndustriId] = useState<number>(0);
     const [catatan, setCatatan] = useState("");
     const { jurusan } = useJurusanSiswaLogin()
+    const { dataPengajuan, loading: loadingPengajuan } = useSiswaPengajuanData()
+
+    // Check if there is any active application (not rejected)
+    const activeApplication = dataPengajuan?.find(p => p.status !== "Rejected" && p.status !== "Ditolak")
 
     useEffect(() => {
         const loadIndustriOptions = async () => {
@@ -76,10 +80,37 @@ export default function FormIndustri() {
             onSubmit={handleSubmit}
             className="bg-white p-6 rounded-2xl shadow-sm border space-y-6 mx-5"
         >
+            {activeApplication ? (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <span className="text-xl">⚠️</span>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-yellow-700">
+                                Anda sudah memiliki pengajuan yang sedang diproses atau diterima.
+                                <br />
+                                Status: <strong>{activeApplication.status}</strong>
+                                <br />
+                                Harap tunggu keputusan atau selesaikan pengajuan ini sebelum membuat baru.
+                            </p>
+                            <Button
+                                variant="link"
+                                className="p-0 h-auto text-yellow-800 underline mt-2"
+                                onClick={() => router.push('/siswa/dashboard')}
+                                type="button"
+                            >
+                                Lihat Dashboard
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
+
             <h2 className="text-lg font-semibold">Pengajuan PKL</h2>
 
             {/* Industri */}
-            <div className="flex flex-col gap-2">
+            <div className={`flex flex-col gap-2 ${activeApplication ? 'opacity-50 pointer-events-none' : ''}`}>
                 <Label>
                     Industri <span className="text-red-500">*</span>
                 </Label>
@@ -146,7 +177,7 @@ export default function FormIndustri() {
             </div>
 
             {/* Tombol Kirim */}
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={!!activeApplication || loadingIndustri}>
                 Kirim Pengajuan
             </Button>
         </form>

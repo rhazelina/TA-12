@@ -144,7 +144,8 @@ export function useCheckPermohonan() {
 }
 
 export function useSiswaPengajuanData() {
-  const [dataPengajuan, setDataPengajuan] = useState<DataPengajuan[] | null>();
+  const [loading, setLoading] = useState(true);
+  const [dataPengajuan, setDataPengajuan] = useState<DataPengajuan[]>([]);
 
   useEffect(() => {
     async function fetch() {
@@ -153,6 +154,8 @@ export function useSiswaPengajuanData() {
         setDataPengajuan(response.data);
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     }
     fetch();
@@ -160,5 +163,6 @@ export function useSiswaPengajuanData() {
 
   return {
     dataPengajuan,
+    loading
   };
 }

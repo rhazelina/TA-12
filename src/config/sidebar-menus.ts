@@ -66,7 +66,7 @@ export const pembimbingMenus: SidebarMenuItem[] = [
   },
 ];
 
-// Menu untuk Koordinator
+// Menu untuk Koordinator (Pokja)
 export const koordinatorMenus: SidebarMenuItem[] = [
   {
     name: "Dashboard",
@@ -126,9 +126,15 @@ export const waliKelasMenus: SidebarMenuItem[] = [
     icon: TriangleAlert,
     pathName: ["permasalahan-siswa"],
   },
+  {
+    name: "Monitor Absensi",
+    url: "/wali-kelas/monitor-absensi",
+    icon: CalendarCheck,
+    pathName: ["monitor-absensi"],
+  },
 ];
 
-// Menu untuk Kapro (Kepala Program)
+// Menu untuk Kapro (Konsentrasi Keahlian)
 export const kaproMenus: SidebarMenuItem[] = [
   {
     name: "Dashboard",

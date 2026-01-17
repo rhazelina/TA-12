@@ -1,16 +1,41 @@
 'use client';
 
-import { Upload, FileMinus, Info, Check } from 'lucide-react';
-import { useState } from 'react';
+import { Upload, FileMinus, Info, Check, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSiswaPengajuanData } from "@/hooks/useSiswaData";
+import { getIndustriById } from "@/api/admin/industri";
 
 export default function UploadPage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const { dataPengajuan, loading: loadingPengajuan } = useSiswaPengajuanData()
     const [formData, setFormData] = useState({
         startDate: '',
         endDate: '',
         companyName: '',
         notes: ''
     });
+
+    useEffect(() => {
+        const prefillData = async () => {
+            if (dataPengajuan) {
+                const approvedApp = dataPengajuan.find(p => p.status === "Approved");
+                if (approvedApp) {
+                    try {
+                        const indRes = await getIndustriById(approvedApp.industri_id);
+                        setFormData(prev => ({
+                            ...prev,
+                            companyName: indRes?.data?.nama || "",
+                            startDate: approvedApp.tanggal_mulai ? new Date(approvedApp.tanggal_mulai).toISOString().split('T')[0] : "",
+                            endDate: approvedApp.tanggal_selesai ? new Date(approvedApp.tanggal_selesai).toISOString().split('T')[0] : ""
+                        }));
+                    } catch (e) {
+                        console.error("Failed to fetch industry details", e);
+                    }
+                }
+            }
+        };
+        prefillData();
+    }, [dataPengajuan]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
