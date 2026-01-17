@@ -31,7 +31,9 @@ interface TransferRequestDto {
     siswa_nisn: string;
     jurusan: string;
     tempat_lama: string;
+    durasi_lama: string; // e.g. "3 Bulan"
     tempat_baru: string;
+    durasi_sisa: string; // e.g. "3 Bulan"
     alasan: string;
     status: TransferStatus;
 }
@@ -44,7 +46,9 @@ const MOCK_DATA: TransferRequestDto[] = [
         siswa_nisn: "12345678",
         jurusan: "Teknik Informatika",
         tempat_lama: "CV. Digital Solusi",
+        durasi_lama: "2 Bulan",
         tempat_baru: "PT. Teknologi Maju",
+        durasi_sisa: "4 Bulan",
         alasan: "Jarak terlalu jauh dari rumah",
         status: "Menunggu",
     },
@@ -54,7 +58,9 @@ const MOCK_DATA: TransferRequestDto[] = [
         siswa_nisn: "12345679",
         jurusan: "Teknik Mesin",
         tempat_lama: "PT. Otomotif Prima",
+        durasi_lama: "1 Bulan",
         tempat_baru: "PT. Manufaktur Indo",
+        durasi_sisa: "5 Bulan",
         alasan: "Bidang lebih sesuai minat",
         status: "Disetujui",
     },
@@ -64,7 +70,9 @@ const MOCK_DATA: TransferRequestDto[] = [
         siswa_nisn: "12345680",
         jurusan: "Teknik Elektro",
         tempat_lama: "CV. Elektronik Jaya",
+        durasi_lama: "3 Bulan",
         tempat_baru: "PT. Listrik Negara",
+        durasi_sisa: "3 Bulan",
         alasan: "Masalah transportasi",
         status: "Menunggu",
     },
@@ -74,7 +82,9 @@ const MOCK_DATA: TransferRequestDto[] = [
         siswa_nisn: "12345681",
         jurusan: "Akuntansi",
         tempat_lama: "Koperasi Unit Desa",
+        durasi_lama: "1.5 Bulan",
         tempat_baru: "Bank Rakyat Cabang",
+        durasi_sisa: "4.5 Bulan",
         alasan: "Ingin pengalaman perbankan",
         status: "Ditolak",
     },
@@ -84,7 +94,9 @@ const MOCK_DATA: TransferRequestDto[] = [
         siswa_nisn: "12345682",
         jurusan: "Multimedia",
         tempat_lama: "Studio Foto Indah",
+        durasi_lama: "2 Bulan",
         tempat_baru: "Creative Agency One",
+        durasi_sisa: "4 Bulan",
         alasan: "Mencari mentor yang lebih aktif",
         status: "Menunggu",
     },
@@ -248,10 +260,16 @@ export default function PindahPKLPage() {
                                         <div className="text-sm font-medium text-gray-700">{item.jurusan}</div>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="text-sm">{item.tempat_baru}</div>
+                                        <div className="flex flex-col">
+                                            <div className="text-sm">{item.tempat_baru}</div>
+                                            <span className="text-xs text-muted-foreground">Sisa: {item.durasi_sisa}</span>
+                                        </div>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="text-sm text-muted-foreground">{item.tempat_lama}</div>
+                                        <div className="flex flex-col">
+                                            <div className="text-sm text-muted-foreground">{item.tempat_lama}</div>
+                                            <span className="text-xs text-muted-foreground">Sudah: {item.durasi_lama}</span>
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <p className="text-sm text-gray-600 line-clamp-2" title={item.alasan}>

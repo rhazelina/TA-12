@@ -5,13 +5,16 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getIndustriById } from "@/api/admin/industri";
 import { DataPengajuan } from "@/types/api";
-import { Calendar, Building2, FileText, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Calendar, Building2, FileText, Clock, CheckCircle2, XCircle, AlertCircle, FileUp } from "lucide-react";
+
+import { useRouter } from "next/navigation";
 
 interface PermohonanCardProps {
     permohonan: DataPengajuan;
 }
 
 function PermohonanCard({ permohonan }: PermohonanCardProps) {
+    const router = useRouter()
     const [namaIndustri, setNamaIndustri] = useState<string>("Loading...");
 
     useEffect(() => {

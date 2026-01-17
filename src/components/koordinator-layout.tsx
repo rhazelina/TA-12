@@ -3,7 +3,7 @@
 import RoleBasedLayout from "@/components/role-based-layout"
 import { useRoleAccess } from "@/hooks/useRoleAccess"
 
-export default function KoordinatorLayout({ children, pathname }: { children: React.ReactNode, pathname: string }) {
+export default function PokjaLayout({ children, pathname }: { children: React.ReactNode, pathname: string }) {
     const { hasAccess, loading, guruData } = useRoleAccess('koordinator')
 
     if (loading) {

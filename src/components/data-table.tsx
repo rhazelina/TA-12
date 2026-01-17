@@ -69,6 +69,7 @@ interface DataTableProps<T = Record<string, unknown>> {
   selectedJurusan?: number
   loadData?: () => void
   loading?: boolean
+  additionalActions?: React.ReactNode
 }
 
 export function DataTable<T = Record<string, unknown>>({
@@ -94,6 +95,7 @@ export function DataTable<T = Record<string, unknown>>({
   selectedJurusan,
   loadData,
   loading,
+  additionalActions,
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("")
   const [activeSearchTerm, setActiveSearchTerm] = useState("")
@@ -228,6 +230,7 @@ export function DataTable<T = Record<string, unknown>>({
             Filter
           </Button>
         )}
+        {additionalActions}
       </div>
 
       <div className="rounded-md border">

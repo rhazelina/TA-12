@@ -11,6 +11,10 @@ import { toast } from "sonner"
 import { formatDate } from "@/utils/date"
 import { getJurusan } from "@/api/admin/jurusan"
 
+// Simulating an import component or dialog would be ideal here.
+// For now, we'll just add the button that triggers a toast, as requested.
+import { FileSpreadsheet } from "lucide-react"
+
 export default function SiswaManagement() {
   const router = useRouter()
   const [siswa, setSiswa] = useState<Siswa[]>([])
@@ -106,6 +110,13 @@ export default function SiswaManagement() {
     }
   }
 
+  const handleImport = () => {
+    // Ideally this opens a dialog to upload Excel/CSV
+    toast.info("Fitur Import Siswa akan segera hadir (Mock)", {
+      description: "Silakan unggah file .xlsx atau .csv"
+    })
+  }
+
   const handleView = (row: Siswa) => {
     router.push(`/admin/siswa/${row.id}`)
   }
@@ -183,29 +194,34 @@ export default function SiswaManagement() {
         <p className="text-gray-600">Kelola data siswa dan informasi pribadi</p>
       </div>
 
-      <DataTable
-        data={siswa}
-        columns={columns}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onView={handleView}
-        onSearch={handleSearch}
-        isSearching={searchLoading}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        searchPlaceholder="Cari berdasarkan nama..."
-        title="Daftar Siswa"
-        addButtonText="Tambah Siswa Baru"
-        filter={true}
-        filterData={filterData}
-        setSelectedKelas={setSelectedKelas}
-        setSelectedJurusan={setSelectedJurusan}
-        selectedKelas={selectedKelas}
-        selectedJurusan={selectedJurusan}
-        loadData={loadData}
-        loading={loading}
+      data={siswa}
+      columns={columns}
+      onAdd={handleAdd}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onView={handleView}
+      additionalActions={
+        <Button variant="outline" onClick={handleImport} className="ml-2 gap-2">
+          <FileSpreadsheet className="h-4 w-4" />
+          Import (.xlsx)
+        </Button>
+      }
+      onSearch={handleSearch}
+      isSearching={searchLoading}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={handlePageChange}
+      searchPlaceholder="Cari berdasarkan nama..."
+      title="Daftar Siswa"
+      addButtonText="Tambah Siswa Baru"
+      filter={true}
+      filterData={filterData}
+      setSelectedKelas={setSelectedKelas}
+      setSelectedJurusan={setSelectedJurusan}
+      selectedKelas={selectedKelas}
+      selectedJurusan={selectedJurusan}
+      loadData={loadData}
+      loading={loading}
       />
     </div>
   )

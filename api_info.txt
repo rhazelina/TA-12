@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "S_PKL API",
-    "description": "sistem pkl api(17 September)",
+    "description": "\n\n## Changelogs\n\n### (January 2025) - File Upload & Koordinator Pembimbing Workflow Release\n\n**File Upload System**\n- **POST /api/upload/image** - Upload single image file (JPEG/PNG)\n- **POST /api/upload/images** - Upload multiple image files (bulk)\n- Auto-resize to 1080x1080, 80% JPEG compression\n- EXIF metadata automatically stripped for privacy\n- Max 5MB per file, memory-safe with streaming upload\n- Bulk upload: Max 10 files, 25MB total size\n- Concurrency limit: 20 simultaneous uploads\n- S3-compatible storage (Cloudflare R2, MinIO)\n\n**JWT Sub-Roles for Guru**\n- Token sekarang mencakup sub-roles:\n  - `is_koordinator`: akses endpoint Koordinator\n  - `is_pembimbing`: akses endpoint Pembimbing\n  - `is_kaprog`: akses endpoint Kaprog\n  - `is_wali_kelas`: akses endpoint Wali Kelas\n\n### Wali Kelas Dashboard\n- `GET /api/guru/dashboard/wali-kelas` - Get dashboard stats for Wali Kelas\n  - Includes: Class info, Student list, PKL status, Industrial Mentor (PIC), and Contact Info\n  - Supports pagination: `page`, `limit` query params\n  - Supports filtering: `search`, `status_pkl`, `industri`, `pembimbing` query params\n\n### Koordinator Endpoints\n- `POST /api/kegiatan-pkl` - Create kegiatan\n- `GET /api/kegiatan-pkl` - List active kegiatan\n- `PUT /api/kegiatan-pkl/{id}` - Update kegiatan\n- `DELETE /api/kegiatan-pkl/{id}` - Delete kegiatan\n\n### Pembimbing Endpoints\n- `POST /api/realisasi-kegiatan/submit` - Submit realisasi\n- `GET /api/realisasi-kegiatan/me` - List my realisasi\n- `GET /api/realisasi-kegiatan/{id}` - Get detail\n\n### Siswa Endpoints\n- `GET /api/pkl/industri/available` - List industri untuk siswa\n- `GET /api/pkl/industri/{id}` - Detail industri\nSee full documentation below for complete API reference.\n",
     "license": {
       "name": ""
     },
@@ -12,7 +12,7 @@
     "/api/admin/dashboard": {
       "get": {
         "tags": [
-          "dashboard"
+          "Admin"
         ],
         "summary": "Get dashboard statistics for admin(admin role can access)",
         "operationId": "get_dashboard_stats",
@@ -44,7 +44,7 @@
     "/api/guru": {
       "get": {
         "tags": [
-          "guru"
+          "Admin"
         ],
         "summary": "List guru with pagination and search",
         "operationId": "list_guru_handler",
@@ -104,7 +104,7 @@
       },
       "post": {
         "tags": [
-          "guru"
+          "Admin"
         ],
         "summary": "Create new guru",
         "operationId": "create_guru_handler",
@@ -143,10 +143,105 @@
         ]
       }
     },
+    "/api/guru/dashboard/wali-kelas": {
+      "get": {
+        "tags": [
+          "Wali Kelas"
+        ],
+        "summary": "Get dashboard for Wali Kelas",
+        "operationId": "get_wali_kelas_dashboard",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-indexed)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page (max: 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search by student name or NISN",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status_pkl",
+            "in": "query",
+            "description": "Filter by PKL status: sedang_pkl, belum_pkl, selesai",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "industri",
+            "in": "query",
+            "description": "Filter by industry name (partial match)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pembimbing",
+            "in": "query",
+            "description": "Filter by school mentor name (partial match)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wali Kelas Dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaliKelasDashboardDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Not a Wali Kelas"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/guru/{id}": {
       "get": {
         "tags": [
-          "guru"
+          "Admin"
         ],
         "summary": "Get guru by ID",
         "operationId": "get_guru_handler",
@@ -188,7 +283,7 @@
       },
       "put": {
         "tags": [
-          "guru"
+          "Admin"
         ],
         "summary": "Update guru by ID",
         "operationId": "update_guru_handler",
@@ -243,7 +338,7 @@
       },
       "delete": {
         "tags": [
-          "guru"
+          "Admin"
         ],
         "summary": "Delete guru by ID",
         "operationId": "delete_guru_handler",
@@ -280,7 +375,7 @@
     "/api/industri": {
       "get": {
         "tags": [
-          "industri"
+          "Admin"
         ],
         "summary": "Get all industri with pagination and search support",
         "operationId": "list_industri_handler",
@@ -362,7 +457,7 @@
       },
       "post": {
         "tags": [
-          "industri"
+          "Admin"
         ],
         "summary": "Create a new industri",
         "operationId": "create_industri_handler",
@@ -404,7 +499,7 @@
     "/api/industri/{id}": {
       "get": {
         "tags": [
-          "industri"
+          "Admin"
         ],
         "summary": "Get a industri by ID",
         "operationId": "get_industri_handler",
@@ -446,7 +541,7 @@
       },
       "put": {
         "tags": [
-          "industri"
+          "Admin"
         ],
         "summary": "Update a industri",
         "operationId": "update_industri_handler",
@@ -501,7 +596,7 @@
       },
       "delete": {
         "tags": [
-          "industri"
+          "Admin"
         ],
         "summary": "Delete a industri",
         "operationId": "delete_industri_handler",
@@ -538,7 +633,7 @@
     "/api/jurusan": {
       "get": {
         "tags": [
-          "jurusan"
+          "Admin"
         ],
         "summary": "Get all jurusan with pagination and search support",
         "operationId": "list_jurusan_handler",
@@ -610,7 +705,7 @@
       },
       "post": {
         "tags": [
-          "jurusan"
+          "Admin"
         ],
         "summary": "Create a new jurusan",
         "operationId": "create_jurusan_handler",
@@ -652,7 +747,7 @@
     "/api/jurusan/kaprog/me": {
       "get": {
         "tags": [
-          "jurusan"
+          "Kaprog"
         ],
         "summary": "List jurusan assigned to authenticated kaprog",
         "operationId": "list_kaprog_jurusan_handler",
@@ -684,7 +779,7 @@
     "/api/jurusan/{id}": {
       "get": {
         "tags": [
-          "jurusan"
+          "Admin"
         ],
         "summary": "Get a jurusan by ID",
         "operationId": "get_jurusan_handler",
@@ -726,7 +821,7 @@
       },
       "put": {
         "tags": [
-          "jurusan"
+          "Admin"
         ],
         "summary": "Update a jurusan",
         "operationId": "update_jurusan_handler",
@@ -781,7 +876,7 @@
       },
       "delete": {
         "tags": [
-          "jurusan"
+          "Admin"
         ],
         "summary": "Delete a jurusan",
         "operationId": "delete_jurusan_handler",
@@ -815,10 +910,265 @@
         ]
       }
     },
+    "/api/kegiatan-pkl": {
+      "post": {
+        "tags": [
+          "Koordinator"
+        ],
+        "summary": "Create new kegiatan PKL",
+        "description": "Create a new kegiatan PKL (formal activity). This will be broadcast to all pembimbing who need to submit realisasi. Requires is_koordinator=true.",
+        "operationId": "create_kegiatan_pkl",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKegiatanPklDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Kegiatan PKL created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KegiatanPklDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/kegiatan-pkl/active": {
+      "get": {
+        "tags": [
+          "Pembimbing"
+        ],
+        "summary": "List active kegiatan PKL for CURRENT tahun ajaran",
+        "description": "Get all active kegiatan from active tahun_ajaran. Only returns kegiatan where tanggal_selesai \u003E= today. Expired/completed kegiatan are excluded. Each kegiatan includes a status field ('active' or 'completed').",
+        "operationId": "list_active_kegiatan_pkl",
+        "responses": {
+          "200": {
+            "description": "List of active kegiatan for current tahun ajaran",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KegiatanPklDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/kegiatan-pkl/tahun-ajaran/{tahun_ajaran_id}": {
+      "get": {
+        "tags": [
+          "Koordinator"
+        ],
+        "summary": "List kegiatan PKL by tahun ajaran (HISTORY)",
+        "description": "Get all kegiatan PKL for a specific tahun ajaran. Use this for viewing historical records from previous academic years. Requires is_koordinator=true.",
+        "operationId": "list_kegiatan_pkl_by_tahun_ajaran",
+        "parameters": [
+          {
+            "name": "tahun_ajaran_id",
+            "in": "path",
+            "description": "Tahun Ajaran ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of kegiatan for the tahun ajaran",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KegiatanPklDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/kegiatan-pkl/{id}": {
+      "get": {
+        "tags": [
+          "Pembimbing"
+        ],
+        "summary": "Get kegiatan PKL detail by ID",
+        "description": "Get detailed information about a specific kegiatan PKL by ID. Accessible by all authenticated users (Guru, Siswa, Admin).",
+        "operationId": "get_kegiatan_pkl_by_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Kegiatan PKL ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kegiatan PKL found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KegiatanPklDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Kegiatan PKL not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Koordinator"
+        ],
+        "summary": "Update existing kegiatan PKL",
+        "description": "Update details of an existing kegiatan PKL. Requires is_koordinator=true.",
+        "operationId": "update_kegiatan_pkl",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Kegiatan PKL ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateKegiatanPklDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Kegiatan PKL updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KegiatanPklDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Kegiatan PKL not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Koordinator"
+        ],
+        "summary": "Delete kegiatan PKL",
+        "description": "Delete a kegiatan PKL by ID. This will also affect related realisasi records. Requires is_koordinator=true.",
+        "operationId": "delete_kegiatan_pkl",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Kegiatan PKL ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Kegiatan PKL deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Kegiatan PKL not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/kelas": {
       "get": {
         "tags": [
-          "kelas"
+          "Admin"
         ],
         "summary": "Get all kelas with pagination and search support",
         "operationId": "list_kelas_handler",
@@ -891,7 +1241,7 @@
       },
       "post": {
         "tags": [
-          "kelas"
+          "Admin"
         ],
         "summary": "Create a new kelas",
         "operationId": "create_kelas_handler",
@@ -933,7 +1283,7 @@
     "/api/kelas/{id}": {
       "get": {
         "tags": [
-          "kelas"
+          "Admin"
         ],
         "summary": "Get a kelas by ID",
         "operationId": "get_kelas_handler",
@@ -975,7 +1325,7 @@
       },
       "put": {
         "tags": [
-          "kelas"
+          "Admin"
         ],
         "summary": "Update a kelas",
         "operationId": "update_kelas_handler",
@@ -1030,7 +1380,7 @@
       },
       "delete": {
         "tags": [
-          "kelas"
+          "Admin"
         ],
         "summary": "Delete a kelas",
         "operationId": "delete_kelas_handler",
@@ -1067,7 +1417,7 @@
     "/api/pkl/active/me": {
       "get": {
         "tags": [
-          "PKL - Siswa"
+          "Siswa"
         ],
         "operationId": "get_active_pkl_handler",
         "responses": {
@@ -1102,7 +1452,7 @@
     "/api/pkl/applications": {
       "get": {
         "tags": [
-          "PKL - Kaprog/Admin"
+          "Kaprog"
         ],
         "summary": "List PKL applications for admin/kaprog review",
         "operationId": "list_review_pkl_applications_handler",
@@ -1178,7 +1528,7 @@
       },
       "post": {
         "tags": [
-          "PKL - Siswa"
+          "Siswa"
         ],
         "operationId": "create_pkl_application_handler",
         "requestBody": {
@@ -1219,7 +1569,7 @@
     "/api/pkl/applications/me": {
       "get": {
         "tags": [
-          "PKL - Siswa"
+          "Siswa"
         ],
         "operationId": "list_my_pkl_applications_handler",
         "parameters": [
@@ -1269,7 +1619,7 @@
     "/api/pkl/applications/{id}/approve": {
       "put": {
         "tags": [
-          "PKL - Kaprog/Admin"
+          "Kaprog"
         ],
         "operationId": "approve_pkl_application_handler",
         "parameters": [
@@ -1322,7 +1672,7 @@
     "/api/pkl/applications/{id}/reject": {
       "put": {
         "tags": [
-          "PKL - Kaprog/Admin"
+          "Kaprog"
         ],
         "operationId": "reject_pkl_application_handler",
         "parameters": [
@@ -1369,10 +1719,170 @@
         ]
       }
     },
+    "/api/pkl/guru/industri": {
+      "get": {
+        "tags": [
+          "Pembimbing"
+        ],
+        "operationId": "list_industri_by_guru_handler",
+        "responses": {
+          "200": {
+            "description": "**DEPRECATED**: Use /api/pkl/guru/tasks instead. List industri yang dibimbing oleh guru",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListGuruIndustriDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Guru only"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pkl/guru/siswa": {
+      "get": {
+        "tags": [
+          "Pembimbing"
+        ],
+        "operationId": "list_siswa_by_guru_handler",
+        "responses": {
+          "200": {
+            "description": "**DEPRECATED**: Use /api/pkl/guru/tasks instead. List siswa yang dibimbing oleh guru",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListGuruSiswaDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Guru only"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pkl/guru/tasks": {
+      "get": {
+        "tags": [
+          "Pembimbing"
+        ],
+        "operationId": "list_guru_tasks_handler",
+        "responses": {
+          "200": {
+            "description": "Guru tasks retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuruTasksResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Guru only"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/pkl/industri/available": {
+      "get": {
+        "tags": [
+          "Siswa"
+        ],
+        "operationId": "list_available_industries_handler",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar industri tersedia untuk siswa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiswaIndustryPreviewDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/pkl/industri/preview": {
       "get": {
         "tags": [
-          "PKL - Kaprog/Admin"
+          "Kaprog"
         ],
         "operationId": "preview_industri_handler",
         "parameters": [
@@ -1427,10 +1937,56 @@
         ]
       }
     },
+    "/api/pkl/industri/{id}": {
+      "get": {
+        "tags": [
+          "Siswa"
+        ],
+        "operationId": "get_industry_detail_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID industri",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail industri",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiswaIndustryDetailDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Salah jurusan"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/pkl/industri/{id}/quota": {
       "put": {
         "tags": [
-          "PKL - Kaprog/Admin"
+          "Kaprog"
         ],
         "operationId": "update_industry_quota_handler",
         "parameters": [
@@ -1483,7 +2039,7 @@
     "/api/pkl/pembimbing": {
       "get": {
         "tags": [
-          "PKL - Kaprog/Admin"
+          "Kaprog"
         ],
         "summary": "List guru pembimbing PKL",
         "operationId": "list_pembimbing_guru_handler",
@@ -1525,10 +2081,346 @@
         ]
       }
     },
+    "/api/realisasi-kegiatan/me": {
+      "get": {
+        "tags": [
+          "Pembimbing"
+        ],
+        "summary": "List my submitted realisasi",
+        "description": "Get all realisasi submitted by the logged-in pembimbing. Returns ONLY submitted realizations, not the kegiatan schedule. Filter by industri_id and/or date range. Requires is_pembimbing=true.",
+        "operationId": "list_my_realisasi_kegiatan",
+        "parameters": [
+          {
+            "name": "industri_id",
+            "in": "query",
+            "description": "Filter by industri ID (optional)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tanggal_mulai",
+            "in": "query",
+            "description": "Filter by tanggal realisasi mulai (optional, inclusive)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "tanggal_selesai",
+            "in": "query",
+            "description": "Filter by tanggal realisasi selesai (optional, inclusive)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of user's realizations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RealisasiKegiatanDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Only Guru can access"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/realisasi-kegiatan/submit": {
+      "post": {
+        "tags": [
+          "Pembimbing"
+        ],
+        "summary": "Submit realisasi kegiatan",
+        "description": "Submit a new realisasi for a kegiatan PKL. pembimbing_id is automatically resolved from JWT token. Status is automatically set to 'Sudah'. Each pembimbing submits one realisasi per kegiatan+industri combination. Requires is_pembimbing=true.",
+        "operationId": "submit_realisasi_kegiatan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRealisasiKegiatanDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Realisasi submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealisasiKegiatanDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Only Guru can submit"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/realisasi-kegiatan/{id}": {
+      "get": {
+        "tags": [
+          "Pembimbing"
+        ],
+        "summary": "Get realisasi detail by ID",
+        "description": "Get detailed information about a specific realisasi by ID. Accessible by all authenticated users.",
+        "operationId": "get_realisasi_kegiatan_by_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Realisasi ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Realisasi found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealisasiKegiatanDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Realisasi not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/sekolah": {
+      "get": {
+        "tags": [
+          "Sekolah"
+        ],
+        "summary": "Get active sekolah (all roles)",
+        "operationId": "get_active_sekolah_handler",
+        "responses": {
+          "200": {
+            "description": "Sekolah retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SekolahSingleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Sekolah not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Sekolah"
+        ],
+        "summary": "Create a new sekolah (admin only)",
+        "operationId": "create_sekolah_handler",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSekolahDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Sekolah created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SekolahSingleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin only"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/sekolah/{id}": {
+      "get": {
+        "tags": [
+          "Sekolah"
+        ],
+        "summary": "Get sekolah by ID (all roles)",
+        "operationId": "get_sekolah_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Sekolah ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sekolah retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SekolahSingleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Sekolah not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Sekolah"
+        ],
+        "summary": "Update sekolah (admin only)",
+        "operationId": "update_sekolah_handler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Sekolah ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSekolahDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Sekolah updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SekolahSingleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin only"
+          },
+          "404": {
+            "description": "Sekolah not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/siswa": {
       "get": {
         "tags": [
-          "siswa"
+          "Admin"
         ],
         "summary": "list all siswa with search options",
         "operationId": "list_siswa_handler",
@@ -1608,7 +2500,7 @@
       },
       "post": {
         "tags": [
-          "siswa"
+          "Admin"
         ],
         "summary": "Add new siswa",
         "operationId": "create_siswa_handler",
@@ -1647,10 +2539,103 @@
         ]
       }
     },
+    "/api/siswa/bulk/import": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Bulk import handler - import valid rows from preview session",
+        "operationId": "bulk_import_handler",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkImportRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Import successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkImportResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Import error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/siswa/bulk/preview": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Bulk preview handler - upload and validate Excel file",
+        "operationId": "bulk_preview_handler",
+        "requestBody": {
+          "description": "Excel file upload",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUploadRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Preview generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkPreviewResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/siswa/{id}": {
       "get": {
         "tags": [
-          "siswa"
+          "Admin"
         ],
         "summary": "get siswa by id",
         "operationId": "get_siswa_handler",
@@ -1692,7 +2677,7 @@
       },
       "put": {
         "tags": [
-          "siswa"
+          "Admin"
         ],
         "summary": "update siswa with id",
         "operationId": "update_siswa_handler",
@@ -1747,7 +2732,7 @@
       },
       "delete": {
         "tags": [
-          "siswa"
+          "Admin"
         ],
         "summary": "delete siswa by id",
         "operationId": "delete_siswa_handler",
@@ -1772,6 +2757,381 @@
           },
           "404": {
             "description": "Siswa not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/tahun-ajaran": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List all tahun ajaran",
+        "operationId": "list_tahun_ajaran",
+        "responses": {
+          "200": {
+            "description": "Tahun ajaran list retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListTahunAjaranDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a new tahun ajaran",
+        "operationId": "create_tahun_ajaran",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTahunAjaranDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Tahun ajaran created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TahunAjaranDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/tahun-ajaran/active": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get the active tahun ajaran",
+        "operationId": "get_active_tahun_ajaran",
+        "responses": {
+          "200": {
+            "description": "Active tahun ajaran retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TahunAjaranDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Active tahun ajaran not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/tahun-ajaran/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get a tahun ajaran by ID",
+        "operationId": "get_tahun_ajaran",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Tahun ajaran ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tahun ajaran retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TahunAjaranDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tahun ajaran not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a tahun ajaran",
+        "operationId": "update_tahun_ajaran",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Tahun ajaran ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTahunAjaranDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Tahun ajaran updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TahunAjaranDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tahun ajaran not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a tahun ajaran",
+        "operationId": "delete_tahun_ajaran",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Tahun ajaran ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Tahun ajaran deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tahun ajaran not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/tahun-ajaran/{id}/activate": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Activate a tahun ajaran",
+        "operationId": "activate_tahun_ajaran",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Tahun ajaran ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tahun ajaran activated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TahunAjaranDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Tahun ajaran not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/upload/image": {
+      "post": {
+        "tags": [
+          "Upload"
+        ],
+        "summary": "Simple file upload handler",
+        "description": "# Memory Safety\n- Enforces max file size (5MB default)\n- Limits concurrent uploads with semaphore\n- Processes images with resize/compression\n- Times out after 60 seconds\n\n# Usage\n```bash\ncurl -X POST http://localhost:8001/api/upload/image \\\n  -H \"Content-Type: image/jpeg\" \\\n  --data-binary @photo.jpg\n```",
+        "operationId": "upload_image_handler",
+        "requestBody": {
+          "description": "Raw image bytes (JPEG or PNG, max 5MB)",
+          "content": {
+            "image/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Image uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file type or size"
+          },
+          "429": {
+            "description": "Too many concurrent uploads"
+          },
+          "503": {
+            "description": "Upload timeout"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/upload/images": {
+      "post": {
+        "tags": [
+          "Upload"
+        ],
+        "summary": "Bulk image upload handler using multipart/form-data",
+        "description": "# Features\n- Accepts multiple image files in a single request\n- Supports partial failures (some files succeed, some fail)\n- Enforces file count and total size limits\n- Processes each file through existing ImageProcessor\n- Returns detailed results for each file\n\n# Usage\n```bash\ncurl -X POST http://localhost:8001/api/upload/images \\\n  -H \"Authorization: Bearer {token}\" \\\n  -F \"files=@photo1.jpg\" \\\n  -F \"files=@photo2.jpg\" \\\n  -F \"files=@photo3.png\"\n```",
+        "operationId": "upload_images_bulk_handler",
+        "requestBody": {
+          "description": "Multiple image files (JPEG/PNG, max 10 files, 25MB total) via multipart/form-data with field name 'files'",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk upload completed (partial success possible)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkUploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid multipart data, file count exceeded, or total size exceeded"
+          },
+          "429": {
+            "description": "Too many concurrent uploads"
           }
         },
         "security": [
@@ -1821,7 +3181,7 @@
     "/auth/login": {
       "post": {
         "tags": [
-          "auth"
+          "Authentication"
         ],
         "summary": "Admin Login",
         "operationId": "login_handler",
@@ -1858,7 +3218,7 @@
     "/auth/logout": {
       "post": {
         "tags": [
-          "auth"
+          "Authentication"
         ],
         "summary": "Logout",
         "operationId": "logout_handler",
@@ -1887,7 +3247,7 @@
     "/auth/refresh": {
       "post": {
         "tags": [
-          "auth"
+          "Authentication"
         ],
         "summary": "Refresh token",
         "operationId": "refresh_token_handler",
@@ -1961,7 +3321,7 @@
     "/health": {
       "get": {
         "tags": [
-          "auth"
+          "Authentication"
         ],
         "summary": "Health check",
         "operationId": "health_check_handler",
@@ -2074,6 +3434,308 @@
           "tanggal_selesai": {
             "type": "string",
             "format": "date"
+          }
+        }
+      },
+      "BulkErrorResponseDto": {
+        "type": "object",
+        "description": "Error response for bulk operations",
+        "required": [
+          "success",
+          "error",
+          "error_code"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BulkImportRequestDto": {
+        "type": "object",
+        "description": "Import request - sent to confirm import",
+        "required": [
+          "session_id"
+        ],
+        "properties": {
+          "session_id": {
+            "type": "string"
+          }
+        }
+      },
+      "BulkImportResponseDto": {
+        "type": "object",
+        "description": "Import response - returned after successful import",
+        "required": [
+          "success",
+          "message",
+          "imported_count",
+          "imported_rows"
+        ],
+        "properties": {
+          "imported_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "imported_rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkImportedSiswaDto"
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BulkImportedSiswaDto": {
+        "type": "object",
+        "description": "Imported siswa info",
+        "required": [
+          "id",
+          "nama_lengkap",
+          "nisn",
+          "kelas_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kelas_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nama_lengkap": {
+            "type": "string"
+          },
+          "nisn": {
+            "type": "string"
+          }
+        }
+      },
+      "BulkPreviewResponseDto": {
+        "type": "object",
+        "description": "Preview response - returned after upload and validation",
+        "required": [
+          "success",
+          "session_id",
+          "expires_at",
+          "summary",
+          "valid_rows",
+          "error_rows"
+        ],
+        "properties": {
+          "error_rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkSiswaErrorDto"
+            }
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BulkPreviewSummaryDto"
+          },
+          "valid_rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkSiswaRowDto"
+            }
+          }
+        }
+      },
+      "BulkPreviewSummaryDto": {
+        "type": "object",
+        "description": "Summary of preview results",
+        "required": [
+          "total_rows",
+          "valid_count",
+          "error_count"
+        ],
+        "properties": {
+          "error_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total_rows": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "valid_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "BulkSiswaErrorDto": {
+        "type": "object",
+        "description": "Error detail for a single row",
+        "required": [
+          "row_number",
+          "data",
+          "errors"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/BulkSiswaRowDto"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "row_number": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "BulkSiswaRowDto": {
+        "type": "object",
+        "description": "Row data parsed from Excel",
+        "required": [
+          "row_number",
+          "nama_lengkap",
+          "nisn",
+          "kelas"
+        ],
+        "properties": {
+          "alamat": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kelas": {
+            "type": "string"
+          },
+          "kelas_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "nama_lengkap": {
+            "type": "string"
+          },
+          "nisn": {
+            "type": "string"
+          },
+          "no_telp": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "row_number": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "tanggal_lahir": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          }
+        }
+      },
+      "BulkUploadItemResult": {
+        "type": "object",
+        "description": "Individual file upload result for bulk upload",
+        "required": [
+          "filename",
+          "success"
+        ],
+        "properties": {
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error message (if failed)"
+          },
+          "filename": {
+            "type": "string",
+            "description": "Original filename"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Upload success status"
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Public URL of uploaded file (if successful)"
+          }
+        }
+      },
+      "BulkUploadRequestDto": {
+        "type": "object",
+        "description": "Multipart upload request for Swagger documentation",
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "Excel file (.xlsx or .xls)"
+          }
+        }
+      },
+      "BulkUploadResponse": {
+        "type": "object",
+        "description": "Bulk upload response with partial failure support",
+        "required": [
+          "successful_count",
+          "failed_count",
+          "results",
+          "success"
+        ],
+        "properties": {
+          "failed_count": {
+            "type": "integer",
+            "description": "Number of files that failed",
+            "minimum": 0
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkUploadItemResult"
+            },
+            "description": "Detailed results for each file"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Overall request status (true if at least one succeeded)"
+          },
+          "successful_count": {
+            "type": "integer",
+            "description": "Number of files successfully uploaded",
+            "minimum": 0
           }
         }
       },
@@ -2220,6 +3882,38 @@
           }
         }
       },
+      "CreateKegiatanPklDto": {
+        "type": "object",
+        "required": [
+          "tahun_ajaran_id",
+          "jenis_kegiatan",
+          "tanggal_mulai",
+          "tanggal_selesai"
+        ],
+        "properties": {
+          "deskripsi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jenis_kegiatan": {
+            "$ref": "#/components/schemas/JenisKegiatanPkl"
+          },
+          "tahun_ajaran_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tanggal_mulai": {
+            "type": "string",
+            "format": "date"
+          },
+          "tanggal_selesai": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
       "CreateKelasDto": {
         "type": "object",
         "description": "DTO for creating a new kelas",
@@ -2234,6 +3928,13 @@
           },
           "nama": {
             "type": "string"
+          },
+          "wali_kelas_guru_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
           }
         }
       },
@@ -2252,6 +3953,145 @@
           "industri_id": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "CreateRealisasiKegiatanDto": {
+        "type": "object",
+        "required": [
+          "kegiatan_id",
+          "industri_id",
+          "bukti_foto_urls"
+        ],
+        "properties": {
+          "bukti_foto_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "https://url1.com",
+              "https://url2.com"
+            ]
+          },
+          "catatan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "industri_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kegiatan_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tanggal_realisasi": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          }
+        }
+      },
+      "CreateSekolahDto": {
+        "type": "object",
+        "description": "DTO for creating a new sekolah",
+        "required": [
+          "npsn",
+          "nama_sekolah",
+          "nomor_telepon"
+        ],
+        "properties": {
+          "akreditasi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jalan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jenis_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kabupaten_kota": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kecamatan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kelurahan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kepala_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kode_pos": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "logo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nama_sekolah": {
+            "type": "string"
+          },
+          "nip_kepala_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nomor_telepon": {
+            "type": "string"
+          },
+          "npsn": {
+            "type": "string"
+          },
+          "provinsi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "website": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
@@ -2291,6 +4131,25 @@
               "null"
             ],
             "format": "date"
+          }
+        }
+      },
+      "CreateTahunAjaranDto": {
+        "type": "object",
+        "required": [
+          "kode",
+          "nama",
+          "is_active"
+        ],
+        "properties": {
+          "is_active": {
+            "type": "boolean"
+          },
+          "kode": {
+            "type": "string"
+          },
+          "nama": {
+            "type": "string"
           }
         }
       },
@@ -2446,6 +4305,61 @@
           }
         }
       },
+      "GuruIndustriDto": {
+        "type": "object",
+        "description": "DTO for industri yang dibimbing oleh guru",
+        "required": [
+          "industri_id",
+          "industri_nama",
+          "jumlah_siswa"
+        ],
+        "properties": {
+          "industri_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "industri_nama": {
+            "type": "string"
+          },
+          "jumlah_siswa": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "GuruIndustriTaskDto": {
+        "type": "object",
+        "description": "Industri with its siswa and tasks",
+        "required": [
+          "industri",
+          "siswa_count",
+          "siswa",
+          "tasks"
+        ],
+        "properties": {
+          "industri": {
+            "$ref": "#/components/schemas/IndustriInfoDto"
+          },
+          "siswa": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuruTaskSiswaDto"
+            }
+          },
+          "siswa_count": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuruTaskItemDto"
+            }
+          }
+        }
+      },
       "GuruLoginReqDto": {
         "type": "object",
         "required": [
@@ -2491,6 +4405,235 @@
           },
           "user": {
             "$ref": "#/components/schemas/GuruUserDto"
+          }
+        }
+      },
+      "GuruSiswaDto": {
+        "type": "object",
+        "description": "DTO for siswa yang dibimbing oleh guru",
+        "required": [
+          "application_id",
+          "siswa_id",
+          "siswa_username",
+          "siswa_nama",
+          "industri_id",
+          "industri_nama",
+          "status"
+        ],
+        "properties": {
+          "application_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "industri_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "industri_nama": {
+            "type": "string"
+          },
+          "siswa_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "siswa_nama": {
+            "type": "string"
+          },
+          "siswa_username": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PklStatus"
+          },
+          "tanggal_mulai": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "tanggal_selesai": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          }
+        }
+      },
+      "GuruTaskItemDto": {
+        "type": "object",
+        "description": "Individual task (kegiatan + realisasi)",
+        "required": [
+          "kegiatan"
+        ],
+        "properties": {
+          "kegiatan": {
+            "$ref": "#/components/schemas/GuruTaskKegiatanDto"
+          },
+          "realisasi": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/GuruTaskRealisasiDto"
+              }
+            ]
+          }
+        }
+      },
+      "GuruTaskKegiatanDto": {
+        "type": "object",
+        "description": "Kegiatan info with active status",
+        "required": [
+          "id",
+          "jenis",
+          "tanggal_mulai",
+          "tanggal_selesai",
+          "is_active",
+          "can_submit"
+        ],
+        "properties": {
+          "can_submit": {
+            "type": "boolean"
+          },
+          "deskripsi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "jenis": {
+            "type": "string"
+          },
+          "tanggal_mulai": {
+            "type": "string"
+          },
+          "tanggal_selesai": {
+            "type": "string"
+          }
+        }
+      },
+      "GuruTaskRealisasiDto": {
+        "type": "object",
+        "description": "Realisasi info for a kegiatan",
+        "required": [
+          "id",
+          "status"
+        ],
+        "properties": {
+          "bukti_foto_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "catatan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tanggal_realisasi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "GuruTaskSiswaDto": {
+        "type": "object",
+        "description": "Individual siswa in industri (without status - always approved)",
+        "required": [
+          "id",
+          "nama",
+          "username",
+          "nisn",
+          "kelas"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kelas": {
+            "type": "string"
+          },
+          "nama": {
+            "type": "string"
+          },
+          "nisn": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "GuruTasksResponseDto": {
+        "type": "object",
+        "description": "Main response for guru tasks endpoint",
+        "required": [
+          "data",
+          "summary"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuruIndustriTaskDto"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/GuruTasksSummaryDto"
+          }
+        }
+      },
+      "GuruTasksSummaryDto": {
+        "type": "object",
+        "description": "Summary stats for all tasks",
+        "required": [
+          "total_industri",
+          "total_tasks",
+          "completed_tasks",
+          "pending_tasks"
+        ],
+        "properties": {
+          "completed_tasks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "pending_tasks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_industri": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_tasks": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         }
       },
@@ -2608,6 +4751,35 @@
           }
         }
       },
+      "IndustriInfoDto": {
+        "type": "object",
+        "description": "Helper DTO for industri basic info",
+        "required": [
+          "id",
+          "nama"
+        ],
+        "properties": {
+          "alamat": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "jenis_industri": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nama": {
+            "type": "string"
+          }
+        }
+      },
       "IndustryPreviewDto": {
         "type": "object",
         "required": [
@@ -2680,6 +4852,15 @@
           }
         }
       },
+      "JenisKegiatanPkl": {
+        "type": "string",
+        "enum": [
+          "Pembekalan",
+          "Monitoring1",
+          "Monitoring2",
+          "Penjemputan"
+        ]
+      },
       "JurusanDto": {
         "type": "object",
         "description": "DTO for jurusan response",
@@ -2718,6 +4899,64 @@
           }
         }
       },
+      "KegiatanPklDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "tahun_ajaran_id",
+          "jenis_kegiatan",
+          "tanggal_mulai",
+          "tanggal_selesai",
+          "status",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "deskripsi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "jenis_kegiatan": {
+            "$ref": "#/components/schemas/JenisKegiatanPkl"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status kegiatan: 'active' jika belum lewat tanggal_selesai, 'completed' jika sudah lewat",
+            "example": "active"
+          },
+          "tahun_ajaran_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tanggal_mulai": {
+            "type": "string",
+            "format": "date"
+          },
+          "tanggal_selesai": {
+            "type": "string",
+            "format": "date"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "KelasDto": {
         "type": "object",
         "description": "DTO for kelas response",
@@ -2747,6 +4986,35 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "wali_kelas_guru_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "KelasInfoSummaryDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "nama",
+          "total_siswa"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nama": {
+            "type": "string"
+          },
+          "total_siswa": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         }
       },
@@ -2770,6 +5038,46 @@
             "minimum": 0
           },
           "total_this_pagination": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "ListGuruIndustriDto": {
+        "type": "object",
+        "required": [
+          "data",
+          "total"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuruIndustriDto"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "ListGuruSiswaDto": {
+        "type": "object",
+        "required": [
+          "data",
+          "total"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuruSiswaDto"
+            }
+          },
+          "total": {
             "type": "integer",
             "format": "int64",
             "minimum": 0
@@ -2943,6 +5251,26 @@
           }
         }
       },
+      "ListTahunAjaranDto": {
+        "type": "object",
+        "required": [
+          "data",
+          "total"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TahunAjaranDto"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
       "LoginReqDto": {
         "type": "object",
         "required": [
@@ -3074,6 +5402,38 @@
           "pkl_approved",
           "pkl_rejected"
         ]
+      },
+      "PaginationDto": {
+        "type": "object",
+        "description": "Pagination metadata",
+        "required": [
+          "page",
+          "limit",
+          "total_items",
+          "total_pages"
+        ],
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_items": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
       },
       "PembimbingGuruDto": {
         "type": "object",
@@ -3287,6 +5647,67 @@
           "Completed"
         ]
       },
+      "RealisasiKegiatanDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "kegiatan_id",
+          "pembimbing_id",
+          "industri_id",
+          "bukti_foto_urls",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "bukti_foto_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "catatan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "industri_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kegiatan_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pembimbing_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StatusRealisasiEnum"
+          },
+          "tanggal_realisasi": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "RefreshReqDto": {
         "type": "object",
         "description": "Refresh token request DTO",
@@ -3340,6 +5761,144 @@
         "properties": {
           "catatan": {
             "type": "string"
+          }
+        }
+      },
+      "SekolahDto": {
+        "type": "object",
+        "description": "DTO for sekolah response",
+        "required": [
+          "id",
+          "npsn",
+          "nama_sekolah",
+          "nomor_telepon",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "akreditasi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "jalan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jenis_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kabupaten_kota": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kecamatan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kelurahan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kepala_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kode_pos": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "logo_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "logo_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nama_sekolah": {
+            "type": "string"
+          },
+          "nip_kepala_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nomor_telepon": {
+            "type": "string"
+          },
+          "npsn": {
+            "type": "string"
+          },
+          "provinsi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "website": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "SekolahSingleResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "data",
+          "message"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/SekolahDto"
+          },
+          "message": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
           }
         }
       },
@@ -3397,6 +5956,112 @@
           }
         }
       },
+      "SiswaIndustryDetailDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "quota",
+          "remaining_slots"
+        ],
+        "properties": {
+          "address": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pic_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pic_phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quota": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remaining_slots": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sector": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "website": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "SiswaIndustryPreviewDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "quota",
+          "remaining_slots"
+        ],
+        "properties": {
+          "address": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quota": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remaining_slots": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sector": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
       "SiswaLoginReqDto": {
         "type": "object",
         "required": [
@@ -3445,6 +6110,66 @@
           }
         }
       },
+      "SiswaPklSummaryDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "nisn",
+          "nama",
+          "status_pkl"
+        ],
+        "properties": {
+          "alamat_industri": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "industri": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nama": {
+            "type": "string"
+          },
+          "nisn": {
+            "type": "string"
+          },
+          "no_telp_industri": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "no_telp_pembimbing_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pembimbing": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pembimbing_industri": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status_pkl": {
+            "type": "string"
+          }
+        }
+      },
       "SiswaUserDto": {
         "type": "object",
         "required": [
@@ -3474,6 +6199,13 @@
           }
         }
       },
+      "StatusRealisasiEnum": {
+        "type": "string",
+        "enum": [
+          "Belum",
+          "Sudah"
+        ]
+      },
       "SuccessResDto": {
         "type": "object",
         "description": "Success response DTO",
@@ -3490,6 +6222,40 @@
           },
           "success": {
             "type": "boolean"
+          }
+        }
+      },
+      "TahunAjaranDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "kode",
+          "nama",
+          "is_active",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "kode": {
+            "type": "string"
+          },
+          "nama": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -3680,6 +6446,48 @@
           }
         }
       },
+      "UpdateKegiatanPklDto": {
+        "type": "object",
+        "properties": {
+          "deskripsi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jenis_kegiatan": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JenisKegiatanPkl"
+              }
+            ]
+          },
+          "tahun_ajaran_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "tanggal_mulai": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "tanggal_selesai": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          }
+        }
+      },
       "UpdateKelasDto": {
         "type": "object",
         "description": "DTO for updating an existing kelas",
@@ -3692,6 +6500,121 @@
             "format": "int64"
           },
           "nama": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "remove_wali_kelas": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "wali_kelas_guru_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "UpdateSekolahDto": {
+        "type": "object",
+        "description": "DTO for updating an existing sekolah",
+        "properties": {
+          "akreditasi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jalan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jenis_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kabupaten_kota": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kecamatan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kelurahan": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kepala_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kode_pos": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "logo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nama_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nip_kepala_sekolah": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nomor_telepon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "npsn": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provinsi": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "website": {
             "type": [
               "string",
               "null"
@@ -3742,6 +6665,57 @@
           }
         }
       },
+      "UpdateTahunAjaranDto": {
+        "type": "object",
+        "properties": {
+          "is_active": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "kode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nama": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "UploadErrorResponse": {
+        "type": "object",
+        "description": "Upload error response",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "UploadResponse": {
+        "type": "object",
+        "description": "Upload response",
+        "required": [
+          "url",
+          "filename"
+        ],
+        "properties": {
+          "filename": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
       "UsrInfoDto": {
         "type": "object",
         "description": "User info in token response",
@@ -3766,6 +6740,29 @@
             "type": "string"
           }
         }
+      },
+      "WaliKelasDashboardDto": {
+        "type": "object",
+        "description": "Wali Kelas Dashboard DTO",
+        "required": [
+          "kelas_info",
+          "siswa_list",
+          "pagination"
+        ],
+        "properties": {
+          "kelas_info": {
+            "$ref": "#/components/schemas/KelasInfoSummaryDto"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationDto"
+          },
+          "siswa_list": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiswaPklSummaryDto"
+            }
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -3779,40 +6776,44 @@
   },
   "tags": [
     {
-      "name": "auth",
-      "description": "Authentication endpoints and health checks"
+      "name": "Authentication",
+      "description": "Authentication and authorization endpoints - login, logout, refresh token, health check"
     },
     {
-      "name": "siswa",
-      "description": "Student management endpoints(admin role can access)"
+      "name": "Admin",
+      "description": "Admin-only endpoints for CRUD master data: Jurusan, Kelas, Industri, Guru, Siswa, Tahun Ajaran, dan Dashboard stats. Requires role='adm'."
     },
     {
-      "name": "guru",
-      "description": "Teacher management endpoints(admin role can access)"
+      "name": "Koordinator",
+      "description": "Koordinator endpoints for managing kegiatan PKL formal (orientasi, pelaksanaan, evaluasi). Requires is_koordinator=true."
     },
     {
-      "name": "jurusan",
-      "description": "Jurusan management endpoints(Admin role can access)"
+      "name": "Kaprog",
+      "description": "Kaprog endpoints untuk review, approve/reject permohonan PKL, set pembimbing, manage kuota industri. Requires is_kaprog=true."
     },
     {
-      "name": "kelas",
-      "description": "Kelas management endpoints(Admin role can access)"
+      "name": "Wali Kelas",
+      "description": "Wali Kelas endpoints untuk memantau siswa di kelas, monitoring kegiatan PKL siswa. Requires is_wali_kelas=true."
     },
     {
-      "name": "industri",
-      "description": "Industri management endpoints(Admin role can access)"
+      "name": "Pembimbing",
+      "description": "Pembimbing endpoints untuk submit realisasi kegiatan, view industri & siswa yang dibimbing. Requires is_pembimbing=true."
     },
     {
-      "name": "PKL - Siswa",
-      "description": "PKL endpoints for siswa to membuat permohonan, melihat status, dan memantau PKL aktif"
+      "name": "Siswa",
+      "description": "Siswa endpoints untuk submit permohonan PKL, view status permohonan, view PKL aktif. Requires role='ssw'."
     },
     {
-      "name": "PKL - Kaprog/Admin",
-      "description": "PKL endpoints untuk permohonan siswa pkl dan untuk kaprog meninjau, menyetujui, mengelola kuota industri, serta mencari pembimbing"
-    },
-    {
-      "name": "websocket",
+      "name": "WebSocket",
       "description": "Real-time notifications via WebSocket. Connect at /ws?token={JWT}. Only students (role: ssw) can connect. See /ws-docs for complete guide."
+    },
+    {
+      "name": "Upload",
+      "description": "File upload endpoints for images (JPEG/PNG). Max 5MB, auto-resize to 1080x1080, 80% JPEG compression, EXIF stripped."
+    },
+    {
+      "name": "Sekolah",
+      "description": "Sekolah management endpoints. Admin can create/update sekolah with logo upload. All authenticated users can view sekolah data."
     }
   ]
 }
