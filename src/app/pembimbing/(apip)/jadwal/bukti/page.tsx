@@ -39,84 +39,11 @@ import { getTasksRealisasiPkl } from "@/api/pembimbing"
 import { Spinner } from "@/components/ui/spinner"
 import { useRouter } from "next/navigation"
 
-const mockPayload = {
-    "data": [
-        {
-            "industri": {
-                "id": 51,
-                "nama": "PT Nusantara",
-                "alamat": "Surabaya Barat",
-                "jenis_industri": "Ekonomi Bisnis"
-            },
-            "siswa_count": 2,
-            "siswa": [
-                {
-                    "id": 86,
-                    "nama": "Ahmad Fauzi",
-                    "username": "ahmadf",
-                    "nisn": "9890989098",
-                    "kelas": "XII DKV 3"
-                },
-                {
-                    "id": 87,
-                    "nama": "Sari Indah",
-                    "username": "sari_i",
-                    "nisn": "9890989099",
-                    "kelas": "XII DKV 3"
-                }
-            ],
-            "tasks": [
-                {
-                    "kegiatan": {
-                        "id": 36,
-                        "jenis": "Pembekalan",
-                        "tanggal_mulai": "2026-01-21",
-                        "tanggal_selesai": "2026-01-28",
-                        "deskripsi": "ini adlah jadwal pembekalan seluhruh siswa kelas 12",
-                        "is_active": false,
-                        "can_submit": false
-                    }
-                },
-                {
-                    "kegiatan": {
-                        "id": 34,
-                        "jenis": "Monitoring2",
-                        "tanggal_mulai": "2026-02-10",
-                        "tanggal_selesai": "2026-02-13",
-                        "deskripsi": "test",
-                        "is_active": true,
-                        "can_submit": true
-                    }
-                },
-                {
-                    "kegiatan": {
-                        "id": 35,
-                        "jenis": "Penjemputan",
-                        "tanggal_mulai": "2026-02-19",
-                        "tanggal_selesai": "2026-02-27",
-                        "deskripsi": "test",
-                        "is_active": false,
-                        "can_submit": false
-                    }
-                }
-            ]
-        }
-    ],
-    "summary": {
-        "total_industri": 1,
-        "total_tasks": 3,
-        "completed_tasks": 0,
-        "pending_tasks": 3
-    }
-}
-
 export default function JadwalBukti() {
     const [search, setSearch] = useState("")
     const [data, setData] = useState<TasksRealisasiPkl | null>(null)
     const [loading, setLoading] = useState(true)
     const router = useRouter()
-
-    console.log(data)
 
     const formatDate = (dateString: string) => {
         return format(new Date(dateString), "dd MMM yyyy", { locale: idLocale })
