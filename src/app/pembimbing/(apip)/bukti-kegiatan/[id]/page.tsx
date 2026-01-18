@@ -3,8 +3,8 @@
 import { getRealisasiKegiatanPklById } from "@/api/pembimbing"
 import { IBuktiKegiatan } from "@/types/api"
 import { useParams, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useCallback, useEffect, useState } from "react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -19,7 +19,7 @@ export default function BuktiKegiatanDetail() {
     const { id } = useParams()
     const router = useRouter()
 
-    const fetch = async () => {
+    const fetch = useCallback(async () => {
         try {
             setLoading(true)
             const res = await getRealisasiKegiatanPklById(Number(id))
@@ -29,13 +29,13 @@ export default function BuktiKegiatanDetail() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [id])
 
     useEffect(() => {
         if (id) {
             fetch()
         }
-    }, [id])
+    }, [id, fetch])
 
     if (loading) {
         return (

@@ -194,34 +194,35 @@ export default function SiswaManagement() {
         <p className="text-gray-600">Kelola data siswa dan informasi pribadi</p>
       </div>
 
-      data={siswa}
-      columns={columns}
-      onAdd={handleAdd}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-      onView={handleView}
-      additionalActions={
-        <Button variant="outline" onClick={handleImport} className="ml-2 gap-2">
-          <FileSpreadsheet className="h-4 w-4" />
-          Import (.xlsx)
-        </Button>
-      }
-      onSearch={handleSearch}
-      isSearching={searchLoading}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-      searchPlaceholder="Cari berdasarkan nama..."
-      title="Daftar Siswa"
-      addButtonText="Tambah Siswa Baru"
-      filter={true}
-      filterData={filterData}
-      setSelectedKelas={setSelectedKelas}
-      setSelectedJurusan={setSelectedJurusan}
-      selectedKelas={selectedKelas}
-      selectedJurusan={selectedJurusan}
-      loadData={loadData}
-      loading={loading}
+      <DataTable
+        data={siswa}
+        columns={columns}
+        onAdd={handleAdd}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onView={handleView}
+        additionalActions={
+          <Button variant="outline" onClick={handleImport} className="ml-2 gap-2">
+            <FileSpreadsheet className="h-4 w-4" />
+            Import (.xlsx)
+          </Button>
+        }
+        onSearch={handleSearch}
+        isSearching={searchLoading}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        searchPlaceholder="Cari berdasarkan nama..."
+        title="Daftar Siswa"
+        addButtonText="Tambah Siswa Baru"
+        filter={true}
+        filterData={filterData}
+        setSelectedKelas={setSelectedKelas}
+        setSelectedJurusan={setSelectedJurusan}
+        selectedKelas={selectedKelas}
+        selectedJurusan={selectedJurusan}
+        loadData={loadData}
+        loading={loading}
       />
     </div>
   )

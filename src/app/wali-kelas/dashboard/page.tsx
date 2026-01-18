@@ -6,7 +6,7 @@ import { GraduationCap, Users, Building2, ArrowUp, Search, MoreHorizontal, Loade
 import { useEffect, useState } from "react";
 import { getWaliKelasDashboard, SiswaPklSummaryDto, WaliKelasDashboardDto } from "@/api/wali-kelas";
 import { toast } from "sonner";
-import { useDebounce } from "@/hooks/useDebounce"; // Ensure this hook exists or implement simple debounce
+import { useDebounce } from "../../../hooks/useDebounce"; // Ensure this hook exists or implement simple debounce
 
 export default function Dashboard() {
     const [loading, setLoading] = useState(true)
@@ -15,12 +15,8 @@ export default function Dashboard() {
     const [searchTerm, setSearchTerm] = useState("")
     const [page, setPage] = useState(1)
 
-    // Manual debounce implementation since hook might not be available
-    const [debouncedSearch, setDebouncedSearch] = useState(searchTerm)
-    useEffect(() => {
-        const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500)
-        return () => clearTimeout(timer)
-    }, [searchTerm])
+    // Use the custom hook for debouncing
+    const debouncedSearch = useDebounce(searchTerm, 500)
 
     useEffect(() => {
         loadData()
