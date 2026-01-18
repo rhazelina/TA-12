@@ -116,6 +116,8 @@ export default function JadwalBukti() {
     const [loading, setLoading] = useState(true)
     const router = useRouter()
 
+    console.log(data)
+
     const formatDate = (dateString: string) => {
         return format(new Date(dateString), "dd MMM yyyy", { locale: idLocale })
     }
@@ -148,11 +150,15 @@ export default function JadwalBukti() {
                 <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
                     <div className="px-4 py-2 border-r border-gray-100 last:border-0 text-center">
                         <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1.5">Total Industri</p>
-                        <p className="text-xl font-bold text-[#8B1E1E] leading-none">{mockPayload.summary.total_industri}</p>
+                        <p className="text-xl font-bold text-[#8B1E1E] leading-none">{data?.summary.total_industri}</p>
                     </div>
                     <div className="px-4 py-2 border-r border-gray-100 last:border-0 text-center">
-                        <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1.5">Tugas Aktif</p>
-                        <p className="text-xl font-bold text-amber-600 leading-none">{mockPayload.summary.pending_tasks}</p>
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1.5">Tugas Tertunda</p>
+                        <p className="text-xl font-bold text-amber-600 leading-none">{data?.summary.pending_tasks}</p>
+                    </div>
+                    <div className="px-4 py-2 border-r border-gray-100 last:border-0 text-center">
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1.5">Tugas Selesai</p>
+                        <p className="text-xl font-bold text-green-600 leading-none">{data?.summary.completed_tasks}</p>
                     </div>
                 </div>
             </div>

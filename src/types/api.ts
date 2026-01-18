@@ -329,6 +329,33 @@ export interface SiswaDataPembimbing {
   tanggal_selesai: string;
 }
 
+export interface ApiResponseSekolah {
+  data: {
+    akreditasi: string;
+    created_at: string; // Bisa menggunakan Date jika ingin dikonversi nantinya
+    email: string;
+    id: number;
+    jalan: string;
+    jenis_sekolah: string;
+    kabupaten_kota: string;
+    kecamatan: string;
+    kelurahan: string;
+    kepala_sekolah: string;
+    kode_pos: string;
+    logo_key: string;
+    logo_url: string;
+    nama_sekolah: string;
+    nip_kepala_sekolah: string;
+    nomor_telepon: string;
+    npsn: string;
+    provinsi: string;
+    updated_at: string;
+    website: string;
+  };
+  message: string;
+  success: boolean;
+}
+
 export type GuruListResponse = ListResponse<Guru>;
 export type SiswaListResponse = ListResponse<Siswa>;
 export type JurusanListResponse = ListResponse<Jurusan>;
