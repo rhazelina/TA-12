@@ -90,27 +90,6 @@ export default function JadwalBukti() {
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row items-center gap-4">
-                <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-                    <Input
-                        placeholder="Cari industri atau lokasi..."
-                        className="pl-11 h-12 bg-white border-transparent shadow-sm focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E] rounded-xl transition-all"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
-                <div className="flex items-center gap-2 w-full md:w-auto">
-                    <Button variant="outline" className="h-12 border-none bg-white shadow-sm hover:bg-gray-50 rounded-xl px-5 text-gray-600">
-                        <Filter className="mr-2 h-4 w-4" />
-                        Filter
-                    </Button>
-                    <Button className="h-12 bg-[#8B1E1E] hover:bg-[#6e1818] shadow-lg shadow-[#8B1E1E]/10 items-center text-white px-8 rounded-xl transition-all font-semibold">
-                        Cari
-                    </Button>
-                </div>
-            </div>
-
             <div className="grid gap-8">
                 {(data?.data?.length ?? 0) > 0 ? data?.data?.map((item, idx) => (
                     <div key={idx} className="group flex flex-col gap-4">
