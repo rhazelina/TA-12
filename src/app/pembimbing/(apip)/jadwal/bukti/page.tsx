@@ -209,7 +209,7 @@ export default function JadwalBukti() {
                                                             : 'bg-gray-100 text-gray-400 border-transparent'
                                                             }`}
                                                         onClick={() => {
-                                                            router.push(`/pembimbing/jadwal/${task.kegiatan.id}/industri/${item.industri.id}/bukti`)
+                                                            router.push(`/pembimbing/jadwal/bukti/cetak`)
                                                         }}
                                                     >
                                                         <Printer className="h-4 w-4" />
