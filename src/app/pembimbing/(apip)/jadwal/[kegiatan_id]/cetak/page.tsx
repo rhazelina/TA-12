@@ -141,8 +141,6 @@ const defaultValues: z.infer<typeof formSchema> = {
 }
 
 const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
-
-    console.log('logo sekolah', data.school_info)
     return (
         <div className="bg-white p-10 w-[210mm] min-h-auto mx-auto text-black font-serif text-sm leading-relaxed shadow-lg">
             {/* Header / Kop */}
