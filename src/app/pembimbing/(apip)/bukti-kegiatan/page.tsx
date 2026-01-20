@@ -82,19 +82,6 @@ export default function HasilBukti() {
       </div>
 
       <Card className="border-none shadow-sm bg-white rounded-2xl">
-        <CardHeader className="pb-0 pt-6 px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-              <Input
-                placeholder="Cari catatan atau ID..."
-                className="pl-11 h-11 bg-gray-50/50 border-gray-200 focus:ring-[#8B1E1E]/20 focus:border-[#8B1E1E] rounded-xl transition-all"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </div>
-        </CardHeader>
         <CardContent className="p-4 sm:p-6">
           <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
             <Table>
