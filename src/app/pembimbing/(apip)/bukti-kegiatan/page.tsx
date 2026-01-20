@@ -94,14 +94,6 @@ export default function HasilBukti() {
               />
             </div>
           </div>
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <Button
-              className="h-11 bg-[#8B1E1E] hover:bg-[#6e1818] text-white px-8 rounded-xl font-semibold"
-              onClick={() => router.push('/pembimbing/bukti-kegiatan/tambah')}
-            >
-              + Tambah Kegiatan
-            </Button>
-          </div>
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
           <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
