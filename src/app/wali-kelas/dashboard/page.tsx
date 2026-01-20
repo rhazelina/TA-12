@@ -6,7 +6,6 @@ import { GraduationCap, Users, Building2, ArrowUp, Search, MoreHorizontal, Loade
 import { useEffect, useState } from "react";
 import { getWaliKelasDashboard, SiswaPklSummaryDto, WaliKelasDashboardDto } from "@/api/wali-kelas";
 import { toast } from "sonner";
-import { useDebounce } from "@/hooks/useDebounce"; // Ensure this hook exists or implement simple debounce
 
 export default function Dashboard() {
     const [loading, setLoading] = useState(true)
