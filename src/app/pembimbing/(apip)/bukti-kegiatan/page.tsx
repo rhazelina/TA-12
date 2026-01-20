@@ -102,82 +102,81 @@ export default function HasilBukti() {
               + Tambah Kegiatan
             </Button>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 sm:p-6">
-        <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-          <Table>
-            <TableHeader className="bg-gray-50/80">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="font-bold text-gray-700 py-4 px-6">No. ID</TableHead>
-                <TableHead className="font-bold text-gray-700 py-4 px-6">Tanggal Realisasi</TableHead>
-                <TableHead className="font-bold text-gray-700 py-4 px-6">Status</TableHead>
-                <TableHead className="font-bold text-gray-700 py-4 px-6">Catatan</TableHead>
-                <TableHead className="font-bold text-gray-700 py-4 px-6">Lampiran</TableHead>
-                <TableHead className="text-right font-bold text-gray-700 py-4 px-6">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.length > 0 ? data.map((item) => (
-                <TableRow key={item.id} className="hover:bg-gray-50/50 transition-colors group">
-                  <TableCell className="py-5 px-6 font-medium text-gray-500">#{item.id.toString().slice(-4)}</TableCell>
-                  <TableCell className="py-5 px-6">
-                    <div className="flex items-center gap-2.5">
-                      <Calendar className="h-4 w-4 text-[#8B1E1E]/60" />
-                      <span className="font-semibold text-gray-900">{formatDate(item.tanggal_realisasi)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-5 px-6">
-                    {getStatusBadge(item.status)}
-                  </TableCell>
-                  <TableCell className="py-5 px-6">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 max-w-xs">
-                      <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
-                      <p className="truncate italic">{item.catatan || "-"}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-5 px-6">
-                    <div className=" items-center gap-1.5 text-sm font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100/50 inline-flex">
-                      <ImageIcon className="h-3.5 w-3.5" />
-                      <span>{item.bukti_foto_urls?.length || 0} Foto</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-5 px-6 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-9 w-9 text-gray-500 hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 rounded-lg"
-                        onClick={() => {
-                          router.push(`/pembimbing/bukti-kegiatan/${item.id}`)
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-6">
+          <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+            <Table>
+              <TableHeader className="bg-gray-50/80">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">No. ID</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">Tanggal Realisasi</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">Status</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">Catatan</TableHead>
+                  <TableHead className="font-bold text-gray-700 py-4 px-6">Lampiran</TableHead>
+                  <TableHead className="text-right font-bold text-gray-700 py-4 px-6">Aksi</TableHead>
                 </TableRow>
-              )) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                    Belum ada hasil bukti yang dikirim.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-          <p>Menampilkan <span className="font-bold text-gray-900">{data.length}</span> data hasil bukti</p>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="rounded-lg h-9 px-4 border-gray-200">Sebelumnya</Button>
-            <Button variant="outline" size="sm" className="rounded-lg h-9 w-9 border-gray-200 bg-white text-[#8B1E1E] font-bold">1</Button>
-            <Button variant="outline" size="sm" className="rounded-lg h-9 px-4 border-gray-200">Selanjutnya</Button>
+              </TableHeader>
+              <TableBody>
+                {data.length > 0 ? data.map((item) => (
+                  <TableRow key={item.id} className="hover:bg-gray-50/50 transition-colors group">
+                    <TableCell className="py-5 px-6 font-medium text-gray-500">#{item.id.toString().slice(-4)}</TableCell>
+                    <TableCell className="py-5 px-6">
+                      <div className="flex items-center gap-2.5">
+                        <Calendar className="h-4 w-4 text-[#8B1E1E]/60" />
+                        <span className="font-semibold text-gray-900">{formatDate(item.tanggal_realisasi)}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-5 px-6">
+                      {getStatusBadge(item.status)}
+                    </TableCell>
+                    <TableCell className="py-5 px-6">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 max-w-xs">
+                        <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+                        <p className="truncate italic">{item.catatan || "-"}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-5 px-6">
+                      <div className=" items-center gap-1.5 text-sm font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100/50 inline-flex">
+                        <ImageIcon className="h-3.5 w-3.5" />
+                        <span>{item.bukti_foto_urls?.length || 0} Foto</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-5 px-6 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-9 w-9 text-gray-500 hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 rounded-lg"
+                          onClick={() => {
+                            router.push(`/pembimbing/bukti-kegiatan/${item.id}`)
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                      Belum ada hasil bukti yang dikirim.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+            <p>Menampilkan <span className="font-bold text-gray-900">{data.length}</span> data hasil bukti</p>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="rounded-lg h-9 px-4 border-gray-200">Sebelumnya</Button>
+              <Button variant="outline" size="sm" className="rounded-lg h-9 w-9 border-gray-200 bg-white text-[#8B1E1E] font-bold">1</Button>
+              <Button variant="outline" size="sm" className="rounded-lg h-9 px-4 border-gray-200">Selanjutnya</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div >
   )
 }
