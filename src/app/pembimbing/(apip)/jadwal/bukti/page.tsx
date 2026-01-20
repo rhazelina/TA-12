@@ -23,7 +23,8 @@ import {
     Users,
     MapPin,
     ChevronRight,
-    Info
+    Info,
+    Printer
 } from "lucide-react"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
@@ -291,7 +292,20 @@ export default function JadwalBukti() {
                                                     <Button
                                                         size="sm"
                                                         disabled={!task.kegiatan.can_submit}
-                                                        className={`h-10 rounded-xl px-5 transition-all font-bold ${task.kegiatan.can_submit
+                                                        className={`h-10 rounded-lg mr-2 px-5 transition-all font-bold ${task.kegiatan.can_submit
+                                                            ? 'bg-[#8B1E1E] hover:bg-[#6e1818] text-white shadow-md shadow-[#8B1E1E]/10'
+                                                            : 'bg-gray-100 text-gray-400 border-transparent'
+                                                            }`}
+                                                        onClick={() => {
+                                                            router.push(`/pembimbing/jadwal/${task.kegiatan.id}/cetak`)
+                                                        }}
+                                                    >
+                                                        <Printer className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        disabled={!task.kegiatan.can_submit}
+                                                        className={`h-10 rounded-lg px-5 transition-all font-bold ${task.kegiatan.can_submit
                                                             ? 'bg-[#8B1E1E] hover:bg-[#6e1818] text-white shadow-md shadow-[#8B1E1E]/10'
                                                             : 'bg-gray-100 text-gray-400 border-transparent'
                                                             }`}
@@ -299,9 +313,7 @@ export default function JadwalBukti() {
                                                             router.push(`/pembimbing/jadwal/${task.kegiatan.id}/industri/${item.industri.id}/bukti`)
                                                         }}
                                                     >
-                                                        <Upload className="mr-2 h-4 w-4" />
-                                                        Unggah Bukti
-                                                        <ChevronRight className="ml-1 h-4 w-4" />
+                                                        <Upload className="h-4 w-4" />
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>

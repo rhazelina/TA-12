@@ -1,5 +1,3 @@
-
-
 "use client"
 
 import { GraduationCap, Users, Building2, ArrowUp, Search, MoreHorizontal, Loader2 } from "lucide-react";
