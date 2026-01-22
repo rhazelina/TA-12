@@ -87,7 +87,7 @@ export function middleware(request: NextRequest) {
 
   // Cek apakah user mencoba mengakses route yang dilindungi
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   // Cek apakah user mencoba mengakses route auth
@@ -98,7 +98,7 @@ export function middleware(request: NextRequest) {
     console.log(
       "🔒 Unauthorized access to:",
       pathname,
-      "-> Redirecting to login"
+      "-> Redirecting to login",
     );
 
     // Redirect ke halaman login dengan return URL
@@ -117,32 +117,30 @@ export function middleware(request: NextRequest) {
       // Redirect berdasarkan role (rl)
       switch (payload.rl.toLowerCase()) {
         case "adm":
-          return NextResponse.redirect(
-            new URL("/admin/dashboard", request.url)
-          );
+          return NextResponse.redirect(new URL("/admin", request.url));
         case "ssw":
           return NextResponse.redirect(
-            new URL("/siswa/dashboard", request.url)
+            new URL("/siswa/dashboard", request.url),
           );
         case "gru":
           if (payload.is_kaprog) {
             return NextResponse.redirect(
-              new URL("/kapro/dashboard", request.url)
+              new URL("/kapro/dashboard", request.url),
             );
           }
           if (payload.is_koordinator) {
             return NextResponse.redirect(
-              new URL("/koordinator/dashboard", request.url)
+              new URL("/koordinator/dashboard", request.url),
             );
           }
           if (payload.is_wali_kelas) {
             return NextResponse.redirect(
-              new URL("/wali-kelas/dashboard", request.url)
+              new URL("/wali-kelas/dashboard", request.url),
             );
           }
           if (payload.is_pembimbing) {
             return NextResponse.redirect(
-              new URL("/pembimbing/dashboard", request.url)
+              new URL("/pembimbing/dashboard", request.url),
             );
           }
         default:
