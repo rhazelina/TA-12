@@ -15,13 +15,13 @@ import { Loader2, Send } from "lucide-react";
 import { getIndustri, getSiswa } from "@/api/pembimbing";
 
 interface Industry {
-  id: number;
-  nama: string;
+  industri_id: number;
+  industri_nama: string;
 }
 
 interface Student {
-  id: number;
-  nama: string;
+  siswa_id: number;
+  siswa_nama: string;
   industri?: string; // name
   industri_id?: number;
   // other fields
@@ -62,11 +62,11 @@ export default function PermasalahanSiswa() {
     // If API doesn't return industry info on student object, we might show all or need better API
     // For now, let's assume matching by Name if ID is missing, or ID if present
 
-    const ind = industries.find(i => i.id.toString() === selectedIndustry)
+    const ind = industries.find(i => i.industri_id.toString() === selectedIndustry)
     if (!ind) return false
 
     if (s.industri_id) return s.industri_id.toString() === selectedIndustry
-    if (s.industri) return s.industri === ind.nama
+    if (s.industri) return s.industri === ind.industri_nama;
 
     // Fallback: Show all if we can't filter (for development safety)
     return true
@@ -89,6 +89,8 @@ export default function PermasalahanSiswa() {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>
   }
 
+console.log("ind:", industries);
+
   return (
     <div className="flex-1 bg-[#fafafa] min-h-screen p-8">
       <div className="max-w-4xl mx-auto bg-white border rounded-xl p-8">
@@ -109,7 +111,7 @@ export default function PermasalahanSiswa() {
               </SelectTrigger>
               <SelectContent>
                 {industries.map(ind => (
-                  <SelectItem key={ind.id} value={ind.id.toString()}>{ind.nama}</SelectItem>
+                  <SelectItem key={ind.industri_id} value={ind.industri_id.toString()}>{ind.industri_nama}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -126,7 +128,7 @@ export default function PermasalahanSiswa() {
               </SelectTrigger>
               <SelectContent>
                 {filteredStudents.length > 0 ? filteredStudents.map(s => (
-                  <SelectItem key={s.id} value={s.id.toString()}>{s.nama}</SelectItem>
+                  <SelectItem key={s.siswa_id} value={s.siswa_id.toString()}>{s.siswa_nama}</SelectItem>
                 )) : (
                   <div className="p-2 text-sm text-gray-500 text-center">Tidak ada siswa ditemukan</div>
                 )}
