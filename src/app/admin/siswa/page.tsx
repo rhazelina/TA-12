@@ -207,8 +207,6 @@ export default function SiswaManagement() {
     )
   }
 
-  console.log(siswa)
-
   return (
     <div className="space-y-6">
       <div>

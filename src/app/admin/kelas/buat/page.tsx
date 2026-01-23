@@ -12,10 +12,13 @@ import { createKelas } from "@/api/admin/kelas"
 import { getJurusan } from "@/api/admin/jurusan"
 import { ArrowLeft, Save, School, AlertCircle, Users, Check } from "lucide-react"
 import { toast } from "sonner"
+import { Guru } from "@/types/api"
+import { getGuru } from "@/api/admin/guru"
 
 interface KelasFormData {
     nama: string
     jurusan_id: number
+    wali_kelas_guru_id: number
 }
 
 interface JurusanOption {
@@ -26,7 +29,8 @@ interface JurusanOption {
 
 const initialFormData: KelasFormData = {
     nama: '',
-    jurusan_id: 0
+    jurusan_id: 0,
+    wali_kelas_guru_id: 0
 }
 
 export default function CreateKelasPage() {
@@ -37,8 +41,9 @@ export default function CreateKelasPage() {
     const [errors, setErrors] = useState<Partial<Record<keyof KelasFormData, string>>>({})
     const [jurusanOptions, setJurusanOptions] = useState<JurusanOption[]>([])
     const [open, setOpen] = useState(false)
-
-
+    const [openGuru, setOpenGuru] = useState(false)
+    const [guru, setGuru] = useState<Guru[]>([])
+    const [loadingGuru, setLoadingGuru] = useState(true)
 
     // Load jurusan options
     useEffect(() => {
@@ -58,7 +63,23 @@ export default function CreateKelasPage() {
                 setLoadingJurusan(false)
             }
         }
-
+        const loadGuru = async () => {
+            try {
+                setLoadingGuru(true)
+                const response = await getGuru()
+                if (response && response.data && response.data.data) {
+                    setGuru(response.data.data)
+                } else {
+                    toast.error('Gagal memuat data guru')
+                }
+            } catch (error) {
+                console.error('Load guru error:', error)
+                toast.error('Gagal memuat data guru')
+            } finally {
+                setLoadingGuru(false)
+            }
+        }
+        loadGuru()
         loadJurusanOptions()
     }, [])
 
@@ -153,9 +174,7 @@ export default function CreateKelasPage() {
         }
     }
 
-    const getSelectedJurusan = () => {
-        return jurusanOptions.find(j => j.id === formData.jurusan_id)
-    }
+    console.log(guru)
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
@@ -277,6 +296,71 @@ export default function CreateKelasPage() {
                                     </p>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Wali Kelas field - displayed below jurusan */}
+                        <div className="space-y-2">
+                            <Label htmlFor="wali_kelas_guru_id">
+                                Pilih Wali Kelas <span className="text-red-500">*</span>
+                            </Label>
+                            {loadingGuru ? (
+                                <div className="flex items-center justify-center h-10 border rounded-md bg-gray-50">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                                    <span className="ml-2 text-sm text-gray-500">Memuat Guru...</span>
+                                </div>
+                            ) : (
+                                <Popover open={openGuru} onOpenChange={setOpenGuru}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={openGuru}
+                                            className={`w-full justify-between ${errors.wali_kelas_guru_id ? 'border-red-500' : ''} ${!formData.wali_kelas_guru_id || formData.wali_kelas_guru_id === 0 ? 'text-muted-foreground' : ''}`}
+                                            disabled={loadingGuru}
+                                        >
+                                            {formData.wali_kelas_guru_id && formData.wali_kelas_guru_id !== 0
+                                                ? guru.find((g) => g.id === formData.wali_kelas_guru_id)?.nama
+                                                : "Pilih guru..."}
+                                            <Users className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Cari guru..." />
+                                            <CommandList>
+                                                <CommandEmpty>Guru tidak ditemukan.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {guru.filter((g) => g.is_wali_kelas).map((g) => (
+                                                        <CommandItem
+                                                            key={g.id}
+                                                            value={`${g.nip} ${g.nama}`}
+                                                            onSelect={() => {
+                                                                handleInputChange('wali_kelas_guru_id', g.id)
+                                                                setOpenGuru(false)
+                                                            }}
+                                                        >
+                                                            <Check className={`mr-2 h-4 w-4 ${formData.wali_kelas_guru_id === g.id ? 'opacity-100' : 'opacity-0'}`} />
+                                                            <div className="flex items-center space-x-2">
+                                                                <span className="font-mono text-sm font-semibold">
+                                                                    {g.nip}
+                                                                </span>
+                                                                <span>-</span>
+                                                                <span>{g.nama}</span>
+                                                            </div>
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                            )}
+                            {errors.wali_kelas_guru_id && (
+                                <p className="text-sm text-red-500 flex items-center">
+                                    <AlertCircle className="h-4 w-4 mr-1" />
+                                    {errors.wali_kelas_guru_id}
+                                </p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
