@@ -123,6 +123,11 @@ export default function SiswaManagement() {
     }
   }
 
+  const handleImport = () => {
+    // Ideally this opens a dialog to upload Excel/CSV
+    setModalOpenImport(true)
+  }
+
   const handleView = (row: Siswa) => {
     router.push(`/admin/siswa/${row.id}`)
   }
@@ -185,88 +190,91 @@ export default function SiswaManagement() {
       console.error("Import data siswa failed:", error);
       toast.error("Gagal mengimpor data siswa.")
     }
+  }
 
-    if (error) {
-      return (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="text-red-600 text-6xl mb-4">⚠️</div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={() => loadData(searchTerm)}>
-              Try Again
-            </Button>
-          </div>
-        </div>
-      )
-    }
-
+  if (error) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Manajemen Siswa</h1>
-          <p className="text-gray-600">Kelola data siswa dan informasi pribadi</p>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-red-600 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={() => loadData(searchTerm)}>
+            Try Again
+          </Button>
         </div>
-
-        <DataTable
-          data={siswa}
-          columns={columns}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onView={handleView}
-          additionalActions={
-            <Button variant="outline" onClick={() => setModalOpenImport(true)} className="ml-2 gap-2">
-              <FileSpreadsheet className="h-4 w-4" />
-              Import (.xlsx)
-            </Button>
-          }
-          onSearch={handleSearch}
-          isSearching={searchLoading}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          searchPlaceholder="Cari berdasarkan nama..."
-          title="Daftar Siswa"
-          addButtonText="Tambah Siswa Baru"
-          filter={true}
-          filterData={filterData}
-          setSelectedKelas={setSelectedKelas}
-          setSelectedJurusan={setSelectedJurusan}
-          selectedKelas={selectedKelas}
-          selectedJurusan={selectedJurusan}
-          loadData={loadData}
-          loading={loading}
-        />
-
-        {/* modal dialog import */}
-        <Dialog open={modalOpenImport} onOpenChange={setModalOpenImport}>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            handleImportDataSiswa();
-          }}>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Import Data Siswa</DialogTitle>
-                <DialogDescription>
-
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4">
-                <div className="grid gap-3">
-                  <Input id="name-1" name="name" type="file" accept=".xlsx" />
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="submit">Save changes</Button>
-              </DialogFooter>
-            </DialogContent>
-          </form>
-        </Dialog>
-      </div >
+      </div>
     )
   }
+
+  console.log(siswa)
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Manajemen Siswa</h1>
+        <p className="text-gray-600">Kelola data siswa dan informasi pribadi</p>
+      </div>
+
+      <DataTable
+        data={siswa}
+        columns={columns}
+        onAdd={handleAdd}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onView={handleView}
+        additionalActions={
+          <Button variant="outline" onClick={handleImport} className="ml-2 gap-2">
+            <FileSpreadsheet className="h-4 w-4" />
+            Import (.xlsx)
+          </Button>
+        }
+        onSearch={handleSearch}
+        isSearching={searchLoading}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        searchPlaceholder="Cari berdasarkan nama..."
+        title="Daftar Siswa"
+        addButtonText="Tambah Siswa Baru"
+        filter={true}
+        filterData={filterData}
+        setSelectedKelas={setSelectedKelas}
+        setSelectedJurusan={setSelectedJurusan}
+        selectedKelas={selectedKelas}
+        selectedJurusan={selectedJurusan}
+        loadData={loadData}
+        loading={loading}
+      />
+
+      {/* modal dialog import */}
+      <Dialog open={modalOpenImport} onOpenChange={setModalOpenImport}>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleImportDataSiswa();
+        }}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Import Data Siswa</DialogTitle>
+              <DialogDescription>
+
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Input id="name-1" name="name" type="file" accept=".xlsx" />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </form>
+      </Dialog>
+    </div >
+  )
 }
+
