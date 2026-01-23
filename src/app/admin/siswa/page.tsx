@@ -123,11 +123,6 @@ export default function SiswaManagement() {
     }
   }
 
-  const handleImport = () => {
-    // Ideally this opens a dialog to upload Excel/CSV
-    setModalOpenImport(true)
-  }
-
   const handleView = (row: Siswa) => {
     router.push(`/admin/siswa/${row.id}`)
   }
@@ -221,7 +216,7 @@ export default function SiswaManagement() {
           onDelete={handleDelete}
           onView={handleView}
           additionalActions={
-            <Button variant="outline" onClick={handleImport} className="ml-2 gap-2">
+            <Button variant="outline" onClick={() => setModalOpenImport(true)} className="ml-2 gap-2">
               <FileSpreadsheet className="h-4 w-4" />
               Import (.xlsx)
             </Button>
