@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { DataTable } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
 import type { Siswa, Kelas, Jurusan } from "@/types/api"
-import { deleteSiswa, getSiswa } from "@/api/admin/siswa/index"
+import { deleteSiswa, getSiswa, importDataSiswa, uploadDataSiswa } from "@/api/admin/siswa/index"
 import { getKelas } from "@/api/admin/kelas/index"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -41,6 +41,7 @@ export default function SiswaManagement() {
   const [selectedKelas, setSelectedKelas] = useState<number>(0)
   const [selectedJurusan, setSelectedJurusan] = useState<number>(0)
   const [modalOpenImport, setModalOpenImport] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
 
   const filterData = {
     kelas: kelas,
@@ -185,7 +186,21 @@ export default function SiswaManagement() {
 
   const handleImportDataSiswa = async () => {
     try {
-      toast.info("Fitur ini masih dalam pengembangan.")
+      // Check if file exists before proceeding
+      if (!file) {
+        toast.error("Silakan pilih file terlebih dahulu.")
+        return
+      }
+
+      const formData = new FormData();
+      formData.append('file', file)
+      const resUpload = await uploadDataSiswa(formData)
+      const resImport = await importDataSiswa(resUpload.session_id)
+      toast.success("Data siswa berhasil diimpor.")
+      setModalOpenImport(false)
+      setFile(null)
+      // Refresh the data after successful import
+      loadData(searchTerm, currentPage, !!searchTerm)
     } catch (error) {
       console.error("Import data siswa failed:", error);
       toast.error("Gagal mengimpor data siswa.")
@@ -256,7 +271,14 @@ export default function SiswaManagement() {
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-3">
-              <Input id="name-1" name="name" type="file" accept=".xlsx" />
+              <Label htmlFor="file-upload">Pilih file Excel (.xlsx)</Label>
+              <Input
+                id="file-upload"
+                name="file"
+                type="file"
+                accept=".xlsx"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+              />
             </div>
           </div>
           <DialogFooter>

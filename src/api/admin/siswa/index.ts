@@ -83,9 +83,13 @@ export const historyPengajuan = async () => {
   }
 };
 
-export const uploadDataSiswa = async (data: FormData) => {
+export const uploadDataSiswa = async (file: FormData) => {
   try {
-    const response = await axiosInstance.post("/api/siswa/bulk/preview", data);
+    const response = await axiosInstance.post("/api/siswa/bulk/preview", file, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -94,9 +98,9 @@ export const uploadDataSiswa = async (data: FormData) => {
 
 export const importDataSiswa = async (session_id: string) => {
   try {
-    const response = await axiosInstance.post(
-      `/api/siswa/bulk/import/${session_id}`,
-    );
+    const response = await axiosInstance.post(`/api/siswa/bulk/import`, {
+      session_id,
+    });
     return response.data;
   } catch (error) {
     throw error;
