@@ -129,7 +129,7 @@ export default function EditKelasPage() {
         }
     }, [id, router])
 
-    const handleInputChange = (field: keyof KelasFormData, value: string | number) => {
+    const handleInputChange = (field: keyof KelasFormData, value: string | number | boolean) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
