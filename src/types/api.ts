@@ -117,6 +117,7 @@ export interface Kelas {
   id: number;
   jurusan_id: number;
   nama: string;
+  wali_kelas_id: number;
   created_at: string;
   updated_at: string;
 }

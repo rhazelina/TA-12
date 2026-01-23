@@ -133,6 +133,7 @@ export default function CreateKelasPage() {
             const kelasData = {
                 nama: formData.nama.trim(),
                 jurusan_id: formData.jurusan_id,
+                wali_kelas_id: formData.wali_kelas_guru_id,
                 // Required API fields
                 id: 0,
                 created_at: '',
