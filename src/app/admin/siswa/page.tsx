@@ -184,6 +184,7 @@ export default function SiswaManagement() {
   ]
 
   const handleImportDataSiswa = async () => {
+    console.log('p')
     try {
       toast.info("Fitur ini masih dalam pengembangan.")
     } catch (error) {
@@ -247,30 +248,25 @@ export default function SiswaManagement() {
 
       {/* modal dialog import */}
       <Dialog open={modalOpenImport} onOpenChange={setModalOpenImport}>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          handleImportDataSiswa();
-        }}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Import Data Siswa</DialogTitle>
-              <DialogDescription>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Import Data Siswa</DialogTitle>
+            <DialogDescription>
 
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Input id="name-1" name="name" type="file" accept=".xlsx" />
-              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <div className="grid gap-3">
+              <Input id="name-1" name="name" type="file" accept=".xlsx" />
             </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button type="submit">Save changes</Button>
-            </DialogFooter>
-          </DialogContent>
-        </form>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleImportDataSiswa}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div >
   )
