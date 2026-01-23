@@ -174,8 +174,6 @@ export default function CreateKelasPage() {
         }
     }
 
-    console.log(guru)
-
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
             {/* Header */}
