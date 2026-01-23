@@ -5,7 +5,7 @@ export const getSiswa = async (
   search?: string,
   page?: number,
   kelas_id?: number,
-  jurusan_id?: number
+  jurusan_id?: number,
 ) => {
   try {
     const params = new URLSearchParams();
@@ -80,5 +80,25 @@ export const historyPengajuan = async () => {
   } catch (error) {
     console.log("error history pengajuan: ", error);
     return null;
+  }
+};
+
+export const uploadDataSiswa = async (data: FormData) => {
+  try {
+    const response = await axiosInstance.post("/api/siswa/bulk/preview", data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const importDataSiswa = async (session_id: string) => {
+  try {
+    const response = await axiosInstance.post(
+      `/api/siswa/bulk/import/${session_id}`,
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
   }
 };
