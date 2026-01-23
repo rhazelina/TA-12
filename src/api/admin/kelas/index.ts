@@ -4,7 +4,7 @@ import { Kelas } from "@/types/api";
 export const getKelas = async (
   search?: string,
   page?: number,
-  jurusan_id?: number
+  jurusan_id?: number,
 ) => {
   try {
     const params = new URLSearchParams();
@@ -47,7 +47,7 @@ export const updateKelas = async (id: number, data: Kelas) => {
     return response.data;
   } catch (error) {
     console.error("Update kelas failed:", error);
-    return null;
+    throw error;
   }
 };
 
