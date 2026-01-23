@@ -184,7 +184,6 @@ export default function SiswaManagement() {
   ]
 
   const handleImportDataSiswa = async () => {
-    console.log('p')
     try {
       toast.info("Fitur ini masih dalam pengembangan.")
     } catch (error) {
