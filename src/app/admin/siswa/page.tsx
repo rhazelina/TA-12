@@ -10,6 +10,18 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { formatDate } from "@/utils/date"
 import { getJurusan } from "@/api/admin/jurusan"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 // Simulating an import component or dialog would be ideal here.
 // For now, we'll just add the button that triggers a toast, as requested.
@@ -28,6 +40,7 @@ export default function SiswaManagement() {
   const [totalPages, setTotalPages] = useState(1)
   const [selectedKelas, setSelectedKelas] = useState<number>(0)
   const [selectedJurusan, setSelectedJurusan] = useState<number>(0)
+  const [modalOpenImport, setModalOpenImport] = useState(false)
 
   const filterData = {
     kelas: kelas,
@@ -112,9 +125,7 @@ export default function SiswaManagement() {
 
   const handleImport = () => {
     // Ideally this opens a dialog to upload Excel/CSV
-    toast.info("Fitur Import Siswa akan segera hadir (Mock)", {
-      description: "Silakan unggah file .xlsx atau .csv"
-    })
+    setModalOpenImport(true)
   }
 
   const handleView = (row: Siswa) => {
@@ -172,58 +183,95 @@ export default function SiswaManagement() {
     },
   ]
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={() => loadData(searchTerm)}>
-            Try Again
-          </Button>
+  const handleImportDataSiswa = async () => {
+    try {
+      toast.info("Fitur ini masih dalam pengembangan.")
+    } catch (error) {
+      console.error("Import data siswa failed:", error);
+      toast.error("Gagal mengimpor data siswa.")
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-600 text-6xl mb-4">⚠️</div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={() => loadData(searchTerm)}>
+              Try Again
+            </Button>
+          </div>
         </div>
-      </div>
+      )
+    }
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Manajemen Siswa</h1>
+          <p className="text-gray-600">Kelola data siswa dan informasi pribadi</p>
+        </div>
+
+        <DataTable
+          data={siswa}
+          columns={columns}
+          onAdd={handleAdd}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onView={handleView}
+          additionalActions={
+            <Button variant="outline" onClick={handleImport} className="ml-2 gap-2">
+              <FileSpreadsheet className="h-4 w-4" />
+              Import (.xlsx)
+            </Button>
+          }
+          onSearch={handleSearch}
+          isSearching={searchLoading}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          searchPlaceholder="Cari berdasarkan nama..."
+          title="Daftar Siswa"
+          addButtonText="Tambah Siswa Baru"
+          filter={true}
+          filterData={filterData}
+          setSelectedKelas={setSelectedKelas}
+          setSelectedJurusan={setSelectedJurusan}
+          selectedKelas={selectedKelas}
+          selectedJurusan={selectedJurusan}
+          loadData={loadData}
+          loading={loading}
+        />
+
+        {/* modal dialog import */}
+        <Dialog open={modalOpenImport} onOpenChange={setModalOpenImport}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleImportDataSiswa();
+          }}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Import Data Siswa</DialogTitle>
+                <DialogDescription>
+
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4">
+                <div className="grid gap-3">
+                  <Input id="name-1" name="name" type="file" accept=".xlsx" />
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="submit">Save changes</Button>
+              </DialogFooter>
+            </DialogContent>
+          </form>
+        </Dialog>
+      </div >
     )
   }
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Manajemen Siswa</h1>
-        <p className="text-gray-600">Kelola data siswa dan informasi pribadi</p>
-      </div>
-
-      <DataTable
-        data={siswa}
-        columns={columns}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onView={handleView}
-        additionalActions={
-          <Button variant="outline" onClick={handleImport} className="ml-2 gap-2">
-            <FileSpreadsheet className="h-4 w-4" />
-            Import (.xlsx)
-          </Button>
-        }
-        onSearch={handleSearch}
-        isSearching={searchLoading}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        searchPlaceholder="Cari berdasarkan nama..."
-        title="Daftar Siswa"
-        addButtonText="Tambah Siswa Baru"
-        filter={true}
-        filterData={filterData}
-        setSelectedKelas={setSelectedKelas}
-        setSelectedJurusan={setSelectedJurusan}
-        selectedKelas={selectedKelas}
-        selectedJurusan={selectedJurusan}
-        loadData={loadData}
-        loading={loading}
-      />
-    </div>
-  )
 }
