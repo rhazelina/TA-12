@@ -133,6 +133,26 @@ export default function PindahPkl() {
                                 />
                             </div>
 
+                            <div className="flex flex-col gap-2.5">
+                                <label className="text-[13px] font-semibold text-[#555]">Lama PKL di Tempat Lama (Bulan)</label>
+                                <input
+                                    type="number"
+                                    value="3"
+                                    readOnly
+                                    className="p-[14px_18px] border border-[#d1d1d1] rounded-xl text-[14px] bg-[#f9f9f9] text-[#333] outline-none"
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-2.5">
+                                <label className="text-[13px] font-semibold text-[#555]">Sisa PKL di Tempat Baru (Bulan)</label>
+                                <input
+                                    type="number"
+                                    value="2"
+                                    readOnly
+                                    className="p-[14px_18px] border border-[#d1d1d1] rounded-xl text-[14px] bg-[#f9f9f9] text-[#333] outline-none"
+                                />
+                            </div>
+
                             <div className="flex flex-col gap-2.5 md:col-span-2">
                                 <label className="text-[13px] font-semibold text-[#555]">Alasan Perpindahan</label>
                                 <textarea
