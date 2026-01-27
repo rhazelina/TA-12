@@ -27,9 +27,9 @@ export default function Dashboard() {
         try {
             setLoading(true)
             const res = await getWaliKelasDashboard(page, 10, debouncedSearch)
-            if (res && res.data) {
-                setSiswaList(res.data.siswa_list || [])
-                setKelasInfo(res.data.kelas_info)
+            if (res) {
+                setSiswaList(res.siswa_list || [])
+                setKelasInfo(res.kelas_info)
             }
         } catch (error) {
             console.error(error)
