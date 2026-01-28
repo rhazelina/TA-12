@@ -80,12 +80,12 @@ export const koordinatorMenus: SidebarMenuItem[] = [
     icon: Calendar,
     pathName: ["jadwal"],
   },
-  {
-    name: "Permohonan PKL",
-    url: "/koordinator/permohonan-pkl",
-    icon: FileCheck,
-    pathName: ["permohonan-pkl"],
-  },
+  // {
+  //   name: "Permohonan PKL",
+  //   url: "/koordinator/permohonan-pkl",
+  //   icon: FileCheck,
+  //   pathName: ["permohonan-pkl"],
+  // },
   {
     name: "Industri",
     url: "/koordinator/industri",
