@@ -40,77 +40,6 @@ import { getTasksRealisasiPkl } from "@/api/pembimbing"
 import { Spinner } from "@/components/ui/spinner"
 import { useRouter } from "next/navigation"
 
-const mockPayload = {
-    "data": [
-        {
-            "industri": {
-                "id": 51,
-                "nama": "PT Nusantara",
-                "alamat": "Surabaya Barat",
-                "jenis_industri": "Ekonomi Bisnis"
-            },
-            "siswa_count": 2,
-            "siswa": [
-                {
-                    "id": 86,
-                    "nama": "Ahmad Fauzi",
-                    "username": "ahmadf",
-                    "nisn": "9890989098",
-                    "kelas": "XII DKV 3"
-                },
-                {
-                    "id": 87,
-                    "nama": "Sari Indah",
-                    "username": "sari_i",
-                    "nisn": "9890989099",
-                    "kelas": "XII DKV 3"
-                }
-            ],
-            "tasks": [
-                {
-                    "kegiatan": {
-                        "id": 36,
-                        "jenis": "Pembekalan",
-                        "tanggal_mulai": "2026-01-21",
-                        "tanggal_selesai": "2026-01-28",
-                        "deskripsi": "ini adlah jadwal pembekalan seluhruh siswa kelas 12",
-                        "is_active": false,
-                        "can_submit": false
-                    }
-                },
-                {
-                    "kegiatan": {
-                        "id": 34,
-                        "jenis": "Monitoring2",
-                        "tanggal_mulai": "2026-02-10",
-                        "tanggal_selesai": "2026-02-13",
-                        "deskripsi": "test",
-                        "is_active": true,
-                        "can_submit": true
-                    }
-                },
-                {
-                    "kegiatan": {
-                        "id": 35,
-                        "jenis": "Penjemputan",
-                        "tanggal_mulai": "2026-02-19",
-                        "tanggal_selesai": "2026-02-27",
-                        "deskripsi": "test",
-                        "is_active": false,
-                        "can_submit": false
-                    }
-                }
-            ]
-        }
-    ],
-    "summary": {
-        "total_industri": 1,
-        "total_tasks": 3,
-        "completed_tasks": 0,
-        "pending_tasks": 3
-    }
-}
-
 export default function JadwalBukti() {
     const [search, setSearch] = useState("")
     const [data, setData] = useState<TasksRealisasiPkl | null>(null)
@@ -149,11 +78,11 @@ export default function JadwalBukti() {
                 <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
                     <div className="px-4 py-2 border-r border-gray-100 last:border-0 text-center">
                         <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1.5">Total Industri</p>
-                        <p className="text-xl font-bold text-[#8B1E1E] leading-none">{mockPayload.summary.total_industri}</p>
+                        <p className="text-xl font-bold text-[#8B1E1E] leading-none">{data?.summary.total_industri}</p>
                     </div>
                     <div className="px-4 py-2 border-r border-gray-100 last:border-0 text-center">
                         <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none mb-1.5">Tugas Aktif</p>
-                        <p className="text-xl font-bold text-amber-600 leading-none">{mockPayload.summary.pending_tasks}</p>
+                        <p className="text-xl font-bold text-amber-600 leading-none">{data?.summary.pending_tasks}</p>
                     </div>
                 </div>
             </div>
