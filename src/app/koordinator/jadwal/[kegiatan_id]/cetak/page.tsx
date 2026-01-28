@@ -273,6 +273,8 @@ export default function CetakBuktiPage() {
     useEffect(() => {
         if (dataSekolah && dataSekolah.success && dataSekolah.data) {
             const info = dataSekolah.data
+
+            // Populate School Info
             form.setValue("school_info.nama_sekolah", info.nama_sekolah)
             form.setValue("school_info.alamat_jalan", info.jalan)
             form.setValue("school_info.kelurahan", info.kelurahan)
@@ -283,7 +285,18 @@ export default function CetakBuktiPage() {
             form.setValue("school_info.telepon", info.nomor_telepon)
             form.setValue("school_info.email", info.email)
             form.setValue("school_info.website", info.website)
-            // form.setValue("school_info.logo_url", info.logo_url)
+            if (info.logo_url) {
+                form.setValue("school_info.logo_url", info.logo_url)
+            }
+
+            // Populate Penandatangan (Kepala Sekolah)
+            form.setValue("penandatangan.nama", info.kepala_sekolah)
+            form.setValue("penandatangan.nip", info.nip_kepala_sekolah)
+            form.setValue("penandatangan.instansi", info.nama_sekolah)
+            // Assuming simplified logic for Jabatan
+            if (info.jenis_sekolah) {
+                form.setValue("penandatangan.jabatan", `Kepala ${info.nama_sekolah}`)
+            }
         }
     }, [dataSekolah, form])
 
@@ -373,7 +386,7 @@ export default function CetakBuktiPage() {
                                     <FormItem>
                                         <FormLabel>Nama Sekolah</FormLabel>
                                         <FormControl>
-                                            <Input {...field} disabled />
+                                            <Input {...field} disabled={!!dataSekolah} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -386,7 +399,7 @@ export default function CetakBuktiPage() {
                                     <FormItem>
                                         <FormLabel>Website</FormLabel>
                                         <FormControl>
-                                            <Input {...field} disabled />
+                                            <Input {...field} disabled={!!dataSekolah} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -399,7 +412,7 @@ export default function CetakBuktiPage() {
                                     <FormItem>
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
-                                            <Input {...field} disabled />
+                                            <Input {...field} disabled={!!dataSekolah} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -412,7 +425,7 @@ export default function CetakBuktiPage() {
                                     <FormItem>
                                         <FormLabel>Telepon</FormLabel>
                                         <FormControl>
-                                            <Input {...field} disabled />
+                                            <Input {...field} disabled={!!dataSekolah} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -427,7 +440,7 @@ export default function CetakBuktiPage() {
                                         <FormItem className="md:col-span-3">
                                             <FormLabel>Alamat Jalan</FormLabel>
                                             <FormControl>
-                                                <Input {...field} disabled />
+                                                <Input {...field} disabled={!!dataSekolah} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -440,7 +453,7 @@ export default function CetakBuktiPage() {
                                         <FormItem>
                                             <FormLabel>Kelurahan</FormLabel>
                                             <FormControl>
-                                                <Input {...field} disabled />
+                                                <Input {...field} disabled={!!dataSekolah} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -453,7 +466,7 @@ export default function CetakBuktiPage() {
                                         <FormItem>
                                             <FormLabel>Kecamatan</FormLabel>
                                             <FormControl>
-                                                <Input {...field} disabled />
+                                                <Input {...field} disabled={!!dataSekolah} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -466,7 +479,7 @@ export default function CetakBuktiPage() {
                                         <FormItem>
                                             <FormLabel>Kab/Kota</FormLabel>
                                             <FormControl>
-                                                <Input {...field} disabled />
+                                                <Input {...field} disabled={!!dataSekolah} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -708,7 +721,7 @@ export default function CetakBuktiPage() {
                                     <FormItem>
                                         <FormLabel>Nama Lengkap</FormLabel>
                                         <FormControl>
-                                            <Input {...field} />
+                                            <Input {...field} disabled={!!dataSekolah} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -721,7 +734,7 @@ export default function CetakBuktiPage() {
                                     <FormItem>
                                         <FormLabel>NIP</FormLabel>
                                         <FormControl>
-                                            <Input {...field} />
+                                            <Input {...field} disabled={!!dataSekolah} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -734,7 +747,7 @@ export default function CetakBuktiPage() {
                                     <FormItem>
                                         <FormLabel>Jabatan</FormLabel>
                                         <FormControl>
-                                            <Input {...field} />
+                                            <Input {...field} disabled={!!dataSekolah} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

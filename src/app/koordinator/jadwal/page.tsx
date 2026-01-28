@@ -30,6 +30,7 @@ import {
     MoveRight,
     Package,
     Plus,
+    Printer,
     Trash2,
     Truck,
     Users,
@@ -255,6 +256,17 @@ export default function JadwalPage() {
                                             </div>
 
                                             <Button
+                                                size="sm"
+                                                disabled={item.status !== 'active'}
+                                                className={`h-10 rounded-lg mr-2 px-5 transition-all font-bold ${item.status === 'active' ? 'bg-[#8B1E1E] hover:bg-[#6e1818] text-white shadow-md shadow-[#8B1E1E]/10' : 'bg-gray-100 text-gray-400 border-transparent'}`}
+                                                onClick={() => {
+                                                    router.push(`/koordinator/jadwal/${item.id}/cetak`)
+                                                }}
+                                            >
+                                                <Printer className="h-4 w-4" />
+                                            </Button>
+
+                                            <Button
                                                 size="icon"
                                                 variant="ghost"
                                                 className="shrink-0 text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
@@ -348,6 +360,6 @@ export default function JadwalPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </div >
     );
 }
