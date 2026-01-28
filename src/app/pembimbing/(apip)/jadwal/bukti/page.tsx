@@ -22,9 +22,7 @@ import {
     Building2,
     Users,
     MapPin,
-    ChevronRight,
-    Info,
-    Printer
+    Info
 } from "lucide-react"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
@@ -218,19 +216,6 @@ export default function JadwalBukti() {
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="py-4 px-6 text-right">
-                                                    <Button
-                                                        size="sm"
-                                                        disabled={!task.kegiatan.can_submit}
-                                                        className={`h-10 rounded-lg mr-2 px-5 transition-all font-bold ${task.kegiatan.can_submit
-                                                            ? 'bg-[#8B1E1E] hover:bg-[#6e1818] text-white shadow-md shadow-[#8B1E1E]/10'
-                                                            : 'bg-gray-100 text-gray-400 border-transparent'
-                                                            }`}
-                                                        onClick={() => {
-                                                            router.push(`/pembimbing/jadwal/${task.kegiatan.id}/cetak`)
-                                                        }}
-                                                    >
-                                                        <Printer className="h-4 w-4" />
-                                                    </Button>
                                                     <Button
                                                         size="sm"
                                                         disabled={!task.kegiatan.can_submit}
