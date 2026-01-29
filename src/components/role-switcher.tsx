@@ -49,7 +49,7 @@ export function RoleSwitcher({ guruData, open }: RoleSwitcherProps) {
                 <span className="font-semibold">
                   {currentRole?.label || "Pilih Role"}
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-white">
                   Switch role
                 </span>
               </div>

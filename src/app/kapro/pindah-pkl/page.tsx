@@ -140,7 +140,7 @@ export default function PindahPKLPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mx-10">
             {/* Header */}
             <div>
                 <h2 className="text-2xl font-bold tracking-tight">Daftar Pengajuan Pindah PKL</h2>
