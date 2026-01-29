@@ -14,7 +14,9 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Calendar
+  Calendar,
+  Home,
+  Settings
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Header } from "@/components/header"
@@ -36,6 +38,7 @@ const navigation = [
   { name: 'Kelas', href: '/admin/kelas', icon: School },
   { name: 'Industri', href: '/admin/industri', icon: Building2 },
   { name: 'Tahun Ajaran', href: '/admin/tahun-ajaran', icon: Calendar },
+  { name: 'Pengaturan', href: '/admin/pengaturan', icon: Settings },
 ]
 
 export function AdminLayout({ children, user }: AdminLayoutProps) {

@@ -1,3 +1,4 @@
+import { ApiResponseSekolah } from "@/types/api";
 import axiosInstance from "@/utils/axios";
 
 export interface SekolahDto {
@@ -18,18 +19,18 @@ export interface SekolahDto {
     logo: string | null;
 }
 
-export async function getSekolah() {
+export async function getSekolah(): Promise<ApiResponseSekolah> {
     try {
-        const response = await axiosInstance.get("/api/sekolah");
+        const response = await axiosInstance.get<ApiResponseSekolah>("/api/sekolah");
         return response.data;
     } catch (error) {
         throw error;
     }
 }
 
-export async function updateSekolah(data: Partial<SekolahDto>) {
+export async function updateSekolah(data: Partial<SekolahDto>, id: number) {
     try {
-        const response = await axiosInstance.put("/api/sekolah", data);
+        const response = await axiosInstance.put(`/api/sekolah/${id}`, data);
         return response.data;
     } catch (error) {
         throw error;
