@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import React, { useState } from 'react';
 import { Search, Plus, Building2, MapPin, Users, Filter, MoreVertical } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -91,9 +93,11 @@ export default function IndustriPage() {
                         Kelola mitra industri dan kuota magang siswa.
                     </p>
                 </div>
-                <Button className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
-                    <Plus className="mr-2 h-4 w-4" /> Tambah Industri
-                </Button>
+                <Link href="/koordinator/industri/tambah">
+                    <Button className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
+                        <Plus className="mr-2 h-4 w-4" /> Tambah Industri
+                    </Button>
+                </Link>
             </div>
 
             {/* Filters */}
