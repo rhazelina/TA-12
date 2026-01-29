@@ -25,9 +25,9 @@ const formSchema = z.object({
     nama: z.string().min(1, "Nama industri wajib diisi"),
     bidang: z.string().min(1, "Bidang usaha wajib diisi"),
     alamat: z.string().min(1, "Alamat lengkap wajib diisi"),
-    pic: z.string().min(1, "Nama kontak person wajib diisi"),
+    pic: z.string().min(1, "Nama penanggung jawab wajib diisi"),
     no_telp: z.string().min(1, "Nomor telepon wajib diisi"),
-    pic_telp: z.string().min(1, "Nomor telepon PIC wajib diisi"),
+    pic_telp: z.string().min(1, "Nomor telepon penanggung jawab wajib diisi"),
     email: z.string().email("Format email tidak valid").optional().or(z.literal("")),
     jurusan_id: z.string().min(1, "Jurusan wajib dipilih"),
 })
@@ -168,9 +168,9 @@ export default function TambahIndustriPage() {
                                     name="pic"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold">Kontak Person <span className="text-red-500">*</span></FormLabel>
+                                            <FormLabel className="font-semibold">Penanggung Jawab <span className="text-red-500">*</span></FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Nama kontak person" {...field} />
+                                                <Input placeholder="Nama penanggung jawab" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -200,9 +200,9 @@ export default function TambahIndustriPage() {
                                     name="pic_telp"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold">Nomor Telepon PIC <span className="text-red-500">*</span></FormLabel>
+                                            <FormLabel className="font-semibold">Nomor Telepon Penanggung Jawab <span className="text-red-500">*</span></FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Nomor telepon PIC" {...field} />
+                                                <Input placeholder="Nomor telepon penanggung jawab" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
