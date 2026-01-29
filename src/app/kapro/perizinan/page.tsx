@@ -31,7 +31,7 @@ interface PerizinanDto {
     id: number;
     siswa_nama: string;
     siswa_nisn: string;
-    jurusan: string;
+    tempat_pkl: string;
     alasan_izin: string;
     tanggal_mulai: string; // ISO Date
     tanggal_selesai: string; // ISO Date
@@ -45,7 +45,7 @@ const MOCK_DATA: PerizinanDto[] = [
         id: 1,
         siswa_nama: "Siti Nurhaliza",
         siswa_nisn: "12345678",
-        jurusan: "Teknik Informatika",
+        tempat_pkl: "CV Tmint Creative",
         alasan_izin: "Sakit demam tinggi, perlu istirahat di rumah",
         tanggal_mulai: "2024-01-15",
         tanggal_selesai: "2024-01-16",
@@ -55,7 +55,7 @@ const MOCK_DATA: PerizinanDto[] = [
         id: 2,
         siswa_nama: "Budi Santoso",
         siswa_nisn: "12345679",
-        jurusan: "Teknik Mesin",
+        tempat_pkl: "Soepraon",
         alasan_izin: "Keperluan keluarga mendesak di kampung halaman",
         tanggal_mulai: "2024-01-14",
         tanggal_selesai: "2024-01-14",
@@ -66,7 +66,7 @@ const MOCK_DATA: PerizinanDto[] = [
         id: 3,
         siswa_nama: "Dewi Sartika",
         siswa_nisn: "12345680",
-        jurusan: "Akuntansi",
+        tempat_pkl: "PT Ubig",
         alasan_izin: "Mengikuti seminar nasional akuntansi",
         tanggal_mulai: "2024-01-13",
         tanggal_selesai: "2024-01-13",
@@ -76,7 +76,7 @@ const MOCK_DATA: PerizinanDto[] = [
         id: 4,
         siswa_nama: "Andi Wijaya",
         siswa_nisn: "12345681",
-        jurusan: "Teknik Elektro",
+        tempat_pkl: "PT Laguna",
         alasan_izin: "Ingin berlibur bersama keluarga",
         tanggal_mulai: "2024-01-12",
         tanggal_selesai: "2024-01-15",
@@ -87,7 +87,7 @@ const MOCK_DATA: PerizinanDto[] = [
         id: 5,
         siswa_nama: "Maya Sari",
         siswa_nisn: "12345682",
-        jurusan: "Manajemen",
+        tempat_pkl: "PT Puskopat",
         alasan_izin: "Kontrol kesehatan rutin di rumah sakit",
         tanggal_mulai: "2024-01-11",
         tanggal_selesai: "2024-01-11",
@@ -104,7 +104,7 @@ export default function PerizinanPage() {
     const filteredData = data.filter((item) => {
         const matchSearch =
             item.siswa_nama.toLowerCase().includes(search.toLowerCase()) ||
-            item.jurusan.toLowerCase().includes(search.toLowerCase());
+            item.tempat_pkl.toLowerCase().includes(search.toLowerCase());
         const matchStatus = statusFilter === "all" || item.status === statusFilter;
         return matchSearch && matchStatus;
     });
@@ -136,10 +136,10 @@ export default function PerizinanPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mx-10">
             {/* Header */}
             <div>
-                <h2 className="text-2xl font-bold tracking-tight">Daftar Pengajuan Perizinan</h2>
+                <h2 className="text-2xl font-bold tracking-tight">Daftar Perizinan</h2>
                 <p className="text-muted-foreground">
                     Kelola dan validasi izin siswa selama masa PKL.
                 </p>
@@ -225,7 +225,7 @@ export default function PerizinanPage() {
                     <TableHeader className="bg-gray-50">
                         <TableRow>
                             <TableHead className="w-[200px]">Nama</TableHead>
-                            <TableHead>Jurusan</TableHead>
+                            <TableHead>Tempat PKL</TableHead>
                             <TableHead className="w-[300px]">Alasan Izin</TableHead>
                             <TableHead>Tanggal</TableHead>
                             <TableHead>Status</TableHead>
@@ -249,9 +249,7 @@ export default function PerizinanPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className="font-normal">
-                                            {item.jurusan}
-                                        </Badge>
+                                        {item.tempat_pkl}
                                     </TableCell>
                                     <TableCell>
                                         <p className="text-sm text-gray-600 line-clamp-2" title={item.alasan_izin}>
@@ -287,7 +285,7 @@ export default function PerizinanPage() {
                 </Table>
             </div>
             <div className="text-xs text-muted-foreground">
-                Menampilkan {filteredData.length} dari {data.length} data. (Kapro hanya melihat rekapitulasi)
+                Menampilkan {filteredData.length} dari {data.length} data.
             </div>
         </div>
     );
