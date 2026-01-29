@@ -27,7 +27,7 @@ const formSchema = z.object({
     alamat: z.string().min(1, "Alamat lengkap wajib diisi"),
     pic: z.string().min(1, "Nama kontak person wajib diisi"),
     no_telp: z.string().min(1, "Nomor telepon wajib diisi"),
-    pic_telp: z.string().min(1, "Nomor telepon PIC wajib diisi"),
+    pic_telp: z.string().min(1, "Nomor telepon Penanggung Jawab wajib diisi"),
     email: z.string().email("Format email tidak valid").optional().or(z.literal("")),
 })
 
@@ -210,9 +210,9 @@ export default function EditIndustriPage() {
                                     name="pic_telp"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold">Nomor Telepon PIC <span className="text-red-500">*</span></FormLabel>
+                                            <FormLabel className="font-semibold">Nomor Telepon Penanggung Jawab <span className="text-red-500">*</span></FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Nomor telepon PIC" {...field} />
+                                                <Input placeholder="Nomor telepon Penanggung Jawab" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
