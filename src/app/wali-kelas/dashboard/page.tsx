@@ -1,9 +1,11 @@
 "use client"
 
-import { GraduationCap, Users, Building2, ArrowUp, Search, MoreHorizontal, Loader2 } from "lucide-react";
+import { GraduationCap, Users, Building2, ArrowUp, Search, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getWaliKelasDashboard, SiswaPklSummaryDto, WaliKelasDashboardDto } from "@/api/wali-kelas";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Dashboard() {
     const [loading, setLoading] = useState(true)
@@ -104,27 +106,25 @@ export default function Dashboard() {
                             <tr>
                                 <th className="p-3 text-left">Nama Siswa</th>
                                 <th className="p-3">Nama Industri</th>
-                                <th className="p-3">Status PKL</th>
                                 <th className="p-3">Pembimbing</th>
                                 <th className="p-3">Status</th>
-                                <th className="p-3">Aksi</th>
+                                <th className="p-3">Detail</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={6} className="p-8 text-center">Memuat data...</td>
+                                    <td colSpan={5} className="p-8 text-center">Memuat data...</td>
                                 </tr>
                             ) : siswaList.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="p-8 text-center">Tidak ada data siswa.</td>
+                                    <td colSpan={5} className="p-8 text-center">Tidak ada data siswa.</td>
                                 </tr>
                             ) : (
                                 siswaList.map((row) => (
                                     <tr key={row.id} className="border-b text-center hover:bg-gray-50 transition-colors">
                                         <td className="p-3 text-left font-medium">{row.nama}</td>
                                         <td className="p-3">{row.industri || "-"}</td>
-                                        <td className="p-3 text-blue-600">{row.status_pkl}</td>
                                         <td className="p-3">{row.pembimbing || "-"}</td>
                                         {/* Status monitoring example data */}
                                         <td className="p-3">
@@ -135,7 +135,9 @@ export default function Dashboard() {
                                         </td>
                                         <td className="p-3">
                                             <div className="flex justify-center">
-                                                <MoreHorizontal className="cursor-pointer text-gray-400 hover:text-gray-600 w-5 h-5" />
+                                                <Link href={`/wali-kelas/siswa/${row.id}`}>
+                                                    <Button size="sm">Detail</Button>
+                                                </Link>
                                             </div>
                                         </td>
                                     </tr>
