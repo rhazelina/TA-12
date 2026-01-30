@@ -42,6 +42,7 @@ const formSchema = z.object({
 export default function SettingsPage() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [sekolahId, setSekolahId] = useState<number | null>(null)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -75,6 +76,7 @@ export default function SettingsPage() {
             if (res && res.data) {
                 // Reset form with API data, handling nulls
                 const data = res.data
+                setSekolahId(data.id)
                 form.reset({
                     nama_sekolah: data.nama_sekolah || "",
                     npsn: data.npsn || "",
@@ -90,7 +92,7 @@ export default function SettingsPage() {
                     kepala_sekolah: data.kepala_sekolah || "",
                     nip_kepala_sekolah: data.nip_kepala_sekolah || "",
                     akreditasi: data.akreditasi || "",
-                    logo: data.logo || "",
+                    logo: data.logo_url || "",
                 })
             }
         } catch (error) {
@@ -104,7 +106,11 @@ export default function SettingsPage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             setSaving(true)
-            await updateSekolah(values)
+            if (!sekolahId) {
+                toast.error("ID Sekolah tidak ditemukan")
+                return
+            }
+            await updateSekolah(values, sekolahId)
             toast.success("Pengaturan sekolah berhasil disimpan")
         } catch (error) {
             console.error(error)
