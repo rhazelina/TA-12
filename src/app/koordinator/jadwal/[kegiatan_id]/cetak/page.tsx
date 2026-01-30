@@ -13,12 +13,21 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useDebounce } from "@/hooks/use-debounce"
 import {
     Form,
     FormControl,
@@ -31,7 +40,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { ApiResponseSekolah, Guru } from "@/types/api"
 import { getSekolah } from "@/api/public"
 import { getGuru } from "@/api/admin/guru"
@@ -259,7 +268,76 @@ const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
 
 export default function CetakBuktiPage() {
     const [dataSekolah, setDataSekolah] = useState<ApiResponseSekolah | null>(null)
-    const [dataGuruPembimbing, setDataGuruPembimbing] = useState<Guru[]>([])
+    const [gurus, setGurus] = useState<Guru[]>([])
+    const [openCombobox, setOpenCombobox] = useState<number | null>(null) // Index of open combobox
+    const [page, setPage] = useState(1)
+    const [hasMore, setHasMore] = useState(true)
+    const [search, setSearch] = useState("")
+    const [isLoadingGuru, setIsLoadingGuru] = useState(false)
+    const debouncedSearch = useDebounce(search, 500)
+
+    const observer = useRef<IntersectionObserver | null>(null)
+
+    const lastElementRef = (node: HTMLDivElement | null) => {
+        if (isLoadingGuru) return
+        if (observer.current) observer.current.disconnect()
+
+        observer.current = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && hasMore) {
+                setPage((prev) => prev + 1)
+            }
+        })
+
+        if (node) observer.current.observe(node)
+    }
+
+    const fetchGurus = async (currentPage: number, searchTerm: string, reset: boolean = false) => {
+        try {
+            setIsLoadingGuru(true)
+            const res = await getGuru(searchTerm, currentPage)
+            if (res && res.data) {
+                const newGurus = res.data.data
+                if (reset) {
+                    setGurus(newGurus)
+                } else {
+                    setGurus((prev) => [...prev, ...newGurus])
+                }
+                // Assuming API returns meta or check if result length < limit (e.g. 10)
+                setHasMore(newGurus.length === 10)
+            } else {
+                setHasMore(false)
+            }
+        } catch (error) {
+            console.error("Failed to fetch gurus", error)
+        } finally {
+            setIsLoadingGuru(false)
+        }
+    }
+
+    // Initial load and search change
+    useEffect(() => {
+        setPage(1)
+        setHasMore(true)
+        fetchGurus(1, debouncedSearch, true)
+    }, [debouncedSearch])
+
+    // Load more when page changes (except reset)
+    useEffect(() => {
+        if (page > 1) {
+            fetchGurus(page, debouncedSearch, false)
+        }
+    }, [page])
+
+    // Observer for infinite scroll (Removed in favor of callback ref)
+    // useEffect(() => {
+    //     const loadMoreTrigger = document.getElementById("load-more-trigger")
+    //     if (loadMoreTrigger) {
+    //         observer.observe(loadMoreTrigger)
+    //     }
+    //     return () => {
+    //         if (loadMoreTrigger) observer.unobserve(loadMoreTrigger)
+    //     }
+    // }, [gurus, hasMore])
 
     const getDataSekolah = async () => {
         try {
@@ -270,18 +348,8 @@ export default function CetakBuktiPage() {
         }
     }
 
-    const getDataGuruPembimbing = async () => {
-        try {
-            const response = await getGuru()
-            setDataGuruPembimbing(response.data.data)
-        } catch (error) {
-            console.error("Error fetching school info:", error)
-        }
-    }
-
     useEffect(() => {
         getDataSekolah()
-        getDataGuruPembimbing()
     }, [])
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -374,7 +442,7 @@ export default function CetakBuktiPage() {
         }
     }
 
-    console.log(dataGuruPembimbing)
+    // console.log(dataGuruPembimbing)
 
     return (
         <div className="container mx-auto py-2 px-4 md:px-8 space-y-8">
@@ -498,33 +566,77 @@ export default function CetakBuktiPage() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Nama</FormLabel>
-                                                    <Select
-                                                        onValueChange={(value: string) => {
-                                                            field.onChange(value);
-                                                            const selectedGuru = dataGuruPembimbing.find((g) => g.nama === value);
-                                                            if (selectedGuru) {
-                                                                form.setValue(`assignees.${index}.nip`, selectedGuru.nip);
-                                                                const instansi = dataSekolah?.data?.nama_sekolah || "Sekolah";
-                                                                form.setValue(`assignees.${index}.instansi`, instansi);
-                                                            }
+                                                    <Popover
+                                                        open={openCombobox === index}
+                                                        onOpenChange={(open) => {
+                                                            setOpenCombobox(open ? index : null)
+                                                            if (!open) setSearch("") // Reset search on close
                                                         }}
-                                                        value={field.value}
                                                     >
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Pilih Guru Pembimbing" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {dataGuruPembimbing
-                                                                .filter((g) => g.is_pembimbing)
-                                                                .map((guru) => (
-                                                                    <SelectItem key={guru.id} value={guru.nama}>
-                                                                        {guru.nama}
-                                                                    </SelectItem>
-                                                                ))}
-                                                        </SelectContent>
-                                                    </Select>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    role="combobox"
+                                                                    className={cn(
+                                                                        "w-full justify-between font-normal",
+                                                                        !field.value && "text-muted-foreground"
+                                                                    )}
+                                                                >
+                                                                    {field.value
+                                                                        ? gurus.find((g) => g.nama === field.value)?.nama || field.value
+                                                                        : "Pilih Guru Pembimbing"}
+                                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[400px] p-0" align="start">
+                                                            <Command shouldFilter={false}>
+                                                                <CommandInput
+                                                                    placeholder="Cari guru..."
+                                                                    value={search}
+                                                                    onValueChange={setSearch}
+                                                                />
+                                                                <CommandList>
+                                                                    <CommandEmpty>
+                                                                        {isLoadingGuru ? (
+                                                                            <div className="flex items-center justify-center py-4">
+                                                                                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                                                            </div>
+                                                                        ) : "Guru tidak ditemukan."}
+                                                                    </CommandEmpty>
+                                                                    <CommandGroup>
+                                                                        {gurus.map((guru) => (
+                                                                            <CommandItem
+                                                                                key={guru.id}
+                                                                                value={guru.nama}
+                                                                                onSelect={(currentValue) => {
+                                                                                    form.setValue(`assignees.${index}.nama`, guru.nama)
+                                                                                    form.setValue(`assignees.${index}.nip`, guru.nip)
+                                                                                    const instansi = dataSekolah?.data?.nama_sekolah || "Sekolah"
+                                                                                    form.setValue(`assignees.${index}.instansi`, instansi)
+                                                                                    setOpenCombobox(null)
+                                                                                }}
+                                                                            >
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4",
+                                                                                        guru.nama === field.value ? "opacity-100" : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                                {guru.nama}
+                                                                            </CommandItem>
+                                                                        ))}
+                                                                        {hasMore && (
+                                                                            <div ref={lastElementRef} className="p-2 text-center text-xs text-muted-foreground">
+                                                                                {isLoadingGuru ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Load more..."}
+                                                                            </div>
+                                                                        )}
+                                                                    </CommandGroup>
+                                                                </CommandList>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
