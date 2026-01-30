@@ -141,7 +141,7 @@ export default function PerizinanPage() {
             <div>
                 <h2 className="text-2xl font-bold tracking-tight">Daftar Perizinan</h2>
                 <p className="text-muted-foreground">
-                    Kelola dan validasi izin siswa selama masa PKL.
+                    Rekap data izin siswa selama masa PKL
                 </p>
             </div>
 
@@ -261,7 +261,7 @@ export default function PerizinanPage() {
                                             {formatDate(item.tanggal_mulai)}
                                         </div>
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell> 
                                         {item.status === "Menunggu" && (
                                             <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-none">Menunggu</Badge>
                                         )}
@@ -272,12 +272,27 @@ export default function PerizinanPage() {
                                             <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none">Ditolak</Badge>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-right">
-                                            <span className="text-xs text-muted-foreground italic">
-                                                {item.status === "Disetujui" ? `Disetujui oleh ${item.approved_by || "Pembimbing"}` : 
-                                                 item.status === "Ditolak" ? "Ditolak" : "Menunggu keputusan Pembimbing"}
-                                            </span>
-                                    </TableCell>
+                                    <TableCell className="text-right space-y-1">
+    {item.status === "Menunggu" && (
+        <Button
+            size="sm"
+            variant="secondary"
+            className="bg-blue-100 text-blue-700 hover:bg-blue-200"
+            onClick={() => console.log("Periksa ID:", item.id)}
+        >
+            Periksa
+        </Button>
+    )}
+
+    <div className="text-xs text-muted-foreground italic">
+        {item.status === "Disetujui"
+            ? `Disetujui oleh ${item.approved_by || "Pembimbing"}`
+            : item.status === "Ditolak"
+            ? "Ditolak"
+            : "Menunggu keputusan Pembimbing"}
+    </div>
+</TableCell>
+
                                 </TableRow>
                             ))
                         )}
