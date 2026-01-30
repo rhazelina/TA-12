@@ -44,6 +44,9 @@ import { useEffect, useState, useRef, useCallback } from "react"
 import { ApiResponseSekolah, Guru } from "@/types/api"
 import { getSekolah } from "@/api/public"
 import { getGuru } from "@/api/admin/guru"
+import { kegiatanPklById } from "@/api/pembimbing"
+import { useParams } from "next/navigation"
+import { jadwalPkl } from "@/types/api"
 
 const schoolInfoSchema = z.object({
     nama_sekolah: z.string().min(1, "Nama sekolah harus diisi"),
@@ -267,7 +270,11 @@ const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
 }
 
 export default function CetakBuktiPage() {
+    const params = useParams()
+    const kegiatan_id = Number(params.kegiatan_id)
+
     const [dataSekolah, setDataSekolah] = useState<ApiResponseSekolah | null>(null)
+    const [dataJadwal, setDataJadwal] = useState<jadwalPkl | null>(null)
     const [gurus, setGurus] = useState<Guru[]>([])
     const [openCombobox, setOpenCombobox] = useState<number | null>(null) // Index of open combobox
     const [page, setPage] = useState(1)
@@ -314,6 +321,21 @@ export default function CetakBuktiPage() {
         }
     }
 
+    const getJadwalByIdHook = async () => {
+        try {
+            if (!kegiatan_id) return
+            const response = await kegiatanPklById(kegiatan_id)
+            // Handle both direct data or nested data structure from API
+            if (response && (response as any).data) {
+                setDataJadwal((response as any).data)
+            } else {
+                setDataJadwal(response)
+            }
+        } catch (error) {
+            console.error("Error fetching jadwal info:", error)
+        }
+    }
+
     // Initial load and search change
     useEffect(() => {
         setPage(1)
@@ -350,6 +372,7 @@ export default function CetakBuktiPage() {
 
     useEffect(() => {
         getDataSekolah()
+        getJadwalByIdHook()
     }, [])
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -386,6 +409,36 @@ export default function CetakBuktiPage() {
             }
         }
     }, [dataSekolah, form])
+
+    useEffect(() => {
+        if (dataJadwal) {
+            const jenis = dataJadwal.jenis_kegiatan
+            let keperluan = ""
+
+            if (jenis === "Pembekalan") {
+                keperluan = "Pembekalan Siswa Praktik Kerja Lapangan (PKL)"
+            } else if (jenis === "Pengantaran") {
+                keperluan = "Pengantaran Siswa Praktik Kerja Lapangan (PKL)"
+            } else if (jenis === "Monitoring1") {
+                keperluan = "Monitoring I Siswa Praktik Kerja Lapangan (PKL)"
+            } else if (jenis === "Monitoring2") {
+                keperluan = "Monitoring II Siswa Praktik Kerja Lapangan (PKL)"
+            } else if (jenis === "Penjemputan") {
+                keperluan = "Penjemputan Siswa Praktik Kerja Lapangan (PKL)"
+            } else {
+                keperluan = `${jenis} Siswa Praktik Kerja Lapangan (PKL)`
+            }
+
+            const currentDetails = form.getValues("details")
+            const keperluanIndex = currentDetails.findIndex(d => d.label === "Keperluan")
+
+            if (keperluanIndex !== -1) {
+                form.setValue(`details.${keperluanIndex}.value`, keperluan)
+            } else {
+                // If not found, maybe append or just ignore? standard form has it.
+            }
+        }
+    }, [dataJadwal, form])
 
     const { fields: assigneeFields, append: appendAssignee, remove: removeAssignee } = useFieldArray({
         control: form.control,
