@@ -47,7 +47,7 @@ export default function PermasalahanListWaliKelas() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mx-10">
             {/* Filter Section */}
             <Card>
                 <CardHeader>
