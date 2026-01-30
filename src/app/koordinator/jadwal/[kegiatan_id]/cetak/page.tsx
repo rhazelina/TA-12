@@ -13,6 +13,13 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import {
     Form,
     FormControl,
     FormField,
@@ -25,8 +32,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { ApiResponseSekolah } from "@/types/api"
+import { ApiResponseSekolah, Guru } from "@/types/api"
 import { getSekolah } from "@/api/public"
+import { getGuru } from "@/api/admin/guru"
 
 const schoolInfoSchema = z.object({
     nama_sekolah: z.string().min(1, "Nama sekolah harus diisi"),
@@ -251,6 +259,7 @@ const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
 
 export default function CetakBuktiPage() {
     const [dataSekolah, setDataSekolah] = useState<ApiResponseSekolah | null>(null)
+    const [dataGuruPembimbing, setDataGuruPembimbing] = useState<Guru[]>([])
 
     const getDataSekolah = async () => {
         try {
@@ -261,8 +270,18 @@ export default function CetakBuktiPage() {
         }
     }
 
+    const getDataGuruPembimbing = async () => {
+        try {
+            const response = await getGuru()
+            setDataGuruPembimbing(response.data.data)
+        } catch (error) {
+            console.error("Error fetching school info:", error)
+        }
+    }
+
     useEffect(() => {
         getDataSekolah()
+        getDataGuruPembimbing()
     }, [])
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -354,6 +373,8 @@ export default function CetakBuktiPage() {
             console.log(error)
         }
     }
+
+    console.log(dataGuruPembimbing)
 
     return (
         <div className="container mx-auto py-2 px-4 md:px-8 space-y-8">
@@ -477,9 +498,33 @@ export default function CetakBuktiPage() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Nama</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} placeholder="Nama Lengkap" />
-                                                    </FormControl>
+                                                    <Select
+                                                        onValueChange={(value: string) => {
+                                                            field.onChange(value);
+                                                            const selectedGuru = dataGuruPembimbing.find((g) => g.nama === value);
+                                                            if (selectedGuru) {
+                                                                form.setValue(`assignees.${index}.nip`, selectedGuru.nip);
+                                                                const instansi = dataSekolah?.data?.nama_sekolah || "Sekolah";
+                                                                form.setValue(`assignees.${index}.instansi`, instansi);
+                                                            }
+                                                        }}
+                                                        value={field.value}
+                                                    >
+                                                        <FormControl>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Pilih Guru Pembimbing" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            {dataGuruPembimbing
+                                                                .filter((g) => g.is_pembimbing)
+                                                                .map((guru) => (
+                                                                    <SelectItem key={guru.id} value={guru.nama}>
+                                                                        {guru.nama}
+                                                                    </SelectItem>
+                                                                ))}
+                                                        </SelectContent>
+                                                    </Select>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
@@ -491,7 +536,7 @@ export default function CetakBuktiPage() {
                                                 <FormItem>
                                                     <FormLabel>NIP (Opsional)</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} placeholder="xxxxx" />
+                                                        <Input {...field} placeholder="xxxxx" disabled />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -517,7 +562,7 @@ export default function CetakBuktiPage() {
                                                 <FormItem>
                                                     <FormLabel>Instansi</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} placeholder="Sekolah" />
+                                                        <Input {...field} placeholder="Sekolah" disabled />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
