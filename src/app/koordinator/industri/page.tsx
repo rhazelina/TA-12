@@ -206,8 +206,16 @@ export default function IndustriPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
-                                        <DropdownMenuItem>Ubah Data</DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href={`/koordinator/industri/${industry.id}`}>
+                                                Lihat Detail
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href={`/koordinator/industri/${industry.id}/edit`}>
+                                                Ubah Data
+                                            </Link>
+                                        </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="text-destructive focus:text-destructive"
                                             onClick={() => handleInitiateDelete(industry)}
