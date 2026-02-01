@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 
-import React, { useState } from 'react';
-import { Search, Plus, Building2, MapPin, Users, Filter, MoreVertical } from 'lucide-react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { Search, Plus, Building2, MapPin, Users, Filter, MoreVertical, Loader2 } from 'lucide-react';
+import { useDebounce } from "@/hooks/use-debounce";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,67 +22,119 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Industri } from "@/types/api";
+import { getIndustri, deleteIndustri } from "@/api/admin/industri";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-// Mock Data
-const MOCK_INDUSTRIES = [
-    {
-        id: 1,
-        name: "PT. Teknologi Nusantara",
-        field: "Software Development",
-        address: "Jl. Sudirman No. 45, Jakarta Pusat",
-        quota: 5,
-        filled: 2,
-        status: "active",
-    },
-    {
-        id: 2,
-        name: "CV. Kreatif Digital",
-        field: "Digital Marketing",
-        address: "Jl. Merdeka No. 10, Bandung",
-        quota: 3,
-        filled: 3,
-        status: "active",
-    },
-    {
-        id: 3,
-        name: "PT. Jaringan Global",
-        field: "Network Engineering",
-        address: "Jl. Gatot Subroto No. 88, Surabaya",
-        quota: 10,
-        filled: 0,
-        status: "inactive",
-    },
-    {
-        id: 4,
-        name: "Studio Desain Visual",
-        field: "Multimedia",
-        address: "Jl. Diponegoro No. 12, Yogyakarta",
-        quota: 2,
-        filled: 1,
-        status: "active",
-    },
-    {
-        id: 5,
-        name: "PT. Solusi Awan",
-        field: "Cloud Computing",
-        address: "Jl. Thamrin No. 20, Jakarta Selatan",
-        quota: 8,
-        filled: 4,
-        status: "active",
-    },
-];
 
 export default function IndustriPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [dataIndustri, setDataIndustri] = useState<Industri[]>([]);
 
-    // Filter Logic
-    const filteredIndustries = MOCK_INDUSTRIES.filter(industry => {
-        const matchesSearch = industry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            industry.field.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === "all" ? true : industry.status === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
+    // Pagination & Search State
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const debouncedSearch = useDebounce(searchQuery, 500);
+    const observerTarget = useRef(null);
+
+    // Delete State
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [industryToDelete, setIndustryToDelete] = useState<Industri | null>(null);
+    const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const fetchIndustriData = useCallback(async (pageNum: number, search: string, isNewSearch: boolean = false) => {
+        setIsLoading(true);
+        try {
+            const response = await getIndustri(search, pageNum);
+            const newData: Industri[] = response.data.data;
+
+            if (isNewSearch) {
+                setDataIndustri(newData);
+            } else {
+                setDataIndustri(prev => {
+                    const existingIds = new Set(prev.map(i => i.id));
+                    const uniqueNewData = newData.filter(i => !existingIds.has(i.id));
+                    return [...prev, ...uniqueNewData];
+                });
+            }
+
+            // Check if we reached the end (assuming 10 items per page default)
+            setHasMore(newData.length >= 10);
+        } catch (error) {
+            console.error("Error fetching industri:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    // Initial load and Search change
+    useEffect(() => {
+        setPage(1);
+        setHasMore(true);
+        fetchIndustriData(1, debouncedSearch, true);
+    }, [debouncedSearch, fetchIndustriData]);
+
+    // Infinite Scroll Observer
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && hasMore && !isLoading) {
+                    setPage(prevPage => {
+                        const nextPage = prevPage + 1;
+                        fetchIndustriData(nextPage, debouncedSearch);
+                        return nextPage;
+                    });
+                }
+            },
+            { threshold: 1.0 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
+            }
+        };
+    }, [hasMore, isLoading, debouncedSearch, fetchIndustriData]);
+
+    const handleInitiateDelete = (industry: Industri) => {
+        setIndustryToDelete(industry);
+        setDeleteConfirmationText("");
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!industryToDelete) return;
+
+        setIsDeleting(true);
+        try {
+            await deleteIndustri(industryToDelete.id);
+            // Refresh data (reset to page 1)
+            setPage(1);
+            fetchIndustriData(1, debouncedSearch, true);
+            setDeleteDialogOpen(false);
+            setIndustryToDelete(null);
+        } catch (error) {
+            console.error("Failed to delete", error);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
         <div className="flex flex-1 flex-col gap-6 p-4 md:p-8 bg-muted/10 min-h-screen">
@@ -132,18 +185,18 @@ export default function IndustriPage() {
 
             {/* Content */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredIndustries.length > 0 ? (
-                    filteredIndustries.map((industry) => (
+                {dataIndustri.length > 0 ? (
+                    dataIndustri.map((industry) => (
                         <Card key={industry.id} className="group hover:shadow-lg transition-all duration-300 border-none shadow-md overflow-hidden relative">
-                            <div className={`absolute top-0 w-full h-1 ${industry.status === 'active' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                            <div className={`absolute top-0 w-full h-1 ${industry.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
                             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                                 <div className="space-y-1">
-                                    <CardTitle className="text-lg font-semibold line-clamp-1" title={industry.name}>
-                                        {industry.name}
+                                    <CardTitle className="text-lg font-semibold line-clamp-1" title={industry.nama}>
+                                        {industry.nama}
                                     </CardTitle>
                                     <CardDescription className="flex items-center gap-1 text-xs">
                                         <Building2 className="h-3 w-3" />
-                                        {industry.field}
+                                        {industry.bidang ?? 'N/A'}
                                     </CardDescription>
                                 </div>
                                 <DropdownMenu>
@@ -155,7 +208,12 @@ export default function IndustriPage() {
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
                                         <DropdownMenuItem>Ubah Data</DropdownMenuItem>
-                                        <DropdownMenuItem className="text-destructive">Hapus</DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="text-destructive focus:text-destructive"
+                                            onClick={() => handleInitiateDelete(industry)}
+                                        >
+                                            Hapus
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </CardHeader>
@@ -163,21 +221,12 @@ export default function IndustriPage() {
                                 <div className="space-y-4">
                                     <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/30 p-2 rounded-md">
                                         <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                                        <span className="line-clamp-2">{industry.address}</span>
+                                        <span className="line-clamp-2">{industry.alamat}</span>
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <div className="p-2 bg-blue-50 text-blue-600 rounded-full">
-                                                <Users className="h-4 w-4" />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-xs text-muted-foreground">Kuota</span>
-                                                <span className="text-sm font-bold">{industry.filled} / {industry.quota}</span>
-                                            </div>
-                                        </div>
-                                        <Badge variant={industry.status === 'active' ? 'success' : 'secondary'} className="px-3">
-                                            {industry.status === 'active' ? 'Aktif' : 'Non-Aktif'}
+                                        <Badge variant={industry.is_active ? 'success' : 'secondary'} className="px-3">
+                                            {industry.is_active ? 'Aktif' : 'Non-Aktif'}
                                         </Badge>
                                     </div>
                                 </div>
@@ -199,6 +248,45 @@ export default function IndustriPage() {
                     </div>
                 )}
             </div>
+
+            {/* Loading Indicator & Sentinel */}
+            <div ref={observerTarget} className="h-10 w-full flex items-center justify-center p-4">
+                {isLoading && <Loader2 className="h-6 w-6 animate-spin text-primary" />}
+            </div>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tindakan ini tidak dapat dibatalkan. Ini akan menghapus data industri
+                            <span className="font-semibold text-foreground"> {industryToDelete?.nama} </span>
+                            secara permanen.
+                            <br /><br />
+                            Ketik <span className="font-bold text-foreground">{industryToDelete?.nama}</span> untuk konfirmasi.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="py-2">
+                        <Input
+                            value={deleteConfirmationText}
+                            onChange={(e) => setDeleteConfirmationText(e.target.value)}
+                            placeholder="Ketik nama industri..."
+                            className="w-full"
+                        />
+                    </div>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+                        <Button
+                            variant="destructive"
+                            disabled={deleteConfirmationText !== industryToDelete?.nama || isDeleting}
+                            onClick={handleConfirmDelete}
+                        >
+                            {isDeleting ? "Menghapus..." : "Hapus Industri"}
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
