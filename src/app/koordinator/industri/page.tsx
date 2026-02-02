@@ -34,6 +34,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 export default function IndustriPage() {
@@ -44,7 +45,8 @@ export default function IndustriPage() {
     // Pagination & Search State
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const debouncedSearch = useDebounce(searchQuery, 500);
     const observerTarget = useRef(null);
 
@@ -55,7 +57,11 @@ export default function IndustriPage() {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const fetchIndustriData = useCallback(async (pageNum: number, search: string, isNewSearch: boolean = false) => {
-        setIsLoading(true);
+        if (isNewSearch) {
+            setIsInitialLoading(true);
+        } else {
+            setIsLoadingMore(true);
+        }
         try {
             const response = await getIndustri(search, pageNum);
             const newData: Industri[] = response.data.data;
@@ -75,7 +81,8 @@ export default function IndustriPage() {
         } catch (error) {
             console.error("Error fetching industri:", error);
         } finally {
-            setIsLoading(false);
+            setIsInitialLoading(false);
+            setIsLoadingMore(false);
         }
     }, []);
 
@@ -90,7 +97,7 @@ export default function IndustriPage() {
     useEffect(() => {
         const observer = new IntersectionObserver(
             entries => {
-                if (entries[0].isIntersecting && hasMore && !isLoading) {
+                if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isInitialLoading) {
                     setPage(prevPage => {
                         const nextPage = prevPage + 1;
                         fetchIndustriData(nextPage, debouncedSearch);
@@ -110,7 +117,7 @@ export default function IndustriPage() {
                 observer.unobserve(observerTarget.current);
             }
         };
-    }, [hasMore, isLoading, debouncedSearch, fetchIndustriData]);
+    }, [hasMore, isLoadingMore, isInitialLoading, debouncedSearch, fetchIndustriData]);
 
     const handleInitiateDelete = (industry: Industri) => {
         setIndustryToDelete(industry);
@@ -241,6 +248,29 @@ export default function IndustriPage() {
                             </CardContent>
                         </Card>
                     ))
+                ) : isInitialLoading ? (
+                    // Initial Loading Skeletons
+                    Array.from({ length: 9 }).map((_, index) => (
+                        <Card key={index} className="border-none shadow-md overflow-hidden bg-background">
+                            <div className="absolute top-0 w-full h-1 bg-muted" />
+                            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                                <div className="space-y-2 w-full">
+                                    <Skeleton className="h-6 w-3/4" />
+                                    <div className="flex gap-2">
+                                        <Skeleton className="h-4 w-4" />
+                                        <Skeleton className="h-4 w-1/2" />
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4 mt-2">
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-2/3" />
+                                <div className="flex justify-between mt-4">
+                                    <Skeleton className="h-5 w-16 rounded-full" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))
                 ) : (
                     <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
                         <div className="bg-muted/30 p-4 rounded-full mb-4">
@@ -257,9 +287,9 @@ export default function IndustriPage() {
                 )}
             </div>
 
-            {/* Loading Indicator & Sentinel */}
+            {/* Loading Indicator for Infinite Scroll */}
             <div ref={observerTarget} className="h-10 w-full flex items-center justify-center p-4">
-                {isLoading && <Loader2 className="h-6 w-6 animate-spin text-primary" />}
+                {isLoadingMore && <Loader2 className="h-6 w-6 animate-spin text-primary" />}
             </div>
 
             {/* Delete Confirmation Dialog */}
@@ -295,6 +325,6 @@ export default function IndustriPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </div >
     );
 }
