@@ -9,6 +9,15 @@ export const postData = async (values: any) => {
     }
 }
 
+export const postDataPersetujuan = async (values: any) => {
+    try {
+        const response = await axios.post("https://sertif.gedanggoreng.com/api/v1/letters/lembar-persetujuan", values)
+        return response.data
+    } catch (error) {
+        throw error
+    }
+}
+
 export const downloadPDF = async (nameFile: string) => {
     try {
         const response = await axios.get(`https://sertif.gedanggoreng.com/api/v1/letters/download/${nameFile}`, {
@@ -26,3 +35,4 @@ export const downloadPDF = async (nameFile: string) => {
         throw error
     }
 }
+
