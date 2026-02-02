@@ -3,12 +3,9 @@
 import { getIndustriById } from "@/api/admin/industri";
 import { Industri } from "@/types/api";
 import {
-    ArrowLeft,
     Building2,
-    Calendar,
     ChevronLeft,
     ChevronRight,
-    Edit,
     GraduationCap,
     Info,
     LayoutDashboard,
