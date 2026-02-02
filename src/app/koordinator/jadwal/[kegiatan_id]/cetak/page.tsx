@@ -47,6 +47,7 @@ import { getGuru } from "@/api/admin/guru"
 import { kegiatanPklById } from "@/api/pembimbing"
 import { useParams } from "next/navigation"
 import { jadwalPkl } from "@/types/api"
+import { downloadPDF, postData } from "@/api/files"
 
 const schoolInfoSchema = z.object({
     nama_sekolah: z.string().min(1, "Nama sekolah harus diisi"),
@@ -451,32 +452,7 @@ export default function CetakBuktiPage() {
         name: "details",
     })
 
-    const postData = async (values: z.infer<typeof formSchema>) => {
-        try {
-            const response = await axios.post("https://sertif.gedanggoreng.com/api/v1/letters/surat-tugas", values)
-            return response.data
-        } catch (error) {
-            throw error
-        }
-    }
 
-    const downloadPDF = async (nameFile: string) => {
-        try {
-            const response = await axios.get(`https://sertif.gedanggoreng.com/api/v1/letters/download/${nameFile}`, {
-                responseType: "blob",
-            })
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement("a")
-            link.href = url
-            link.setAttribute("download", nameFile)
-            document.body.appendChild(link)
-            link.click()
-            link.remove() // Clean up
-            window.URL.revokeObjectURL(url)
-        } catch (error) {
-            throw error
-        }
-    }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
