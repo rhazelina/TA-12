@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, User, Menu } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
 import { useState } from "react"
+import Image from "next/image"
 
 interface HeaderProps {
   user?: {
@@ -36,6 +37,13 @@ export function Header({ user, onMenuClick }: HeaderProps) {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 shadow-sm sm:px-6 lg:px-8">
+      <Image
+        src="/logo/logo_magangHub.png"
+        alt="MagangHub Logo"
+        width={100}
+        height={28}
+        className="h-7 w-auto"
+      />
       {onMenuClick && (
         <Button
           variant="ghost"

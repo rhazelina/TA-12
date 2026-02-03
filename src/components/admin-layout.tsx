@@ -15,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
-  Home,
   Settings
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -89,6 +88,19 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
     return pathname.startsWith(href)
   }
 
+  // Get current page title
+  const getPageTitle = () => {
+    const activeItem = navigation.find(item => {
+      if (item.href === '/admin') {
+        return pathname === '/admin'
+      }
+      return pathname.startsWith(item.href)
+    })
+    return activeItem ? activeItem.name : 'Admin Panel'
+  }
+
+  const pageTitle = getPageTitle()
+
   // Sidebar width is now controlled by CSS classes
 
   // Show loading or prevent flicker until hydrated
@@ -140,14 +152,9 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
         <div className="flex h-full flex-col">
           {/* Mobile header */}
           <div className="flex h-16 items-center justify-between px-4 border-b">
-            <div className="flex items-center space-x-3">
-              <Image
-                src="/logo/logo_magangHub.png"
-                alt="MagangHub Logo"
-                width={100}
-                height={28}
-                className="h-7 w-auto"
-              />
+            <div className="flex flex-col justify-center gap-0.5">
+              <span className="text-lg font-bold text-gray-900 leading-none">{pageTitle}</span>
+              <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 leading-none">Admin</span>
             </div>
           </div>
 
@@ -187,17 +194,15 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
           {/* Desktop header */}
           <div className="flex h-16 items-center justify-between px-4 border-b">
             <div className={cn(
-              "flex items-center space-x-3 transition-opacity duration-200",
+              "flex flex-col justify-center gap-0.5 transition-opacity duration-200",
               collapsed ? "hidden" : "block"
             )}>
-              <Image
-                src="/logo/logo_magangHub.png"
-                alt="MagangHub Logo"
-                width={100}
-                height={28}
-                className="h-7 w-auto"
-              />
-              {!collapsed && <span className="text-sm font-medium text-gray-500">Admin</span>}
+              {!collapsed && (
+                <>
+                  <span className="text-lg font-bold text-gray-900 leading-none">{pageTitle}</span> <br />
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 leading-none">Admin</span>
+                </>
+              )}
             </div>
             <Button
               variant="ghost"
