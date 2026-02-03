@@ -89,8 +89,22 @@ export default function ProfilPage() {
         try {
             await updateProfileGuru(data)
 
-            // Update localStorage with new data
-            localStorage.setItem("guruData", JSON.stringify(data))
+            // Get existing data to preserve other fields
+            const storedData = localStorage.getItem("guruData")
+            let existingData = {}
+            if (storedData) {
+                try {
+                    existingData = JSON.parse(storedData)
+                } catch (e) {
+                    console.error("Failed to parse existing guruData", e)
+                }
+            }
+
+            // Merge existing data with new data
+            const newData = { ...existingData, ...data }
+
+            // Update localStorage with merged data
+            localStorage.setItem("guruData", JSON.stringify(newData))
 
             // Update initials
             if (data.nama) {
