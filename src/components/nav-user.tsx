@@ -7,6 +7,7 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  User as UserIcon,
 } from "lucide-react"
 
 import {
@@ -44,6 +45,7 @@ import {
 import { useAuth } from "@/hooks/useAuth"
 import { useEffect, useState } from "react"
 import { User, UserSiswa } from "@/utils/auth"
+import { useRouter } from "next/navigation"
 
 export function NavUser({ avatar
 }: {
@@ -55,6 +57,8 @@ export function NavUser({ avatar
   const [guru, setGuru] = useState<User | null>(null);
   const [siswa, setSiswa] = useState<UserSiswa | null>(null);
   const [userDesc, setUserDesc] = useState({ name: "", sub: "" });
+
+  const router = useRouter()
 
   useEffect(() => {
     const data = localStorage.getItem("guruData");
@@ -118,24 +122,17 @@ export function NavUser({ avatar
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <Sparkles />
-                  Upgrade to Pro
+                <DropdownMenuItem onClick={() => {
+                  router.push('/profil')
+                }}>
+                  <UserIcon />
+                  Profil
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-              <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem>
-                  <BadgeCheck />
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <CreditCard />
-                  Billing
-                </DropdownMenuItem>
-                <DropdownMenuItem>
                   <Bell />
-                  Notifications
+                  Notifikasi
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />

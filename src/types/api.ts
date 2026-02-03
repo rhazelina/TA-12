@@ -225,12 +225,12 @@ export interface jadwalPkl {
   id?: number;
   deskripsi: string;
   jenis_kegiatan:
-    | "Pembekalan"
-    | "Pengantaran"
-    | "Monitoring1"
-    | "Monitoring2"
-    | "Penjemputan"
-    | null;
+  | "Pembekalan"
+  | "Pengantaran"
+  | "Monitoring1"
+  | "Monitoring2"
+  | "Penjemputan"
+  | null;
   tahun_ajaran_id: number;
   tanggal_mulai: string;
   tanggal_selesai: string;
@@ -356,6 +356,15 @@ export interface ApiResponseSekolah {
   message: string;
   success: boolean;
 }
+
+export interface UpdateProfileGuru {
+  kode_guru: string;
+  nama: string;
+  nip: string;
+  no_telp: string;
+}
+
+
 
 export type GuruListResponse = ListResponse<Guru>;
 export type SiswaListResponse = ListResponse<Siswa>;
