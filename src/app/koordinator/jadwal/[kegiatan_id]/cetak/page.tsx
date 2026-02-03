@@ -87,8 +87,8 @@ const signerSchema = z.object({
 const formSchema = z.object({
     nomor_surat: z.string().min(1, "Nomor surat harus diisi"),
     perihal: z.string().min(1, "Perihal harus diisi"),
-    tanggal_surat: z.string().min(1, "Tanggal surat harus diisi"),
-    tempat_surat: z.string().min(1, "Tempat surat harus diisi"),
+    tanggal_surat: z.string(),
+    tempat_surat: z.string(),
     pembuka: z.string().min(1, "Pembuka harus diisi"),
     penutup: z.string().min(1, "Penutup harus diisi"),
     school_info: schoolInfoSchema,
@@ -157,8 +157,8 @@ const defaultValues: z.infer<typeof formSchema> = {
         telepon: "(0341) 4345127",
         website: "www.smkn2singosari.sch.id",
     },
-    tanggal_surat: "1 Juli 2024",
-    tempat_surat: "Singosari",
+       tanggal_surat: "",
+       tempat_surat: "",
 }
 
 const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
@@ -259,7 +259,7 @@ const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
             {/* Signature */}
             <div className="flex justify-end">
                 <div className="w-[300px] text-left">
-                    <p>{data.tempat_surat}, {data.tanggal_surat}</p>
+                    {/* <p>{data.tempat_surat}, {data.tanggal_surat}</p> */}
                     <p className="font-bold mb-20">{data.penandatangan.jabatan}</p>
 
                     <p className="font-bold underline uppercase">{data.penandatangan.nama}</p>
@@ -524,7 +524,7 @@ export default function CetakBuktiPage() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name="tempat_surat"
                                 render={({ field }) => (
@@ -549,7 +549,7 @@ export default function CetakBuktiPage() {
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
                             <FormField
                                 control={form.control}
                                 name="pembuka"
