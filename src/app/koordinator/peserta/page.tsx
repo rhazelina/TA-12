@@ -149,17 +149,6 @@ export default function PesertaPage() {
                         Manajemen data siswa dan informasi akademik.
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button onClick={() => router.push('/koordinator/peserta/buat')} size="sm">
-                        <Plus className="mr-2 h-4 w-4" /> Tambah Peserta
-                    </Button>
-                    <Button variant="outline" size="sm">
-                        <Upload className="mr-2 h-4 w-4" /> Import
-                    </Button>
-                    <Button variant="outline" size="sm">
-                        <Download className="mr-2 h-4 w-4" /> Export
-                    </Button>
-                </div>
             </div>
 
             {/* Filters */}
@@ -233,9 +222,6 @@ export default function PesertaPage() {
                                                 <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                                                 <DropdownMenuItem onClick={() => router.push(`/koordinator/peserta/${student.id}`)}>
                                                     Lihat Detail
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => router.push(`/koordinator/peserta/edit/${student.id}`)}>
-                                                    Edit Data
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     className="text-destructive"

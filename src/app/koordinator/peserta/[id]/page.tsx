@@ -269,7 +269,7 @@ export default function ViewSiswaPage() {
             </Card>
 
             {/* Action Buttons */}
-            <div className="flex justify-between items-center">
+            <div className="flex justify-start items-center">
                 <Button
                     variant="outline"
                     onClick={handleBack}
@@ -277,14 +277,6 @@ export default function ViewSiswaPage() {
                 >
                     <ArrowLeft className="h-4 w-4" />
                     <span>Kembali ke Daftar</span>
-                </Button>
-
-                <Button
-                    onClick={handleEdit}
-                    className="flex items-center space-x-2"
-                >
-                    <Edit className="h-4 w-4" />
-                    <span>Edit Data Siswa</span>
                 </Button>
             </div>
         </div>
