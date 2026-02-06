@@ -31,7 +31,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { getSiswa, deleteSiswa } from "@/api/admin/siswa/index";
+import { getSiswa } from "@/api/admin/siswa/index";
 import { getKelas } from "@/api/admin/kelas/index";
 import type { Siswa, Kelas } from "@/types/api";
 
@@ -120,19 +120,7 @@ export default function PesertaPage() {
         }
     };
 
-    const handleDelete = async (id: number, name: string) => {
-        if (confirm(`Apakah anda yakin ingin menghapus data siswa ${name}?`)) {
-            try {
-                await deleteSiswa(id);
-                toast.success(`Data siswa ${name} berhasil dihapus`);
-                const kelasId = selectedKelas !== "all" ? parseInt(selectedKelas) : undefined;
-                loadData(searchQuery, currentPage, kelasId);
-            } catch (err) {
-                console.error("Failed to delete siswa:", err);
-                toast.error("Gagal menghapus data siswa");
-            }
-        }
-    };
+
 
     const getClassName = (kelasId: number) => {
         const found = kelas.find(k => k.id === kelasId);
@@ -223,12 +211,7 @@ export default function PesertaPage() {
                                                 <DropdownMenuItem onClick={() => router.push(`/koordinator/peserta/${student.id}`)}>
                                                     Lihat Detail
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    className="text-destructive"
-                                                    onClick={() => handleDelete(student.id, student.nama_lengkap)}
-                                                >
-                                                    Hapus
-                                                </DropdownMenuItem>
+
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
