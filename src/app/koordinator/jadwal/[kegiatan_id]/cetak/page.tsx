@@ -220,7 +220,7 @@ const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
                                     <td className="border border-black p-2 text-center">{idx + 1}</td>
                                     <td className="border border-black p-2">
                                         <div className="font-bold">{person.nama}</div>
-                                        {person.nip && <div className="text-xs">{person.nip}</div>}
+                                        {/* {person.nip && <div className="text-xs">{person.nip}</div>} */}
                                     </td>
                                     <td className="border border-black p-2 text-center">{person.jabatan}</td>
                                     <td className="border border-black p-2 text-center">{person.instansi}</td>
