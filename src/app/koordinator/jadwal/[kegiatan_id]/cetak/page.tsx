@@ -157,8 +157,8 @@ const defaultValues: z.infer<typeof formSchema> = {
         telepon: "(0341) 4345127",
         website: "www.smkn2singosari.sch.id",
     },
-       tanggal_surat: "",
-       tempat_surat: "",
+       tanggal_surat: "06 April 2026",
+       tempat_surat: "Singosari",
 }
 
 const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
