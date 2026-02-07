@@ -151,14 +151,14 @@ const defaultValues: z.infer<typeof formSchema> = {
         kecamatan: "Singosari",
         kelurahan: "Tunjungtirto",
         kode_pos: "65153",
-        logo_url: "https://id.wikipedia.org/wiki/Berkas:Coat_of_arms_of_East_Java.svg",
+        logo_url: "https://upload.wikimedia.org/wikipedia/commons/7/74/Coat_of_arms_of_East_Java.svg",
         nama_sekolah: "SMK NEGERI 2 SINGOSARI",
         provinsi: "Jawa Timur",
         telepon: "(0341) 4345127",
         website: "www.smkn2singosari.sch.id",
     },
-       tanggal_surat: "06 April 2026",
-       tempat_surat: "Singosari",
+    tanggal_surat: "06 April 2026",
+    tempat_surat: "Singosari",
 }
 
 const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
