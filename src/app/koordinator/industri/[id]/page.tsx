@@ -152,9 +152,26 @@ export default function DetailIndustriPage() {
                             </div>
                             <div>
                                 <Label className={labelStyle}>
-                                    <MapPin className={iconStyle} /> Jarak Tempuh
+                                    <MapPin className={iconStyle} /> Jarak Tempuh dari Sekolah
                                 </Label>
-                                <Input readOnly value="12.5 km dari sekolah" className={inputStyle} />
+                                <div className="flex gap-2">
+                                    <Input
+                                        readOnly
+                                        value="Cek via Google Maps"
+                                        className={`${inputStyle} flex-1`}
+                                    />
+                                    <Button
+                                        variant="outline"
+                                        className="whitespace-nowrap bg-white hover:bg-gray-50 text-blue-600 border-blue-200 hover:border-blue-300"
+                                        onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&origin=SMK+Negeri+2+Singosari&destination=${encodeURIComponent(industri.alamat)}`, '_blank')}
+                                    >
+                                        <Map className="w-4 h-4 mr-2" />
+                                        Buka Rute
+                                    </Button>
+                                </div>
+                                <p className="text-[10px] text-gray-500 mt-1">
+                                    *Lokasi sekolah: <a href="https://maps.app.goo.gl/nEqAABK5Xq6FCbAx7" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">SMK Negeri 2 Singosari</a>
+                                </p>
                             </div>
                             <div>
                                 <Label className={labelStyle}>
