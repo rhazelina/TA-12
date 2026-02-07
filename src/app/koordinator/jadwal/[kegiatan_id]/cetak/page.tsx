@@ -252,14 +252,14 @@ const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
             <div className="mb-12 text-justify">
                 <p>{data.penutup}</p>
             </div>
-
             {/* Signature */}
             <div className="flex justify-end">
                 <div className="w-[300px] text-left">
-                    {/* <p>{data.tempat_surat}, {data.tanggal_surat}</p> */}
+                    <p >{data.tempat_surat}, {data.tanggal_surat}</p>
                     <p className="font-bold mb-20">{data.penandatangan.jabatan}</p>
 
                     <p className="font-bold underline uppercase">{data.penandatangan.nama}</p>
+                    <p>{data.penandatangan.pangkat}</p>
                     <p>NIP. {data.penandatangan.nip}</p>
                 </div>
             </div>
