@@ -186,10 +186,7 @@ const LetterPreview = ({ data }: { data: z.infer<typeof formSchema> }) => {
                         {data.school_info.alamat_jalan}, {data.school_info.kelurahan}, {data.school_info.kecamatan}, {data.school_info.kab_kota}, {data.school_info.provinsi} {data.school_info.kode_pos}
                     </p>
                     <p className="normal-case text-xs">
-                        Telepon {data.school_info.telepon} {data.school_info.email && `| Email: ${data.school_info.email}`}
-                    </p>
-                    <p className="normal-case text-xs">
-                        {data.school_info.website}
+                        Telepon {data.school_info.telepon}
                     </p>
                 </div>
             </div>
