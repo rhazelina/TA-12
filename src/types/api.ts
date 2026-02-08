@@ -364,6 +364,26 @@ export interface UpdateProfileGuru {
   no_telp: string;
 }
 
+export interface PostIzin {
+  files: File;
+  keterangan: string;
+  jenis: string;
+  tanggal: string;
+}
+
+export interface ResponsePostIzin {
+  bukti_foto_urls: string[];
+  created_at: string;
+  decided_at: string;
+  id: number;
+  jenis: string;
+  keterangan: string;
+  pembimbing_guru_id: number;
+  rejection_reason: string;
+  siswa_id: number;
+  status: string;
+  tanggal: string;
+}
 
 
 export type GuruListResponse = ListResponse<Guru>;

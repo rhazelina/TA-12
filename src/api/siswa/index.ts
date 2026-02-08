@@ -1,8 +1,10 @@
+import { PostIzin } from "@/types/api"
 import axiosInstance from "@/utils/axios"
 
-export async function createIzin() {
+export async function createIzin(data: PostIzin) {
     try {
-        const res = await axiosInstance.post('/api/izin')
+        const res = await axiosInstance.post('/api/izin', data)
+        return res.data
     } catch (error) {
         throw error
     }

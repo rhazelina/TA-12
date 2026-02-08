@@ -207,11 +207,17 @@ export const siswaMenus: SidebarMenuItem[] = [
     pathName: ["pindah-pkl"],
   },
   {
-    name: "Notifikasi Siswa",
-    url: "/siswa/notifikasi",
-    icon: Bell,
-    pathName: ["notifikasi"],
+    name: "Perizinan",
+    url: "/siswa/perizinan",
+    icon: CalendarCheck,
+    pathName: ["perizinan"],
   },
+  // {
+  //   name: "Notifikasi Siswa",
+  //   url: "/siswa/notifikasi",
+  //   icon: Bell,
+  //   pathName: ["notifikasi"],
+  // },
 ];
 
 // Fungsi helper untuk mendapatkan menu berdasarkan role
