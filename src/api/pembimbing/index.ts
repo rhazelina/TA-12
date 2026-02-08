@@ -81,9 +81,12 @@ export async function uploadImages(data: FormData) {
 
 
 // izin
-export async function updateIzinByPembimbing(id: number) {
+export async function updateIzinByPembimbing(id: number, status: "approved" | "rejected", rejection_reason?: string) {
   try {
-    const res = await axiosInstance.patch(`/api/izin/${id}/decide`)
+    const res = await axiosInstance.patch(`/api/izin/${id}/decide`, {
+      status,
+      rejection_reason
+    })
     return res.data
   } catch (error) {
     throw error

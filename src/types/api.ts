@@ -385,6 +385,27 @@ export interface ResponseIzinBySiswa {
   tanggal: string;
 }
 
+export interface ResponseIzinByPembimbing {
+  bukti_foto_urls: string[];
+  created_at: string;
+  decided_at: string;
+  id: number;
+  jenis: string;
+  keterangan: string;
+  pembimbing_guru_id: number;
+  rejection_reason: string;
+  siswa_id: number;
+  status: string;
+  tanggal: string;
+  siswa: {
+    nama: string;
+    kelas: string;
+    konsentrasi_keahlian: string;
+    tempat_pkl: string;
+    foto_profil: string;
+    nisn: string;
+  };
+}
 
 export type GuruListResponse = ListResponse<Guru>;
 export type SiswaListResponse = ListResponse<Siswa>;
