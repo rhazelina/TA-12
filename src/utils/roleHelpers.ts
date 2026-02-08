@@ -5,23 +5,10 @@ export interface GuruRoleData {
   is_pembimbing?: boolean
   is_wali_kelas?: boolean
   is_kaprog?: boolean
+  kaprog_jurusan?: string
 }
 
-// Fungsi untuk mendapatkan primary role berdasarkan prioritas
-export const getPrimaryGuruRole = (guruData: GuruRoleData): string => {
-  // Prioritas: Kaprog > Koordinator > Wali Kelas > Pembimbing
-  if (guruData.is_kaprog) return 'kapro'
-  if (guruData.is_koordinator) return 'koordinator'
-  if (guruData.is_wali_kelas) return 'wali-kelas'
-  if (guruData.is_pembimbing) return 'pembimbing'
-  return 'pembimbing' // Default fallback
-}
-
-// Fungsi untuk mendapatkan default path berdasarkan guru role
-export const getGuruDefaultPath = (guruData: GuruRoleData): string => {
-  const primaryRole = getPrimaryGuruRole(guruData)
-  return `/${primaryRole}/dashboard`
-}
+// ... (unchanged functions)
 
 // Fungsi untuk mendapatkan semua role yang dimiliki guru
 export const getGuruRoles = (guruData: GuruRoleData): Array<{
@@ -32,7 +19,10 @@ export const getGuruRoles = (guruData: GuruRoleData): Array<{
   const roles: Array<{ key: string; label: string; path: string }> = []
 
   if (guruData.is_kaprog) {
-    roles.push({ key: 'kapro', label: 'Konsentrasi Keahlian', path: '/kapro/dashboard' })
+    const label = guruData.kaprog_jurusan
+      ? `Kepala Konsentrasi Keahlian (${guruData.kaprog_jurusan})`
+      : 'Kepala Konsentrasi Keahlian'
+    roles.push({ key: 'kapro', label, path: '/kapro/dashboard' })
   }
   if (guruData.is_koordinator) {
     roles.push({ key: 'koordinator', label: 'Pokja', path: '/koordinator/dashboard' })
@@ -57,4 +47,13 @@ export const hasMultipleRoles = (guruData: GuruRoleData): boolean => {
   ].filter(Boolean).length
 
   return roleCount > 1
+}
+
+export const getGuruDefaultPath = (guruData: GuruRoleData): string => {
+  if (guruData.is_kaprog) return '/kapro/dashboard'
+  if (guruData.is_koordinator) return '/koordinator/dashboard'
+  if (guruData.is_wali_kelas) return '/wali-kelas/dashboard'
+  if (guruData.is_pembimbing) return '/pembimbing/dashboard'
+
+  return '/guru/dashboard' // Default fallback
 }

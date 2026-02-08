@@ -27,6 +27,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     is_pembimbing?: boolean
     is_wali_kelas?: boolean
     is_kaprog?: boolean
+    kaprog_jurusan?: string
   }
 }
 
