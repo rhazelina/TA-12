@@ -87,6 +87,12 @@ export const koordinatorMenus: SidebarMenuItem[] = [
     pathName: ["persetujuan-pkl"],
   },
   {
+    name: "Pengajuan PKL",
+    url: "/koordinator/pengajuan-pkl",
+    icon: FileUp,
+    pathName: ["pengajuan-pkl"],
+  },
+  {
     name: "Industri",
     url: "/koordinator/industri",
     icon: Building2,
