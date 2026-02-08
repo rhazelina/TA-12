@@ -127,10 +127,10 @@ export const waliKelasMenus: SidebarMenuItem[] = [
     pathName: ["permasalahan-siswa"],
   },
   {
-    name: "Monitor Absensi",
-    url: "/wali-kelas/monitor-absensi",
+    name: "Monitor Perizinan",
+    url: "/wali-kelas/monitor-perizinan",
     icon: CalendarCheck,
-    pathName: ["monitor-absensi"],
+    pathName: ["monitor-perizinan"],
   },
 ];
 
