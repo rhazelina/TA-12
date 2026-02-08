@@ -397,14 +397,6 @@ export interface ResponseIzinByPembimbing {
   siswa_id: number;
   status: string;
   tanggal: string;
-  siswa: {
-    nama: string;
-    kelas: string;
-    konsentrasi_keahlian: string;
-    tempat_pkl: string;
-    foto_profil: string;
-    nisn: string;
-  };
 }
 
 export type GuruListResponse = ListResponse<Guru>;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getIzinByPembimbing, updateIzinByPembimbing } from "@/api/pembimbing";
+import { getIzinByPembimbing, updateIzinByPembimbing, getSiswa } from "@/api/pembimbing";
 import { ResponseIzinByPembimbing } from "@/types/api";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -29,34 +29,62 @@ import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, Loader2 } from "
 import { ImageCarousel } from "@/components/image-carousel";
 import { Card, CardContent } from "@/components/ui/card";
 
+// Interface locally defined based on observation of getSiswa usage
+interface Student {
+  siswa_id: number;
+  siswa_nama: string;
+  industri?: string;
+  industri_id?: number;
+  kelas?: string; // Optional, assuming might be present or we fallback
+  foto_profil?: string; // Optional
+}
+
+interface EnrichedPermission extends ResponseIzinByPembimbing {
+  student?: Student;
+}
+
 export default function PerizinanSiswa() {
-  const [data, setData] = useState<ResponseIzinByPembimbing[]>([]);
+  const [data, setData] = useState<EnrichedPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<"pending" | "approved" | "rejected" | "all">("all");
-  const [selectedIzin, setSelectedIzin] = useState<ResponseIzinByPembimbing | null>(null);
+  const [selectedIzin, setSelectedIzin] = useState<EnrichedPermission | null>(null);
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchIzin = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await getIzinByPembimbing();
-      // Assuming API returns an array or object with data array
-      const izinData = Array.isArray(res) ? res : (res.data || []);
-      setData(izinData);
+      const [izinRes, siswaRes] = await Promise.all([
+        getIzinByPembimbing(),
+        getSiswa()
+      ]);
+
+      const izinData: ResponseIzinByPembimbing[] = Array.isArray(izinRes) ? izinRes : (izinRes.data || []);
+      const siswaData: Student[] = Array.isArray(siswaRes) ? siswaRes : (siswaRes.data || []);
+
+      // Join data
+      const enrichedData: EnrichedPermission[] = izinData.map(izin => {
+        const student = siswaData.find(s => s.siswa_id === izin.siswa_id);
+        return {
+          ...izin,
+          student
+        };
+      });
+
+      setData(enrichedData);
     } catch (error) {
-      console.error("Failed to fetch izin:", error);
+      console.error("Failed to fetch data:", error);
       toast.error("Gagal memuat data perizinan");
-      setData([]); // fallback to empty array on error
+      setData([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchIzin();
+    fetchData();
   }, []);
 
   const filteredData = data.filter((item) => {
@@ -64,7 +92,7 @@ export default function PerizinanSiswa() {
     return item.status.toLowerCase() === filterStatus;
   });
 
-  const handleAction = (izin: ResponseIzinByPembimbing, type: "approve" | "reject") => {
+  const handleAction = (izin: EnrichedPermission, type: "approve" | "reject") => {
     setSelectedIzin(izin);
     setActionType(type);
     setRejectionReason("");
@@ -88,7 +116,7 @@ export default function PerizinanSiswa() {
       );
       toast.success(`Izin berhasil ${actionType === "approve" ? "disetujui" : "ditolak"}`);
       setOpenDialog(false);
-      fetchIzin();
+      fetchData();
     } catch (error: any) {
       console.error("Update error:", error);
       toast.error(error.response?.data?.message || "Gagal memproses izin");
@@ -148,7 +176,7 @@ export default function PerizinanSiswa() {
               <SelectItem value="rejected">Ditolak</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={fetchIzin} className="bg-white">
+          <Button variant="outline" onClick={fetchData} className="bg-white">
             Refresh
           </Button>
         </div>
@@ -171,16 +199,10 @@ export default function PerizinanSiswa() {
                   {/* Student Info */}
                   <div className="flex gap-4 md:w-1/3">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={izin.siswa?.foto_profil} alt={izin.siswa?.nama} />
-                      <AvatarFallback>{izin.siswa?.nama?.charAt(0) || "S"}</AvatarFallback>
+                      <AvatarImage src={izin.student?.foto_profil} alt={izin.student?.siswa_nama} />
+                      <AvatarFallback>{izin.student?.siswa_nama?.charAt(0) || "S"}</AvatarFallback>
                     </Avatar>
-                    <div>
-                      <h3 className="font-semibold text-lg">{izin.siswa?.nama}</h3>
-                      <p className="text-sm text-muted-foreground">{izin.siswa?.kelas} • {izin.siswa?.konsentrasi_keahlian}</p>
-                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                        <span className="font-medium">Magang di:</span> {izin.siswa?.tempat_pkl || "-"}
-                      </p>
-                    </div>
+                    <h3 className="font-semibold text-lg">{izin.student?.siswa_nama || `Siswa ID: ${izin.siswa_id}`}</h3>
                   </div>
 
                   {/* Permission Details */}
@@ -208,7 +230,7 @@ export default function PerizinanSiswa() {
                       </div>
                     )}
 
-                    {izin.status === 'rejected' && izin.rejection_reason && (
+                    {izin.status.toLowerCase() === 'rejected' && izin.rejection_reason && (
                       <div className="bg-destructive/10 p-3 rounded-md text-sm text-destructive border border-destructive/20">
                         <strong>Alasan Penolakan:</strong> {izin.rejection_reason}
                       </div>
