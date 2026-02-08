@@ -365,13 +365,13 @@ export interface UpdateProfileGuru {
 }
 
 export interface PostIzin {
-  files: File;
+  files: File[];
   keterangan: string;
-  jenis: string;
+  jenis: "Sakit" | "Izin" | "Keperluan Keluarga";
   tanggal: string;
 }
 
-export interface ResponsePostIzin {
+export interface ResponseIzinBySiswa {
   bukti_foto_urls: string[];
   created_at: string;
   decided_at: string;
