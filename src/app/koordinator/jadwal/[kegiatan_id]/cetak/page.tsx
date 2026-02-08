@@ -133,7 +133,7 @@ const defaultValues: z.infer<typeof formSchema> = {
             value: "JL. MOROJANTEK NO. 87 B, PANGENTAN, KEC. SINGOSARI, KAB. MALANG",
         },
     ],
-    nomor_surat: "800/123/SMK.2/2024",
+    nomor_surat: "800/976/101.6.9.19/2025",
     pembuka: "Kepala SMK Negeri 2 Singosari Dinas Pendidikan Kabupaten Malang menugaskan kepada :",
     penandatangan: {
         instansi: "SMK Negeri 2 Singosari",
