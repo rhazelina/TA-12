@@ -78,3 +78,23 @@ export async function uploadImages(data: FormData) {
     throw error;
   }
 }
+
+
+// izin
+export async function updateIzinByPembimbing(id: number) {
+  try {
+    const res = await axiosInstance.patch(`/api/izin/${id}/decide`)
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function getIzinByPembimbing() {
+  try {
+    const res = await axiosInstance.get('/api/izin/pembimbing')
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}
