@@ -27,9 +27,13 @@ export async function updateIzinBySiswa(id: number, data: FormData) {
     }
 }
 
-export async function getIzinBySiswa() {
+export async function getIzinBySiswa(status?: "pending" | "approved" | "rejected") {
     try {
-        const res = await axiosInstance.get('/api/izin/me')
+        const res = await axiosInstance.get('/api/izin/me', {
+            params: {
+                status,
+            },
+        })
         return res.data
     } catch (error) {
         throw error
