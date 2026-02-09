@@ -172,12 +172,12 @@ export const kaproMenus: SidebarMenuItem[] = [
     icon: Users,
     pathName: ["pembimbing-pkl"],
   },
-  {
-    name: "Perizinan",
-    url: "/kapro/perizinan",
-    icon: CalendarCheck,
-    pathName: ["perizinan"],
-  },
+  // {
+  //   name: "Perizinan",
+  //   url: "/kapro/perizinan",
+  //   icon: CalendarCheck,
+  //   pathName: ["perizinan"],
+  // },
   {
     name: "Persetujuan Pindah PKL",
     url: "/kapro/pindah-pkl",
