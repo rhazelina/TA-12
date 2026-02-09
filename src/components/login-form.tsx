@@ -206,7 +206,7 @@ export function LoginForm({
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="admin-password">Password</Label>
+                        <Label htmlFor="admin-password">Kata Sandi</Label>
                         <Input
                           id="admin-password"
                           type="password"
