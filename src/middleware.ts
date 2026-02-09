@@ -120,7 +120,7 @@ export function middleware(request: NextRequest) {
           return NextResponse.redirect(new URL("/admin", request.url));
         case "ssw":
           return NextResponse.redirect(
-            new URL("/siswa/dashboard", request.url),
+            new URL("/siswa/beranda", request.url),
           );
         case "gru":
           if (payload.is_kaprog) {

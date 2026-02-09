@@ -146,7 +146,7 @@ export function LoginForm({
         setSiswaDataStorage(response.data.user)
       }
 
-      router.push('/siswa/dashboard')
+      router.push('/siswa/beranda')
       toast.success("Login berhasil!", {
         description: "Selamat datang di dashboard"
       })

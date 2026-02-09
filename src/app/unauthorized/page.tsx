@@ -37,7 +37,7 @@ export default function UnauthorizedPage() {
       })
       router.push(defaultPath)
     } else {
-      router.push(user?.role == "ssw" ? '/siswa/dashboard' : '/login')
+      router.push(user?.role == "ssw" ? '/siswa/beranda' : '/login')
     }
   }
 

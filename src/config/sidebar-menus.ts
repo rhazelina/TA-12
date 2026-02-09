@@ -190,9 +190,9 @@ export const kaproMenus: SidebarMenuItem[] = [
 export const siswaMenus: SidebarMenuItem[] = [
   {
     name: "Beranda",
-    url: "/siswa/dashboard",
+    url: "/siswa/beranda",
     icon: Home,
-    pathName: ["dashboard"],
+    pathName: ["beranda"],
   },
   {
     name: "Pengajuan PKL",

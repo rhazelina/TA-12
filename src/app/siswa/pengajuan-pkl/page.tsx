@@ -65,7 +65,7 @@ export default function FormIndustri() {
                 toast.warning("Masih ada permohonan pending");
                 return
             }
-            router.push('/siswa/dashboard')
+            router.push('/siswa/beranda')
             toast.success("Data berhasil dikirim");
         } catch (error) {
             console.log("Create pengajuan error:", error);
@@ -97,10 +97,10 @@ export default function FormIndustri() {
                             <Button
                                 variant="link"
                                 className="p-0 h-auto text-yellow-800 underline mt-2"
-                                onClick={() => router.push('/siswa/dashboard')}
+                                onClick={() => router.push('/siswa/beranda')}
                                 type="button"
                             >
-                                Lihat Dashboard
+                                Lihat Beranda
                             </Button>
                         </div>
                     </div>
