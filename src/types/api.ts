@@ -147,6 +147,7 @@ export interface ListResponse<T> {
 export interface FormDataPermohonan {
   catatan: string;
   industri_id: number;
+  member_siswa_ids?: number[];
 }
 
 export interface DataPengajuan {

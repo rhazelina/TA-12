@@ -218,7 +218,7 @@ export default function TempatMagangPage() {
                                                 size="sm"
                                                 variant="outline"
                                                 className="h-8 w-8 p-0"
-                                                title="Update Quota"
+                                                title="Perbarui Kuota"
                                                 onClick={() => {
                                                     setSelectedIndustri(item)
                                                     setQuota(item.kuota_siswa ?? 0)
@@ -260,7 +260,7 @@ export default function TempatMagangPage() {
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Update Quota - {selectedIndustri?.nama}</DialogTitle>
+                        <DialogTitle>Perbarui Kuota - {selectedIndustri?.nama}</DialogTitle>
                     </DialogHeader>
 
                     <form onSubmit={handleQuotaSubmit} className="space-y-4">

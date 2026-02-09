@@ -7,12 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { getIndustri } from "@/api/admin/industri";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useJurusanSiswaLogin, useSiswaPengajuanData } from "@/hooks/useSiswaData";
-import { createPengajuan } from "@/api/admin/siswa";
+import { useJurusanSiswaLogin, useSiswaPengajuanData, useSiswaDataLogin } from "@/hooks/useSiswaData";
+import { createPengajuan, getSiswa } from "@/api/admin/siswa";
 import { useRouter } from "next/navigation";
+import { Siswa } from "@/types/api";
 
 interface IndustriOption {
     id: number;
@@ -28,6 +29,13 @@ export default function FormIndustri() {
     const [catatan, setCatatan] = useState("");
     const { jurusan } = useJurusanSiswaLogin()
     const { dataPengajuan, loading: loadingPengajuan } = useSiswaPengajuanData()
+    const { siswa: currentUser } = useSiswaDataLogin();
+
+    // State for friends (praktek bersama)
+    const [siswaOptions, setSiswaOptions] = useState<Siswa[]>([]);
+    const [loadingSiswa, setLoadingSiswa] = useState(false);
+    const [selectedFriendIds, setSelectedFriendIds] = useState<number[]>([]);
+    const [openFriendPopover, setOpenFriendPopover] = useState(false);
 
     // Check if there is any active application (not rejected)
     const activeApplication = dataPengajuan?.find(p => p.status !== "Rejected" && p.status !== "Ditolak")
@@ -54,12 +62,37 @@ export default function FormIndustri() {
         loadIndustriOptions();
     }, [jurusan]);
 
+    useEffect(() => {
+        const loadSiswaOptions = async () => {
+            if (!currentUser || !currentUser.kelas_id) return;
+            try {
+                setLoadingSiswa(true);
+                // Fetch students from the same class
+                const response = await getSiswa("", undefined, currentUser.kelas_id);
+                if (response && response.data && response.data.data) {
+                    // Filter out the current user from the list
+                    const filteredSiswa = response.data.data.filter((s: Siswa) => s.id !== currentUser.id);
+                    setSiswaOptions(filteredSiswa);
+                }
+            } catch (error) {
+                console.error("Load siswa error:", error);
+            } finally {
+                setLoadingSiswa(false);
+            }
+        };
+
+        if (currentUser) {
+            loadSiswaOptions();
+        }
+    }, [currentUser]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const respponse = await createPengajuan({
                 industri_id: industriId,
-                catatan
+                catatan,
+                // member_siswa_ids: selectedFriendIds
             })
             if (!respponse) {
                 toast.warning("Masih ada permohonan pending");
@@ -73,7 +106,26 @@ export default function FormIndustri() {
         }
     };
 
+    const handleSelectFriend = (friendId: number) => {
+        if (selectedFriendIds.includes(friendId)) {
+            setSelectedFriendIds(selectedFriendIds.filter(id => id !== friendId));
+        } else {
+            if (selectedFriendIds.length >= 2) {
+                toast.warning("Maksimal 2 teman.");
+                return;
+            }
+            setSelectedFriendIds([...selectedFriendIds, friendId]);
+        }
+    };
+
+    const removeFriend = (friendId: number) => {
+        setSelectedFriendIds(selectedFriendIds.filter(id => id !== friendId));
+    };
+
     const selectedIndustri = industriOptions.find((industri) => industri.id === industriId);
+
+    // Get selected friend objects for display
+    const selectedFriends = siswaOptions.filter(siswa => selectedFriendIds.includes(siswa.id));
 
     return (
         <form
@@ -162,6 +214,86 @@ export default function FormIndustri() {
                         </Command>
                     </PopoverContent>
                 </Popover>
+            </div>
+
+            {/* Add Friends Section */}
+            <div className={`flex flex-col gap-2 ${activeApplication ? 'opacity-50 pointer-events-none' : ''}`}>
+                <Label>
+                    Tambah Teman (Opsional) - Maksimal 2
+                </Label>
+
+                {/* Selected Friends List */}
+                {selectedFriends.length > 0 && (
+                    <div className="space-y-2 mb-2">
+                        {selectedFriends.map((friend) => (
+                            <div key={friend.id} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
+                                <span>{friend.nama_lengkap}</span>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeFriend(friend.id)}
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0 rounded-full"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Add Friend Button/Popover */}
+                {selectedFriendIds.length < 2 && (
+                    <Popover open={openFriendPopover} onOpenChange={setOpenFriendPopover}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={openFriendPopover}
+                                className="w-full justify-between"
+                                disabled={loadingSiswa}
+                            >
+                                {loadingSiswa ? "Memuat data siswa..." : "+ Tambah Teman"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                            <Command>
+                                <CommandInput placeholder="Cari siswa..." />
+                                <CommandList>
+                                    <CommandEmpty>Siswa tidak ditemukan.</CommandEmpty>
+                                    <CommandGroup>
+                                        {siswaOptions.map((siswa) => {
+                                            const isSelected = selectedFriendIds.includes(siswa.id);
+                                            return (
+                                                <CommandItem
+                                                    key={siswa.id}
+                                                    value={siswa.nama_lengkap}
+                                                    onSelect={() => {
+                                                        handleSelectFriend(siswa.id);
+                                                        setOpenFriendPopover(false);
+                                                    }}
+                                                    disabled={isSelected} // Disable if already selected
+                                                    className={isSelected ? "opacity-50" : ""}
+                                                >
+                                                    <Check
+                                                        className={cn(
+                                                            "mr-2 h-4 w-4",
+                                                            isSelected
+                                                                ? "opacity-100"
+                                                                : "opacity-0"
+                                                        )}
+                                                    />
+                                                    {siswa.nama_lengkap}
+                                                </CommandItem>
+                                            );
+                                        })}
+                                    </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+                )}
             </div>
 
             {/* Catatan */}
