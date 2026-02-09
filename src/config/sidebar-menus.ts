@@ -29,7 +29,7 @@ export interface SidebarConfig {
 // Menu untuk Pembimbing
 export const pembimbingMenus: SidebarMenuItem[] = [
   {
-    name: "Dashboard",
+    name: "Beranda",
     url: "/pembimbing/dashboard",
     icon: Home,
     pathName: ["dashboard", "data-industri", "data-siswa", "detail-siswa"],
@@ -69,7 +69,7 @@ export const pembimbingMenus: SidebarMenuItem[] = [
 // Menu untuk Koordinator (Pokja)
 export const koordinatorMenus: SidebarMenuItem[] = [
   {
-    name: "Dashboard",
+    name: "Beranda",
     url: "/koordinator/dashboard",
     icon: Home,
     pathName: ["dashboard"],
@@ -121,7 +121,7 @@ export const koordinatorMenus: SidebarMenuItem[] = [
 // Menu untuk Wali Kelas
 export const waliKelasMenus: SidebarMenuItem[] = [
   {
-    name: "Dashboard",
+    name: "Beranda",
     url: "/wali-kelas/dashboard",
     icon: Home,
     pathName: ["dashboard"],
@@ -143,7 +143,7 @@ export const waliKelasMenus: SidebarMenuItem[] = [
 // Menu untuk Kapro (Konsentrasi Keahlian)
 export const kaproMenus: SidebarMenuItem[] = [
   {
-    name: "Dashboard",
+    name: "Beranda",
     url: "/kapro/dashboard",
     icon: Home,
     pathName: ["dashboard"],
@@ -189,7 +189,7 @@ export const kaproMenus: SidebarMenuItem[] = [
 // Menu untuk Siswa
 export const siswaMenus: SidebarMenuItem[] = [
   {
-    name: "Dashboard",
+    name: "Beranda",
     url: "/siswa/dashboard",
     icon: Home,
     pathName: ["dashboard"],

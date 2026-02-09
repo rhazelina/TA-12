@@ -451,7 +451,7 @@ export default function PengajuanPKL() {
                         {/* Catatan */}
                         <div className="space-y-2">
                             <Label htmlFor="catatan">
-                                Catatan Kepala Program Studi
+                                Catatan Kepala Konsentrasi Keahlian
                             </Label>
                             <Textarea
                                 id="catatan"
