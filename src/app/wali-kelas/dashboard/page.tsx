@@ -108,7 +108,7 @@ export default function Dashboard() {
                                 <th className="p-3">Nama Industri</th>
                                 <th className="p-3">Pembimbing</th>
                                 <th className="p-3">Status</th>
-                                <th className="p-3">Detail</th>
+                                {/* <th className="p-3">Detail</th> */}
                             </tr>
                         </thead>
                         <tbody>
@@ -133,13 +133,13 @@ export default function Dashboard() {
                                                 {row.status_pkl}
                                             </span>
                                         </td>
-                                        <td className="p-3">
+                                        {/* <td className="p-3">
                                             <div className="flex justify-center">
                                                 <Link href={`/wali-kelas/siswa/${row.id}`}>
                                                     <Button size="sm">Detail</Button>
                                                 </Link>
                                             </div>
-                                        </td>
+                                        </td> */}
                                     </tr>
                                 ))
                             )}
