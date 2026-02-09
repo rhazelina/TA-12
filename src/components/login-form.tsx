@@ -242,7 +242,7 @@ export function LoginForm({
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="guru-password">Password</Label>
+                        <Label htmlFor="guru-password">Kata Sandi</Label>
                         <Input
                           id="guru-password"
                           type="password"
