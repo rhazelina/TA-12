@@ -4,10 +4,12 @@ import { useJurusanSiswaLogin, useKelasDataSiswaLogin, useSiswaDataLogin, useSis
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getIndustriById } from "@/api/admin/industri";
-import { DataPengajuan } from "@/types/api";
+import { DataPengajuan, Guru, Industri } from "@/types/api";
 import { Calendar, Building2, FileText, Clock, CheckCircle2, XCircle, AlertCircle, FileUp } from "lucide-react";
 
 import { useRouter } from "next/navigation";
+import { getActivePklBySiswa } from "@/api/siswa";
+import { getGuruById } from "@/api/admin/guru";
 
 interface PermohonanCardProps {
     permohonan: DataPengajuan;
@@ -84,7 +86,6 @@ function PermohonanCard({ permohonan }: PermohonanCardProps) {
                     </div>
                     <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{namaIndustri}</h3>
-                        <p className="text-xs text-gray-500 mt-1">ID Permohonan: #{permohonan.id}</p>
                     </div>
                 </div>
                 {getStatusBadge(permohonan.status)}
@@ -138,12 +139,62 @@ function PermohonanCard({ permohonan }: PermohonanCardProps) {
 }
 
 export default function Dashboard() {
-    const { siswa } = useSiswaDataLogin()
+    const { siswa, loadingSiswa } = useSiswaDataLogin()
     const { kelas } = useKelasDataSiswaLogin()
     const { jurusan } = useJurusanSiswaLogin()
     const { dataPengajuan } = useSiswaPengajuanData()
+    const [activePklData, setActivePklData] = useState<any>(null);
+    const [industriActive, setIndustriActive] = useState<Industri | null>(null);
+    const [guruPemimbing, setGuruPembimbing] = useState<Guru | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    console.log(dataPengajuan)
+    useEffect(() => {
+        const fetchActivePkl = async () => {
+            setIsLoading(true);
+            try {
+                const response = await getActivePklBySiswa();
+                console.log("Response Active PKL:", response);
+                if (response) {
+                    setActivePklData(response);
+                }
+            } catch (error) {
+                console.error("Error fetching active PKL:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchActivePkl();
+    }, []);
+
+    useEffect(() => {
+        const fetchIndustri = async () => {
+            if (activePklData?.industri_id) {
+                try {
+                    const response = await getIndustriById(activePklData.industri_id);
+                    setIndustriActive(response.data);
+                } catch (error) {
+                    console.error("Error fetching industri:", error);
+                    setIndustriActive(null);
+                }
+            }
+        };
+        fetchIndustri();
+    }, [activePklData?.industri_id]);
+
+    useEffect(() => {
+        const fetchGuruPembimbing = async () => {
+            if (activePklData?.pembimbing_guru_id) {
+                try {
+                    const response = await getGuruById(activePklData.pembimbing_guru_id);
+                    setGuruPembimbing(response.data);
+                } catch (error) {
+                    console.error("Error fetching guru pembimbing:", error);
+                    setGuruPembimbing(null);
+                }
+            }
+        };
+        fetchGuruPembimbing();
+    }, [activePklData?.pembimbing_guru_id]);
 
     return (
         <div className="min-h-screen bg-gray-50 p-6 space-y-6">
@@ -160,7 +211,12 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Profile */}
                 {
-                    siswa && (
+                    loadingSiswa ? (
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border">
+                            <h2 className="text-lg font-semibold mb-4">Profil Peserta didik</h2>
+                            <p className="text-sm text-gray-500 mb-6">Loading...</p>
+                        </div>
+                    ) : siswa && (
                         <div className="bg-white rounded-2xl p-6 shadow-sm border">
                             <h2 className="text-lg font-semibold mb-4">Profil Peserta didik</h2>
                             {/* <p className="text-sm text-gray-500 mb-6">Informasi Pribadi</p>
@@ -194,27 +250,87 @@ export default function Dashboard() {
                 {/* Status */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border">
                     <h2 className="text-lg font-semibold mb-4">Status Magang</h2>
-                    <p className="text-sm text-gray-500 mb-6">Status Permohonan Saat Ini</p>
 
-                    <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-xl text-sm">
-                        <p className="font-medium">Menunggu Persetujuan</p>
-                    </div>
+                    {isLoading ? (
+                        <div className="space-y-4">
+                            <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl text-sm flex items-start gap-3">
+                                <CheckCircle2 className="w-5 h-5 mt-0.5" />
+                                <div>
+                                    <p className="font-semibold">Aktif Magang</p>
+                                    <p className="mt-1">Anda saat ini sedang menjalani PKL di <span className="font-bold">Loading...</span></p>
+                                </div>
+                            </div>
 
-                    <div className="mt-6 text-sm space-y-2">
-                        <p className="font-medium">Garis Waktu Permohonan :</p>
-                        <div className="flex justify-between">
-                            <span className="text-green-600 font-medium">● Permohonan Telah Dikirim</span>
-                            <span>Mar 10, 2024</span>
+                            <div className="mt-4 space-y-3">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Industri</span>
+                                    <span className="font-medium text-gray-900">Loading...</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Tanggal Mulai</span>
+                                    <span className="font-medium text-gray-900">Loading...</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Tanggal Selesai</span>
+                                    <span className="font-medium text-gray-900">Loading...</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Sisa Waktu</span>
+                                    <span className="font-medium text-blue-600">
+                                        Loading...
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex justify-between">
-                            <span className="text-yellow-600 font-medium">● Sedang Ditinjau</span>
-                            <span>Saat ini</span>
+                    ) : activePklData ? (
+                        <div className="space-y-4">
+                            <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl text-sm flex items-start gap-3">
+                                <CheckCircle2 className="w-5 h-5 mt-0.5" />
+                                <div>
+                                    <p className="font-semibold">Aktif Magang</p>
+                                    <p className="mt-1">Anda saat ini sedang menjalani PKL di <span className="font-bold">{industriActive?.nama || "Loading..."}</span></p>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 space-y-3">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Industri</span>
+                                    <span className="font-medium text-gray-900">{industriActive?.nama || "-"}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Guru Pembimbing</span>
+                                    <span className="font-medium text-gray-900">{guruPemimbing?.nama || "-"}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Tanggal Mulai</span>
+                                    <span className="font-medium text-gray-900">{new Date(activePklData.tanggal_mulai).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Tanggal Selesai</span>
+                                    <span className="font-medium text-gray-900">{new Date(activePklData.tanggal_selesai).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Sisa Waktu</span>
+                                    <span className="font-medium text-blue-600">
+                                        {(() => {
+                                            if (!activePklData.tanggal_selesai) return "-";
+                                            const end = new Date(activePklData.tanggal_selesai);
+                                            const today = new Date();
+                                            const diffTime = end.getTime() - today.getTime();
+                                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                            return diffDays < 0 ? "Selesai" : `${diffDays} Hari`;
+                                        })()}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-500 font-medium">● Keputusan Persetujuan</span>
-                            <span>Tertunda</span>
-                        </div>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-xl text-sm">
+                                <p className="font-medium text-center">Belum ada data magang</p>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 

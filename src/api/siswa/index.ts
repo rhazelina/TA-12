@@ -1,6 +1,15 @@
 import { PostIzin } from "@/types/api"
 import axiosInstance from "@/utils/axios"
 
+export async function getActivePklBySiswa() {
+    try {
+        const res = await axiosInstance.get('/api/pkl/active/me')
+        return res.data
+    } catch (error) {
+        throw error
+    }
+}
+
 export async function createIzin(data: FormData) {
     try {
         const res = await axiosInstance.post('/api/izin', data, {
