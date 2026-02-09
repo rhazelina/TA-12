@@ -210,6 +210,7 @@ export default function DaftarPengajuanPindahPKL() {
                         <thead className="bg-gray-100 text-left text-gray-600">
                             <tr>
                                 <th className="px-6 py-4">Nama</th>
+                                <th className="px-6 py-4">NISN</th>
                                 <th className="px-6 py-4">Tempat Baru</th>
                                 <th className="px-6 py-4">Tempat Lama</th>
                                 <th className="px-6 py-4">Alasan</th>
@@ -230,7 +231,9 @@ export default function DaftarPengajuanPindahPKL() {
                                     <tr key={item.id} className="border-t">
                                         <td className="px-6 py-4">
                                             <p className="font-semibold">{item.siswa_nama}</p>
-                                            <p className="text-xs text-gray-500">{item.siswa_nisn}</p>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <p className="font-semibold">{item.siswa_nisn}</p>
                                         </td>
 
                                         <td className="px-6 py-4">
