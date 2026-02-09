@@ -195,7 +195,7 @@ export function LoginForm({
                   <form onSubmit={handleAdminSubmit}>
                     <div className="grid gap-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="admin-username">Username</Label>
+                        <Label htmlFor="admin-username">Nama Pengguna</Label>
                         <Input
                           id="admin-username"
                           type="text"
