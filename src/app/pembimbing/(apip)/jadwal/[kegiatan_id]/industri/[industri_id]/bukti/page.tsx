@@ -37,8 +37,7 @@ export default function UploadDokumenBukti() {
     try {
       setDoneCompress(true)
       const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
+        maxSizeMB: 5,
         useWebWorker: true,
         onProgress: (progress: number) => {
           setPreviews((prev) =>
@@ -59,6 +58,18 @@ export default function UploadDokumenBukti() {
     if (e.target.files) {
       const chosenFiles = Array.from(e.target.files);
 
+      // Validasi tipe file - hanya JPEG dan PNG yang diperbolehkan
+      const allowedTypes = ['image/jpeg', 'image/png'];
+      const invalidFiles = chosenFiles.filter(file => !allowedTypes.includes(file.type));
+
+      if (invalidFiles.length > 0) {
+        toast.error("Hanya file JPEG dan PNG yang diperbolehkan");
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      const validFiles = chosenFiles.filter(file => allowedTypes.includes(file.type));
+
       const newPreviews = chosenFiles.map((file) => ({
         id: file.name,
         url: URL.createObjectURL(file),
@@ -67,8 +78,8 @@ export default function UploadDokumenBukti() {
 
       setPreviews((prev) => [...prev, ...newPreviews]);
 
-      for (let i = 0; i < chosenFiles.length; i++) {
-        const element = chosenFiles[i];
+      for (let i = 0; i < validFiles.length; i++) {
+        const element = validFiles[i];
         const compressedImage = await handleCompressImage(element)
         setImages((prev) => [...prev, compressedImage]);
       }
@@ -139,13 +150,22 @@ export default function UploadDokumenBukti() {
               <div className="mt-2 border-2 border-dashed rounded-xl py-10 flex flex-col items-center text-gray-500 px-4">
                 <div className="w-10 h-10 bg-gray-300 rounded mb-2 text-2xl flex items-center justify-center">📄</div>
                 <p className="mb-4 text-center">Drag & drop file atau klik untuk browse</p>
-                <Input
-                  multiple
-                  type="file"
-                  onChange={handleImageChange}
-                  accept="image/png, image/jpg"
-                  className="max-w-xs cursor-pointer border-gray-300 focus:ring-[#6B0F0F] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-                />
+                <label className="max-w-xs cursor-pointer border border-gray-300 rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                  <span className="py-2 px-4 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200 transition-colors">
+                    Pilih File
+                  </span>
+                  <span className="text-gray-500 text-sm truncate">
+                    {images.length > 0 ? `${images.length} file dipilih` : 'Belum ada file'}
+                  </span>
+                  <Input
+                    multiple
+                    type="file"
+                    onChange={handleImageChange}
+                    accept="image/jpeg, image/png"
+                    className="hidden"
+                  />
+                </label>
+                <p className="text-xs text-gray-400 mt-2">Format yang didukung: JPEG, PNG</p>
                 <div className={cn("flex gap-4 flex-wrap justify-center max-h-50 mt-5 overflow-y-auto w-full")}>
                   {
                     previews.map((preview, index) => {
