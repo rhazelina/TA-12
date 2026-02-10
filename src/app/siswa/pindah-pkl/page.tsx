@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Loader2, Building2, Check, ChevronsUpDown, X, Upload, FileText } from "lucide-react"
 import { getIndustri, getIndustriById } from "@/api/admin/industri"
-import { pindahPklSiswa } from "@/api/siswa"
+import { requestPindahPklSiswa } from "@/api/siswa"
 import { cn } from "@/lib/utils"
 import {
     Command,
@@ -161,7 +161,7 @@ export default function PindahPklPage() {
                 formData.append("files", file)
             })
 
-            await pindahPklSiswa(formData)
+            await requestPindahPklSiswa(formData)
 
             toast.success("Permohonan pindah PKL berhasil dikirim", {
                 description: "Menunggu persetujuan dari Kaprodi"
