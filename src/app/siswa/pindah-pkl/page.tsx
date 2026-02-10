@@ -1,189 +1,69 @@
 "use client"
 
 import * as React from "react"
-import { useSiswaPengajuanData, useSiswaDataLogin, useJurusanSiswaLogin } from "@/hooks/useSiswaData"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "sonner"
-import { Loader2, Building2, Check, ChevronsUpDown, X, Upload, FileText } from "lucide-react"
-import { getIndustri, getIndustriById } from "@/api/admin/industri"
-import { requestPindahPklSiswa } from "@/api/siswa"
-import { cn } from "@/lib/utils"
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { Industri } from "@/types/api"
-import { useDebounce } from "@/hooks/use-debounce"
 import { useRouter } from "next/navigation"
+import { getPindahPklBySiswa } from "@/api/siswa"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, ArrowRight, Building2, Calendar, FileText, MessageSquare, AlertCircle } from "lucide-react"
+import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
+import Link from "next/link"
 
-export default function PindahPklPage() {
-    const { dataPengajuan, loading: loadingPengajuan } = useSiswaPengajuanData()
-    const { siswa } = useSiswaDataLogin()
-    const { jurusan } = useJurusanSiswaLogin()
+interface PindahPklData {
+    id: number
+    alasan: string
+    bukti_pendukung: string[]
+    created_at: string
+    industri_baru: {
+        id: number
+        nama: string
+        alamat: string
+    }
+    industri_lama: {
+        id: number
+        nama: string
+        alamat: string
+    }
+    kaprog_catatan: string | null
+    koordinator_catatan: string | null
+    pembimbing_catatan: string | null
+    status: string
+    tanggal_efektif: string | null
+    updated_at: string
+}
+
+export default function PindahPklInfoPage() {
     const router = useRouter()
+    const [data, setData] = React.useState<PindahPklData | null>(null)
+    const [loading, setLoading] = React.useState(true)
+    const [error, setError] = React.useState<string | null>(null)
 
-    const [activePkl, setActivePkl] = React.useState<any | null>(null)
-    const [currentIndustriName, setCurrentIndustriName] = React.useState("Loading...")
-
-    // Form State
-    const [alasan, setAlasan] = React.useState("")
-    const [files, setFiles] = React.useState<File[]>([])
-    const [selectedIndustri, setSelectedIndustri] = React.useState<Industri | null>(null)
-
-    // Industry Search State
-    const [open, setOpen] = React.useState(false)
-    const [searchQuery, setSearchQuery] = React.useState("")
-    const [industries, setIndustries] = React.useState<Industri[]>([])
-    const [loadingIndustries, setLoadingIndustries] = React.useState(false)
-
-    // Submission State
-    const [isSubmitting, setIsSubmitting] = React.useState(false)
-
-    const debouncedSearch = useDebounce(searchQuery, 300)
-
-    // Check for Active PKL
     React.useEffect(() => {
-        if (dataPengajuan) {
-            const approved = dataPengajuan.find(p => p.status === "Approved")
-            setActivePkl(approved || null)
-
-            if (approved) {
-                getIndustriById(approved.industri_id).then(res => {
-                    setCurrentIndustriName(res?.data?.nama || "Unknown Industry")
-                }).catch(() => setCurrentIndustriName("Error loading industry"))
-            }
-        }
-    }, [dataPengajuan])
-
-    // Load Industries (Debounced)
-    React.useEffect(() => {
-        const fetchIndustries = async () => {
-            setLoadingIndustries(true)
+        const fetchData = async () => {
             try {
-                // Fetch industries, possibly filtered by jurusan if that's a requirement, 
-                // typically page 1 with search query
-                const res = await getIndustri(debouncedSearch, 1, jurusan?.id)
-                if (res?.data?.data) {
-                    setIndustries(res.data.data)
+                const res = await getPindahPklBySiswa()
+                // Assuming API returns the object directly, or null if empty
+                if (res) {
+                    setData(res)
+                }
+            } catch (err: any) {
+                // If 404, it might mean no data found, which is fine
+                if (err.response && err.response.status === 404) {
+                    setData(null)
                 } else {
-                    setIndustries([])
+                    console.error("Failed to fetch data", err)
+                    setError("Gagal memuat data pindah PKL")
                 }
-            } catch (error) {
-                console.error("Failed to fetch industries", error)
-                toast.error("Gagal memuat daftar industri")
             } finally {
-                setLoadingIndustries(false)
+                setLoading(false)
             }
         }
+        fetchData()
+    }, [])
 
-        // Only search if open or initial load
-        if (open || debouncedSearch) {
-            fetchIndustries()
-        }
-    }, [debouncedSearch, open, jurusan?.id])
-
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const newFiles = Array.from(e.target.files)
-
-            // Validation
-            const validFiles: File[] = []
-            let errorMsg = ""
-
-            if (files.length + newFiles.length > 5) {
-                toast.error("Maksimal 5 file yang diperbolehkan")
-                return
-            }
-
-            for (const file of newFiles) {
-                // Check size (5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    errorMsg = `File ${file.name} terlalu besar (max 5MB)`
-                    continue
-                }
-                // Check type (JPEG/PNG/PDF)
-                if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
-                    errorMsg = `File ${file.name} format tidak valid (hanya JPEG, PNG, PDF)`
-                    continue
-                }
-                validFiles.push(file)
-            }
-
-            if (errorMsg) {
-                toast.error(errorMsg)
-            }
-
-            setFiles(prev => [...prev, ...validFiles])
-        }
-        // Reset input value to allow selecting same file again if needed (though controlled usually handles this via state)
-        e.target.value = ''
-    }
-
-    const removeFile = (index: number) => {
-        setFiles(prev => prev.filter((_, i) => i !== index))
-    }
-
-    const handleSubmit = async () => {
-        if (!selectedIndustri) {
-            toast.error("Silakan pilih industri tujuan baru")
-            return
-        }
-        if (!alasan.trim()) {
-            toast.error("Silakan isi alasan kepindahan")
-            return
-        }
-        if (files.length === 0) {
-            toast.error("Silakan unggah minimal 1 file pendukung")
-            return
-        }
-
-        setIsSubmitting(true)
-        try {
-            const formData = new FormData()
-            formData.append("industri_baru_id", selectedIndustri.id.toString())
-            formData.append("alasan", alasan)
-
-            files.forEach((file) => {
-                formData.append("files", file)
-            })
-
-            await requestPindahPklSiswa(formData)
-
-            toast.success("Permohonan pindah PKL berhasil dikirim", {
-                description: "Menunggu persetujuan dari Kaprodi"
-            })
-
-            // Reset form or redirect
-            setAlasan("")
-            setFiles([])
-            setSelectedIndustri(null)
-
-            // Optionally redirect
-            router.refresh()
-
-        } catch (error: any) {
-            console.error(error)
-            toast.error(error.response?.data?.message || "Gagal mengirim permohonan")
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
-
-    if (loadingPengajuan) {
+    if (loading) {
         return (
             <div className="flex h-screen items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -191,209 +71,246 @@ export default function PindahPklPage() {
         )
     }
 
-    if (!activePkl) {
+    if (error) {
         return (
-            <div className="p-8 max-w-4xl mx-auto">
-                <Card className="bg-orange-50 border-orange-200">
-                    <CardHeader>
-                        <CardTitle className="text-orange-700 flex items-center gap-2">
-                            ⚠️ Tidak Ada PKL Aktif
-                        </CardTitle>
-                        <CardDescription className="text-orange-600">
-                            Anda belum memiliki status PKL "Disetujui". Pindah PKL hanya tersedia untuk siswa yang sedang menjalani PKL.
-                        </CardDescription>
+            <div className="flex bg-gray-50 h-screen items-center justify-center p-4">
+                <Card className="max-w-md w-full border-red-200">
+                    <CardHeader className="text-center">
+                        <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-2">
+                            <AlertCircle className="h-6 w-6 text-red-600" />
+                        </div>
+                        <CardTitle className="text-red-700">Terjadi Kesalahan</CardTitle>
+                        <CardDescription>{error}</CardDescription>
                     </CardHeader>
+                    <CardContent className="flex justify-center">
+                        <Button onClick={() => window.location.reload()}>Coba Lagi</Button>
+                    </CardContent>
                 </Card>
             </div>
         )
     }
 
+    // No data found state
+    if (!data) {
+        return (
+            <div className="min-h-screen bg-gray-50/50 flex flex-col items-center justify-center p-4">
+                <Card className="max-w-lg w-full text-center py-8">
+                    <CardHeader>
+                        <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                            <Building2 className="h-8 w-8 text-blue-600" />
+                        </div>
+                        <CardTitle className="text-2xl">Pengajuan Pindah PKL</CardTitle>
+                        <CardDescription className="text-base mt-2">
+                            Anda belum memiliki riwayat pengajuan pindah tempat PKL.
+                            Jika Anda perlu pindah tempat magang, silakan ajukan permohonan baru.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Link href="/siswa/pindah-pkl/buat">
+                            <Button className="w-full sm:w-auto" size="lg">
+                                Buat Pengajuan Baru <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </Link>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
+
+    // Status Badge Helper
+    const getStatusBadge = (status: string) => {
+        const variants: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning"> = {
+            approved: "success",
+            rejected: "destructive",
+            pending_pembimbing: "warning",
+            pending_koordinator: "warning",
+            pending_kaprog: "warning",
+        }
+
+        let label = status.replace("_", " ").toUpperCase()
+        let variant: any = "secondary"
+
+        if (status.includes("pending")) {
+            variant = "warning"
+            if (status === "pending_pembimbing") label = "MENUNGGU PEMBIMBING"
+            if (status === "pending_koordinator") label = "MENUNGGU KOORDINATOR"
+            if (status === "pending_kaprog") label = "MENUNGGU KAPROG"
+        } else if (status === "approved" || status === "disetujui") {
+            variant = "success"
+            label = "DISETUJUI"
+        } else if (status === "rejected" || status === "ditolak") {
+            variant = "destructive"
+            label = "DITOLAK"
+        }
+
+        // Mapping badge variants to UI component classes if needed, but assuming Badge supports variants or using className
+        const colorClasses: Record<string, string> = {
+            success: "bg-green-100 text-green-800 hover:bg-green-100 border-green-200",
+            warning: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-yellow-200",
+            destructive: "bg-red-100 text-red-800 hover:bg-red-100 border-red-200",
+            secondary: "bg-gray-100 text-gray-800 hover:bg-gray-100 border-gray-200",
+        }
+
+        return (
+            <Badge className={colorClasses[variant] || colorClasses.secondary}>
+                {label}
+            </Badge>
+        )
+    }
+
     return (
         <div className="min-h-screen bg-gray-50/50 py-8 px-4 md:px-8">
-            <div className="max-w-3xl mx-auto space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Pindah Tempat PKL</h1>
-                    <p className="text-gray-500 mt-1">Ajukan pemindahan tempat magang ke industri baru.</p>
+            <div className="max-w-4xl mx-auto space-y-6">
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Detail Pengajuan Pindah</h1>
+                        <p className="text-gray-500 mt-1">Status dan informasi perpindahan tempat magang.</p>
+                    </div>
+                    <div>
+                        {getStatusBadge(data.status)}
+                    </div>
                 </div>
 
-                {/* Info PKL Saat Ini */}
-                <Card className="bg-white shadow-sm border-none ring-1 ring-gray-200">
-                    <CardHeader className="pb-3 border-b border-gray-100">
-                        <CardTitle className="text-lg font-medium">Status Magang Saat Ini</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50/50 border border-blue-100">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                                <Building2 className="h-5 w-5 text-blue-600" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">Industri Lama</p>
-                                <p className="font-semibold text-gray-900">{currentIndustriName}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <div className="grid md:grid-cols-3 gap-6">
+                    {/* Left Column: Status Details */}
+                    <div className="md:col-span-2 space-y-6">
 
-                {/* Form Pindah */}
-                <Card className="bg-white shadow-md border-none ring-1 ring-gray-200">
-                    <CardHeader>
-                        <CardTitle>Formulir Pengajuan</CardTitle>
-                        <CardDescription>Lengkapi data tempat tujuan baru dan alasan pindah.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {/* 1. Pilih Industri Baru */}
-                        <div className="space-y-2">
-                            <Label>Industri Tujuan Baru</Label>
-                            <Popover open={open} onOpenChange={setOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        role="combobox"
-                                        aria-expanded={open}
-                                        className="w-full justify-between h-11 bg-white"
-                                    >
-                                        {selectedIndustri
-                                            ? selectedIndustri.nama
-                                            : "Pilih industri tujuan..."}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                                    <Command shouldFilter={false}>
-                                        <CommandInput
-                                            placeholder="Cari nama industri..."
-                                            value={searchQuery}
-                                            onValueChange={setSearchQuery}
-                                        />
-                                        <CommandList>
-                                            {loadingIndustries && (
-                                                <div className="py-6 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                                    Memuat data...
-                                                </div>
-                                            )}
-
-                                            {!loadingIndustries && industries.length === 0 && (
-                                                <CommandEmpty>Tidak ada industri ditemukan.</CommandEmpty>
-                                            )}
-
-                                            {!loadingIndustries && (
-                                                <CommandGroup>
-                                                    {industries.map((industri) => (
-                                                        <CommandItem
-                                                            key={industri.id}
-                                                            value={industri.nama} // Use name for internal command filter if enabled, but we use ID
-                                                            onSelect={() => {
-                                                                setSelectedIndustri(industri)
-                                                                setOpen(false)
-                                                            }}
-                                                        >
-                                                            <Check
-                                                                className={cn(
-                                                                    "mr-2 h-4 w-4",
-                                                                    selectedIndustri?.id === industri.id ? "opacity-100" : "opacity-0"
-                                                                )}
-                                                            />
-                                                            <div className="flex flex-col">
-                                                                <span>{industri.nama}</span>
-                                                                <span className="text-xs text-muted-foreground">{industri.alamat}</span>
-                                                            </div>
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            )}
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
-                            <p className="text-[0.8rem] text-muted-foreground">
-                                Pilih industri dari daftar mitra yang tersedia.
-                            </p>
-                        </div>
-
-                        {/* 2. Alasan */}
-                        <div className="space-y-2">
-                            <Label htmlFor="alasan">Alasan Pindah</Label>
-                            <Textarea
-                                id="alasan"
-                                placeholder="Jelaskan secara rinci alasan Anda mengajukan kepindahan..."
-                                className="min-h-[120px] resize-y"
-                                value={alasan}
-                                onChange={(e) => setAlasan(e.target.value)}
-                            />
-                        </div>
-
-                        {/* 3. Upload File */}
-                        <div className="space-y-4">
-                            <Label>Dokumen Pendukung <span className="text-muted-foreground text-xs font-normal">(Surat permohonan, bukti penerimaan baru, dll)</span></Label>
-
-                            <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors text-center cursor-pointer relative">
-                                <Input
-                                    type="file"
-                                    multiple
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    onChange={handleFileChange}
-                                    disabled={files.length >= 5}
-                                />
-                                <div className="flex flex-col items-center justify-center gap-2 pointer-events-none">
-                                    <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                                        <Upload className="h-5 w-5" />
-                                    </div>
-                                    <div className="text-sm font-medium text-gray-900">
-                                        Klik untuk upload atau drag & drop
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                        Max 5 files (PDF, JPEG, PNG, max 5MB/file)
-                                    </div>
+                        {/* Industries Comparison */}
+                        <Card className="overflow-hidden border-none shadow-md ring-1 ring-gray-200">
+                            <CardHeader className="bg-gray-50/50 border-b border-gray-100 pb-4">
+                                <CardTitle className="text-lg">Informasi Perpindahan</CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-6 grid gap-6 md:grid-cols-2 relative">
+                                {/* Arrow Decorator for Desktop */}
+                                <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white border border-gray-200 rounded-full items-center justify-center z-10 shadow-sm">
+                                    <ArrowRight className="h-4 w-4 text-gray-400" />
                                 </div>
-                            </div>
 
-                            {/* File List */}
-                            {files.length > 0 && (
-                                <div className="grid gap-2">
-                                    {files.map((file, idx) => (
-                                        <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-md group">
-                                            <div className="flex items-center gap-3 overflow-hidden">
-                                                <div className="h-8 w-8 bg-white border border-gray-200 rounded flex items-center justify-center shrink-0">
-                                                    <FileText className="h-4 w-4 text-blue-500" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-medium truncate">{file.name}</p>
-                                                    <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                                                </div>
-                                            </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50"
-                                                onClick={() => removeFile(idx)}
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </Button>
+                                <div className="space-y-1 p-4 bg-red-50/50 rounded-lg border border-red-100">
+                                    <p className="text-xs font-semibold text-red-600 uppercase tracking-wider mb-2">Industri Lama</p>
+                                    <div className="flex items-start gap-2">
+                                        <Building2 className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{data.industri_lama?.nama || "Unknown"}</p>
+                                            <p className="text-sm text-gray-500 text-muted-foreground">{data.industri_lama?.alamat || "-"}</p>
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    </CardContent>
-                    <CardFooter className="pt-2 pb-6">
-                        <Button
-                            className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 h-11 text-base"
-                            onClick={handleSubmit}
-                            disabled={isSubmitting || !selectedIndustri || !alasan || files.length === 0}
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    Mengirim Permohonan...
-                                </>
-                            ) : (
-                                "Kirim Permohonan Pindah PKL"
-                            )}
-                        </Button>
-                    </CardFooter>
-                </Card>
+
+                                <div className="space-y-1 p-4 bg-green-50/50 rounded-lg border border-green-100">
+                                    <p className="text-xs font-semibold text-green-600 uppercase tracking-wider mb-2">Industri Baru</p>
+                                    <div className="flex items-start gap-2">
+                                        <Building2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{data.industri_baru?.nama || "Unknown"}</p>
+                                            <p className="text-sm text-gray-500 text-muted-foreground">{data.industri_baru?.alamat || "-"}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Reason Section */}
+                        <Card className="border-none shadow-md ring-1 ring-gray-200">
+                            <CardHeader>
+                                <CardTitle className="text-base flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4 text-primary" />
+                                    Alasan Kepindahan
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                                    {data.alasan}
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        {/* Notes Section (Only show if present) */}
+                        {(data.pembimbing_catatan || data.koordinator_catatan || data.kaprog_catatan) && (
+                            <Card className="border-none shadow-md ring-1 ring-gray-200 bg-amber-50/30">
+                                <CardHeader>
+                                    <CardTitle className="text-base text-amber-900">Catatan Revisi / Persetujuan</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {data.pembimbing_catatan && (
+                                        <div className="p-3 bg-white rounded-md border border-amber-100">
+                                            <p className="text-xs font-bold text-amber-700 mb-1">Pembimbing</p>
+                                            <p className="text-sm text-gray-700">{data.pembimbing_catatan}</p>
+                                        </div>
+                                    )}
+                                    {data.koordinator_catatan && (
+                                        <div className="p-3 bg-white rounded-md border border-amber-100">
+                                            <p className="text-xs font-bold text-amber-700 mb-1">Koordinator</p>
+                                            <p className="text-sm text-gray-700">{data.koordinator_catatan}</p>
+                                        </div>
+                                    )}
+                                    {data.kaprog_catatan && (
+                                        <div className="p-3 bg-white rounded-md border border-amber-100">
+                                            <p className="text-xs font-bold text-amber-700 mb-1">Kepala Program</p>
+                                            <p className="text-sm text-gray-700">{data.kaprog_catatan}</p>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+
+                    {/* Right Column: Meta Info & Files */}
+                    <div className="space-y-6">
+                        <Card className="border-none shadow-md ring-1 ring-gray-200">
+                            <CardHeader>
+                                <CardTitle className="text-sm uppercase tracking-wider text-gray-500">Detail Pengajuan</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-1">Tanggal Diajukan</p>
+                                    <div className="flex items-center gap-2 text-sm font-medium">
+                                        <Calendar className="h-4 w-4 text-gray-400" />
+                                        {format(new Date(data.created_at), "dd MMMM yyyy", { locale: idLocale })}
+                                    </div>
+                                </div>
+
+                                {data.tanggal_efektif && (
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">Tanggal Efektif Pindah</p>
+                                        <div className="flex items-center gap-2 text-sm font-medium text-blue-600">
+                                            <Calendar className="h-4 w-4" />
+                                            {format(new Date(data.tanggal_efektif), "dd MMMM yyyy", { locale: idLocale })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="pt-4 border-t border-gray-100">
+                                    <p className="text-xs text-gray-500 mb-3">Bukti Pendukung</p>
+                                    {data.bukti_pendukung && data.bukti_pendukung.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {data.bukti_pendukung.map((url, index) => (
+                                                <a
+                                                    key={index}
+                                                    href={url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-2 p-2 rounded-md bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors group"
+                                                >
+                                                    <div className="h-8 w-8 bg-white rounded border border-gray-200 flex items-center justify-center shrink-0">
+                                                        <FileText className="h-4 w-4 text-secondary group-hover:text-primary transition-colors" />
+                                                    </div>
+                                                    <span className="text-sm font-medium text-gray-700 truncate w-full">
+                                                        Bukti {index + 1}
+                                                    </span>
+                                                    <ArrowRight className="h-3 w-3 text-gray-400 -ml-1 mr-1" />
+                                                </a>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-400 italic">Tidak ada bukti dilampirkan</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
             </div>
         </div>
     )
