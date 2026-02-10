@@ -1,119 +1,94 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { listPindahPklKapro, patchPindahPklKapro } from "@/api/kapro/indext";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // --- Types ---
-type TransferStatus = "Menunggu" | "Disetujui" | "Ditolak";
-
-interface TransferRequestDto {
+interface PindahPklItem {
     id: number;
+    created_at: string;
+    industri_baru_nama: string;
+    industri_lama_nama: string;
     siswa_nama: string;
-    siswa_nisn: string;
-    jurusan: string;
-    tempat_lama: string;
-    durasi_lama: string; // e.g. "3 Bulan"
-    tempat_baru: string;
-    durasi_sisa: string; // e.g. "3 Bulan"
-    alasan: string;
-    status: TransferStatus;
-    file_surat: string;
+    status: string;
 }
 
-// --- Mock Data ---
-const MOCK_DATA: TransferRequestDto[] = [
-    {
-        id: 1,
-        siswa_nama: "Siti Nurhaliza",
-        siswa_nisn: "12345678",
-        jurusan: "Teknik Informatika",
-        tempat_lama: "CV. Digital Solusi",
-        durasi_lama: "2 Bulan 27 hari",
-        tempat_baru: "PT. Teknologi Maju",
-        durasi_sisa: "4 Bulan 3 hari",
-        alasan: "Jarak terlalu jauh dari rumah",
-        status: "Menunggu",
-        file_surat: "surat_penerimaan_siti.pdf"
-    },
-    {
-        id: 2,
-        siswa_nama: "Ahmad Fauzi",
-        siswa_nisn: "12345679",
-        jurusan: "Teknik Mesin",
-        tempat_lama: "PT. Otomotif Prima",
-        durasi_lama: "1 Bulan 10 hari",
-        tempat_baru: "PT. Manufaktur Indo",
-        durasi_sisa: "5 Bulan 20 hari",
-        alasan: "Bidang lebih sesuai minat",
-        status: "Disetujui",
-        file_surat: "surat_penerimaan_ahmad.pdf"
-    },
-    {
-        id: 3,
-        siswa_nama: "Rizki Pratama",
-        siswa_nisn: "12345680",
-        jurusan: "Teknik Elektro",
-        tempat_lama: "CV. Elektronik Jaya",
-        durasi_lama: "3 Bulan",
-        tempat_baru: "PT. Listrik Negara",
-        durasi_sisa: "3 Bulan",
-        alasan: "Masalah transportasi",
-        status: "Menunggu",
-        file_surat: "surat_penerimaan_rizki.pdf"
-    },
-    {
-        id: 4,
-        siswa_nama: "Dewi Anggraini",
-        siswa_nisn: "12345681",
-        jurusan: "Akuntansi",
-        tempat_lama: "Koperasi Unit Desa",
-        durasi_lama: "1.5 Bulan",
-        tempat_baru: "Bank Rakyat Cabang",
-        durasi_sisa: "4.5 Bulan",
-        alasan: "Ingin pengalaman perbankan",
-        status: "Ditolak",
-        file_surat: "surat_penerimaan_dewi.pdf"
-    },
-    {
-        id: 5,
-        siswa_nama: "Budi Santoso",
-        siswa_nisn: "12345682",
-        jurusan: "Multimedia",
-        tempat_lama: "Studio Foto Indah",
-        durasi_lama: "2 Bulan",
-        tempat_baru: "Creative Agency One",
-        durasi_sisa: "4 Bulan",
-        alasan: "Mencari mentor yang lebih aktif",
-        status: "Menunggu",
-        file_surat: "surat_penerimaan_budi.pdf"
-    },
-    {
-        id: 6,
-        siswa_nama: "Citra Kirana",
-        siswa_nisn: "12345683",
-        jurusan: "TKJ",
-        tempat_lama: "PT. Jaringan Luas",
-        durasi_lama: "1 Bulan",
-        tempat_baru: "PT. Solusi Network",
-        durasi_sisa: "5 Bulan",
-        alasan: "Kompetensi tidak sesuai",
-        status: "Menunggu",
-        file_surat: "surat_penerimaan_citra.pdf"
-    }
-];
+interface ApiResponse {
+    items: PindahPklItem[];
+    total: number;
+}
 
 export default function DaftarPengajuanPindahPKL() {
-    const [data, setData] = useState<TransferRequestDto[]>(MOCK_DATA);
+    const [data, setData] = useState<PindahPklItem[]>([]);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("Semua Status");
     const [page, setPage] = useState(1);
+    const [stats, setStats] = useState({
+        total: 0,
+        menunggu: 0,
+        disetujui: 0,
+        ditolak: 0
+    });
     const limit = 5;
+    const router = useRouter();
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const res: ApiResponse = await listPindahPklKapro();
+            if (res && res.items) {
+                setData(res.items);
+
+                // Calculate stats based on fetched data
+                const total = res.total || res.items.length;
+                const menunggu = res.items.filter(i => i.status.includes('pending')).length;
+                const disetujui = res.items.filter(i => i.status === 'approved' || i.status === 'disetujui').length;
+                const ditolak = res.items.filter(i => i.status === 'rejected' || i.status === 'ditolak').length;
+
+                setStats({ total, menunggu, disetujui, ditolak });
+            }
+        } catch (error) {
+            console.error("Failed to fetch data", error);
+            toast.error("Gagal memuat data pengajuan pindah PKL");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleApprove = async (id: number) => {
+        try {
+            await patchPindahPklKapro(id);
+            toast.success("Pengajuan berhasil disetujui");
+            fetchData(); // Refresh data
+        } catch (error) {
+            console.error("Failed to approve", error);
+            toast.error("Gagal menyetujui pengajuan");
+        }
+    };
 
     // Filter Logic
     const filteredData = data.filter((item) => {
         const matchSearch =
             item.siswa_nama.toLowerCase().includes(search.toLowerCase()) ||
-            item.jurusan.toLowerCase().includes(search.toLowerCase());
-        const matchStatus = statusFilter === "Semua Status" || item.status === statusFilter;
+            item.industri_baru_nama.toLowerCase().includes(search.toLowerCase());
+
+        let matchStatus = true;
+        if (statusFilter !== "Semua Status") {
+            if (statusFilter === "Menunggu") matchStatus = item.status.includes('pending');
+            else if (statusFilter === "Disetujui") matchStatus = item.status === 'approved' || item.status === 'disetujui';
+            else if (statusFilter === "Ditolak") matchStatus = item.status === 'rejected' || item.status === 'ditolak';
+        }
+
         return matchSearch && matchStatus;
     });
 
@@ -121,21 +96,19 @@ export default function DaftarPengajuanPindahPKL() {
     const totalPages = Math.ceil(filteredData.length / limit);
     const paginatedData = filteredData.slice((page - 1) * limit, page * limit);
 
-    // Stats Logic
-    const stats = {
-        total: data.length,
-        menunggu: data.filter((i) => i.status === "Menunggu").length,
-        disetujui: data.filter((i) => i.status === "Disetujui").length,
-        ditolak: data.filter((i) => i.status === "Ditolak").length,
+    const getStatusLabel = (status: string) => {
+        if (status.includes('pending')) return "Menunggu";
+        if (status === 'approved' || status === 'disetujui') return "Disetujui";
+        if (status === 'rejected' || status === 'ditolak') return "Ditolak";
+        return status;
     };
 
-    // Action Handlers
-    const handleAction = (id: number, newStatus: TransferStatus) => {
-        setData((prev) =>
-            prev.map((item) =>
-                item.id === id ? { ...item, status: newStatus } : item
-            )
-        );
+    const formatDate = (dateString: string) => {
+        try {
+            return format(new Date(dateString), "dd MMM yyyy", { locale: idLocale });
+        } catch (e) {
+            return dateString;
+        }
     };
 
     return (
@@ -181,7 +154,7 @@ export default function DaftarPengajuanPindahPKL() {
                 <div className="mt-6 flex items-center justify-between">
                     <input
                         type="text"
-                        placeholder="Cari siswa..."
+                        placeholder="Cari siswa atau industri..."
                         value={search}
                         onChange={(e) => {
                             setSearch(e.target.value);
@@ -209,18 +182,26 @@ export default function DaftarPengajuanPindahPKL() {
                     <table className="w-full text-sm">
                         <thead className="bg-gray-100 text-left text-gray-600">
                             <tr>
-                                <th className="px-6 py-4">Nama</th>
-                                <th className="px-6 py-4">NISN</th>
-                                <th className="px-6 py-4">Tempat Baru</th>
+                                <th className="px-6 py-4">Tanggal</th>
+                                <th className="px-6 py-4">Nama Siswa</th>
                                 <th className="px-6 py-4">Tempat Lama</th>
-                                <th className="px-6 py-4">Alasan</th>
+                                <th className="px-6 py-4">Tempat Baru</th>
                                 <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4 text-right">Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            {paginatedData.length === 0 ? (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={6} className="text-center py-8">
+                                        <div className="flex justify-center items-center">
+                                            <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
+                                            Memuat data...
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : paginatedData.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="text-center py-8 text-gray-500">
                                         Tidak ada data pengajuan.
@@ -229,43 +210,33 @@ export default function DaftarPengajuanPindahPKL() {
                             ) : (
                                 paginatedData.map((item) => (
                                     <tr key={item.id} className="border-t">
+                                        <td className="px-6 py-4 text-gray-500">
+                                            {formatDate(item.created_at)}
+                                        </td>
                                         <td className="px-6 py-4">
                                             <p className="font-semibold">{item.siswa_nama}</p>
                                         </td>
+
                                         <td className="px-6 py-4">
-                                            <p className="font-semibold">{item.siswa_nisn}</p>
+                                            {item.industri_lama_nama}
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <p className="font-semibold">{item.tempat_baru}</p>
-                                            <p className="text-xs text-gray-500">
-                                                Sisa: {item.durasi_sisa}
-                                            </p>
+                                            <p className="font-semibold text-primary">{item.industri_baru_nama}</p>
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <p className="font-semibold">{item.tempat_lama}</p>
-                                            <p className="text-xs text-gray-500">
-                                                Sudah: {item.durasi_lama}
-                                            </p>
-                                        </td>
-
-                                        <td className="px-6 py-4">
-                                            {item.alasan}
-                                        </td>
-
-                                        <td className="px-6 py-4">
-                                            {item.status === "Menunggu" && (
+                                            {getStatusLabel(item.status) === "Menunggu" && (
                                                 <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">
                                                     Menunggu
                                                 </span>
                                             )}
-                                            {item.status === "Disetujui" && (
+                                            {getStatusLabel(item.status) === "Disetujui" && (
                                                 <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
                                                     Disetujui
                                                 </span>
                                             )}
-                                            {item.status === "Ditolak" && (
+                                            {getStatusLabel(item.status) === "Ditolak" && (
                                                 <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
                                                     Ditolak
                                                 </span>
@@ -273,30 +244,16 @@ export default function DaftarPengajuanPindahPKL() {
                                         </td>
 
                                         <td className="px-6 py-4 text-right">
-                                            {item.status === "Menunggu" ? (
+                                            {getStatusLabel(item.status) === "Menunggu" ? (
                                                 <div className="flex flex-col items-end gap-3">
-                                                    <a
-                                                        href="#"
-                                                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
-                                                    >
-                                                        <span className="rounded bg-red-100 px-2 py-1 text-red-600">
-                                                            📄
-                                                        </span>
-                                                        {item.file_surat}
-                                                    </a>
-
                                                     <div className="flex gap-2">
+                                                        {/* Since we don't have reject endpoint in the new methods, we might only expose Approve or link to detail */}
+                                                        {/* Assuming patchPindahPklKapro is for approve/proceed */}
                                                         <button
-                                                            onClick={() => handleAction(item.id, "Disetujui")}
+                                                            onClick={() => handleApprove(item.id)}
                                                             className="rounded-md bg-green-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-green-700"
                                                         >
                                                             Setujui
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleAction(item.id, "Ditolak")}
-                                                            className="rounded-md bg-red-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-red-700"
-                                                        >
-                                                            Tolak
                                                         </button>
                                                     </div>
                                                 </div>
@@ -333,9 +290,10 @@ export default function DaftarPengajuanPindahPKL() {
                                     key={pageNum}
                                     onClick={() => setPage(pageNum)}
                                     className={`h-8 w-8 rounded-lg text-sm font-medium ${page === pageNum
-                                        ? "bg-[#641E20] text-white"
+                                        ? "bg-primary text-primary-foreground" // using primary color variable if typically available, or hardcoded
                                         : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-300"
                                         }`}
+                                    style={page === pageNum ? { backgroundColor: '#641E20', color: 'white' } : {}}
                                 >
                                     {pageNum}
                                 </button>
