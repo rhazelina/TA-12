@@ -99,3 +99,31 @@ export async function patchPindahPklKapro(id: number, data: {
     throw error
   }
 }
+
+// PKL Group APIs (Kapro)
+export async function getGroupsForReview() {
+  try {
+    const response = await axiosInstance.get('/api/pkl/group/review');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function approveGroup(id: number) {
+  try {
+    const response = await axiosInstance.post(`/api/pkl/group/review/${id}/approve`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function rejectGroup(id: number, data: { reason: string }) {
+  try {
+    const response = await axiosInstance.post(`/api/pkl/group/review/${id}/reject`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
