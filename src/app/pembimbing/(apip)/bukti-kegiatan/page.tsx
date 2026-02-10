@@ -20,7 +20,8 @@ import {
   Trash2,
   Image as ImageIcon,
   Calendar,
-  FileText
+  FileText,
+  Pencil
 } from "lucide-react"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
@@ -131,6 +132,16 @@ export default function HasilBukti() {
                           }}
                         >
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-9 w-9 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg"
+                          onClick={() => {
+                            router.push(`/pembimbing/bukti-kegiatan/${item.id}/edit`)
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

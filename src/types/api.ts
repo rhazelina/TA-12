@@ -305,6 +305,8 @@ export interface IBuktiKegiatan {
   kegiatan_id: number;
   industri_id: number;
   pembimbing_id: number;
+  nama_industri?: string;
+  nama_kegiatan?: string;
   bukti_foto_urls: string[];
   catatan: string;
   status: string;

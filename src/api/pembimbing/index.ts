@@ -78,6 +78,21 @@ export async function uploadImages(data: FormData) {
     throw error;
   }
 }
+export async function updateRealisasiKegiatanPkl(
+  id: number,
+  data: PostRealisasiKegiatanPkl
+) {
+  try {
+    const res = await axiosInstance.put(
+      `/api/realisasi-kegiatan/${id}`,
+      data
+    );
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 
 
 // izin

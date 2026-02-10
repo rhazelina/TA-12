@@ -121,17 +121,8 @@ export default function BuktiKegiatanDetail() {
                                     <Building className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">ID Industri</p>
-                                    <p className="text-sm font-semibold text-gray-900">#{data.industri_id}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm text-gray-500">
-                                    <User className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">ID Kegiatan</p>
-                                    <p className="text-sm font-semibold text-gray-900">#{data.kegiatan_id}</p>
+                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">PT Damn Bro</p>
+                                    <p className="text-sm font-semibold text-gray-900">{data.nama_industri || data.industri_id}</p>
                                 </div>
                             </div>
                         </div>
