@@ -80,3 +80,19 @@ export async function RejectPermohonanPKL(
     return null;
   }
 }
+export async function listPindahPklKapro() {
+  try {
+    const response = await axiosInstance.get(`/api/pindah-pkl/kaprog`);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
+export async function patchPindahPklKapro(id: number) {
+  try {
+    const response = await axiosInstance.patch(`/api/pindah-pkl/${id}/kaprog`);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}

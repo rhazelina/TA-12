@@ -57,3 +57,25 @@ export async function deleteIzinBySiswa(id: number) {
         throw error
     }
 }
+
+export async function getPindahPklBySiswa() {
+    try {
+        const res = await axiosInstance.get('/api/pindah-pkl/me')
+        return res.data
+    } catch (error) {
+        throw error
+    }
+}
+
+export async function requestPindahPklSiswa(data: FormData) {
+    try {
+        const res = await axiosInstance.post(`/api/pindah-pkl`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        })
+        return res.data
+    } catch (error) {
+        throw error
+    }
+}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import * as React from "react"
 import { useSiswaPengajuanData, useSiswaDataLogin, useJurusanSiswaLogin } from "@/hooks/useSiswaData"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,74 +8,189 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import { Loader2, ArrowRight, Building2, Clock, Upload, CheckCircle2 } from "lucide-react"
-import { differenceInMonths, parseISO } from "date-fns"
-import { getIndustriById } from "@/api/admin/industri"
+import { Loader2, Building2, Check, ChevronsUpDown, X, Upload, FileText } from "lucide-react"
+import { getIndustri, getIndustriById } from "@/api/admin/industri"
+import { pindahPklSiswa } from "@/api/siswa"
+import { cn } from "@/lib/utils"
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import { Industri } from "@/types/api"
+import { useDebounce } from "@/hooks/use-debounce"
+import { useRouter } from "next/navigation"
 
 export default function PindahPklPage() {
-    const { dataPengajuan, loading } = useSiswaPengajuanData()
+    const { dataPengajuan, loading: loadingPengajuan } = useSiswaPengajuanData()
     const { siswa } = useSiswaDataLogin()
     const { jurusan } = useJurusanSiswaLogin()
+    const router = useRouter()
 
-    // Mock State for Transfer Request
-    // In real app, this would come from a separate API endpoint like /api/pkl/transfer-requests/me
-    const [transferStatus, setTransferStatus] = useState<'idle' | 'reporting' | 'pending' | 'approved_upload' | 'completed'>('idle')
-    const [newIndustri, setNewIndustri] = useState("")
-    const [reason, setReason] = useState("")
-    const [currentIndustriName, setCurrentIndustriName] = useState("Loading...")
-    const [submitting, setSubmitting] = useState(false)
-    const [uploadFile, setUploadFile] = useState<File | null>(null)
+    const [activePkl, setActivePkl] = React.useState<any | null>(null)
+    const [currentIndustriName, setCurrentIndustriName] = React.useState("Loading...")
 
-    // Derived Data
-    const activePkl = dataPengajuan?.find(p => p.status === "Approved")
-    const durationServed = activePkl?.tanggal_mulai ? differenceInMonths(new Date(), parseISO(activePkl.tanggal_mulai)) : 0
-    const totalDuration = activePkl?.tanggal_mulai && activePkl?.tanggal_selesai
-        ? differenceInMonths(parseISO(activePkl.tanggal_selesai), parseISO(activePkl.tanggal_mulai))
-        : 6 // Default 6 months
+    // Form State
+    const [alasan, setAlasan] = React.useState("")
+    const [files, setFiles] = React.useState<File[]>([])
+    const [selectedIndustri, setSelectedIndustri] = React.useState<Industri | null>(null)
 
-    useEffect(() => {
-        if (activePkl) {
-            getIndustriById(activePkl.industri_id).then(res => {
-                setCurrentIndustriName(res?.data?.nama || "Unknown Industry")
-            })
+    // Industry Search State
+    const [open, setOpen] = React.useState(false)
+    const [searchQuery, setSearchQuery] = React.useState("")
+    const [industries, setIndustries] = React.useState<Industri[]>([])
+    const [loadingIndustries, setLoadingIndustries] = React.useState(false)
+
+    // Submission State
+    const [isSubmitting, setIsSubmitting] = React.useState(false)
+
+    const debouncedSearch = useDebounce(searchQuery, 300)
+
+    // Check for Active PKL
+    React.useEffect(() => {
+        if (dataPengajuan) {
+            const approved = dataPengajuan.find(p => p.status === "Approved")
+            setActivePkl(approved || null)
+
+            if (approved) {
+                getIndustriById(approved.industri_id).then(res => {
+                    setCurrentIndustriName(res?.data?.nama || "Unknown Industry")
+                }).catch(() => setCurrentIndustriName("Error loading industry"))
+            }
         }
-    }, [activePkl])
+    }, [dataPengajuan])
 
-    const handleRequestTransfer = () => {
-        setSubmitting(true)
-        // Simulate API Call
-        setTimeout(() => {
-            setSubmitting(false)
-            setTransferStatus('pending')
-            toast.success("Permohonan pindah berhasil dikirim", {
-                description: "Menunggu persetujuan dari Kapro."
+    // Load Industries (Debounced)
+    React.useEffect(() => {
+        const fetchIndustries = async () => {
+            setLoadingIndustries(true)
+            try {
+                // Fetch industries, possibly filtered by jurusan if that's a requirement, 
+                // typically page 1 with search query
+                const res = await getIndustri(debouncedSearch, 1, jurusan?.id)
+                if (res?.data?.data) {
+                    setIndustries(res.data.data)
+                } else {
+                    setIndustries([])
+                }
+            } catch (error) {
+                console.error("Failed to fetch industries", error)
+                toast.error("Gagal memuat daftar industri")
+            } finally {
+                setLoadingIndustries(false)
+            }
+        }
+
+        // Only search if open or initial load
+        if (open || debouncedSearch) {
+            fetchIndustries()
+        }
+    }, [debouncedSearch, open, jurusan?.id])
+
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const newFiles = Array.from(e.target.files)
+
+            // Validation
+            const validFiles: File[] = []
+            let errorMsg = ""
+
+            if (files.length + newFiles.length > 5) {
+                toast.error("Maksimal 5 file yang diperbolehkan")
+                return
+            }
+
+            for (const file of newFiles) {
+                // Check size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    errorMsg = `File ${file.name} terlalu besar (max 5MB)`
+                    continue
+                }
+                // Check type (JPEG/PNG/PDF)
+                if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
+                    errorMsg = `File ${file.name} format tidak valid (hanya JPEG, PNG, PDF)`
+                    continue
+                }
+                validFiles.push(file)
+            }
+
+            if (errorMsg) {
+                toast.error(errorMsg)
+            }
+
+            setFiles(prev => [...prev, ...validFiles])
+        }
+        // Reset input value to allow selecting same file again if needed (though controlled usually handles this via state)
+        e.target.value = ''
+    }
+
+    const removeFile = (index: number) => {
+        setFiles(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const handleSubmit = async () => {
+        if (!selectedIndustri) {
+            toast.error("Silakan pilih industri tujuan baru")
+            return
+        }
+        if (!alasan.trim()) {
+            toast.error("Silakan isi alasan kepindahan")
+            return
+        }
+        if (files.length === 0) {
+            toast.error("Silakan unggah minimal 1 file pendukung")
+            return
+        }
+
+        setIsSubmitting(true)
+        try {
+            const formData = new FormData()
+            formData.append("industri_baru_id", selectedIndustri.id.toString())
+            formData.append("alasan", alasan)
+
+            files.forEach((file) => {
+                formData.append("files", file)
             })
-        }, 1500)
-    }
 
-    // Mock functionality to simulate Kapro approval for demo purposes
-    const handleSimulateApproval = () => {
-        toast.info("Simulasi Persetujuan Kapro", { description: "Status diubah menjadi disetujui, silakan unggah bukti." })
-        setTransferStatus('approved_upload')
-    }
+            await pindahPklSiswa(formData)
 
-    const handleUpload = () => {
-        if (!uploadFile) return toast.error("Pilih file terlebih dahulu")
-        setSubmitting(true)
-        setTimeout(() => {
-            setSubmitting(false)
-            setTransferStatus('completed')
-            toast.success("Bukti Diterima Berhasil Diunggah", {
-                description: "Proses pindah PKL selesai. Data tempat baru telah diperbarui."
+            toast.success("Permohonan pindah PKL berhasil dikirim", {
+                description: "Menunggu persetujuan dari Kaprodi"
             })
-        }, 1500)
+
+            // Reset form or redirect
+            setAlasan("")
+            setFiles([])
+            setSelectedIndustri(null)
+
+            // Optionally redirect
+            router.refresh()
+
+        } catch (error: any) {
+            console.error(error)
+            toast.error(error.response?.data?.message || "Gagal mengirim permohonan")
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
-    if (loading) {
-        return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>
+    if (loadingPengajuan) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
     }
 
-    // 1. No Active PKL -> Cannot Transfer
     if (!activePkl) {
         return (
             <div className="p-8 max-w-4xl mx-auto">
@@ -94,144 +209,191 @@ export default function PindahPklPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
-            <div className="max-w-4xl mx-auto space-y-6">
-
-                {/* Header Info */}
+        <div className="min-h-screen bg-gray-50/50 py-8 px-4 md:px-8">
+            <div className="max-w-3xl mx-auto space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Pindah Tempat PKL</h1>
-                    <p className="text-gray-600">Ajukan perpindahan tempat magang jika diperlukan.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Pindah Tempat PKL</h1>
+                    <p className="text-gray-500 mt-1">Ajukan pemindahan tempat magang ke industri baru.</p>
                 </div>
 
-                {/* Current PKL Status Card */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-lg">Status Magang Saat Ini</CardTitle>
+                {/* Info PKL Saat Ini */}
+                <Card className="bg-white shadow-sm border-none ring-1 ring-gray-200">
+                    <CardHeader className="pb-3 border-b border-gray-100">
+                        <CardTitle className="text-lg font-medium">Status Magang Saat Ini</CardTitle>
                     </CardHeader>
-                    <CardContent className="grid md:grid-cols-2 gap-6">
-                        <div className="space-y-1">
-                            <Label className="text-gray-500">Tempat Lama</Label>
-                            <div className="flex items-center gap-2 font-medium text-gray-900">
-                                <Building2 className="w-4 h-4 text-blue-500" />
-                                {currentIndustriName}
+                    <CardContent className="pt-4">
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50/50 border border-blue-100">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                                <Building2 className="h-5 w-5 text-blue-600" />
                             </div>
-                        </div>
-                        <div className="space-y-1">
-                            <Label className="text-gray-500">Durasi Terlaksana</Label>
-                            <div className="flex items-center gap-2 font-medium text-gray-900">
-                                <Clock className="w-4 h-4 text-green-500" />
-                                <span>{durationServed} Bulan (dari total {totalDuration} Bulan)</span>
+                            <div>
+                                <p className="text-sm text-gray-500">Industri Lama</p>
+                                <p className="font-semibold text-gray-900">{currentIndustriName}</p>
                             </div>
-                            <p className="text-xs text-muted-foreground">Sisa waktu: {Math.max(0, totalDuration - durationServed)} Bulan</p>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* TRANSFER FLOW STATES */}
+                {/* Form Pindah */}
+                <Card className="bg-white shadow-md border-none ring-1 ring-gray-200">
+                    <CardHeader>
+                        <CardTitle>Formulir Pengajuan</CardTitle>
+                        <CardDescription>Lengkapi data tempat tujuan baru dan alasan pindah.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* 1. Pilih Industri Baru */}
+                        <div className="space-y-2">
+                            <Label>Industri Tujuan Baru</Label>
+                            <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={open}
+                                        className="w-full justify-between h-11 bg-white"
+                                    >
+                                        {selectedIndustri
+                                            ? selectedIndustri.nama
+                                            : "Pilih industri tujuan..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                                    <Command shouldFilter={false}>
+                                        <CommandInput
+                                            placeholder="Cari nama industri..."
+                                            value={searchQuery}
+                                            onValueChange={setSearchQuery}
+                                        />
+                                        <CommandList>
+                                            {loadingIndustries && (
+                                                <div className="py-6 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    Memuat data...
+                                                </div>
+                                            )}
 
-                {/* STATE 1: IDLE - Form Request */}
-                {transferStatus === 'idle' && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Form Pengajuan Pindah</CardTitle>
-                            <CardDescription>Isi detail tempat baru dan alasan kepindahan.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid gap-2">
-                                <Label>Nama Tempat Baru (Industri Tujuan)</Label>
-                                <Input
-                                    placeholder="PT. Teknologi Baru"
-                                    value={newIndustri}
-                                    onChange={(e) => setNewIndustri(e.target.value)}
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label>Alasan Pindah</Label>
-                                <Textarea
-                                    placeholder="Jelaskan alasan Anda pindah (misal: Tempat lama tutup, tidak sesuai kompetensi, dll)"
-                                    value={reason}
-                                    onChange={(e) => setReason(e.target.value)}
-                                />
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button onClick={handleRequestTransfer} disabled={!newIndustri || !reason || submitting} className="w-full">
-                                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Kirim Permohonan Pindah
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                )}
+                                            {!loadingIndustries && industries.length === 0 && (
+                                                <CommandEmpty>Tidak ada industri ditemukan.</CommandEmpty>
+                                            )}
 
-                {/* STATE 2: PENDING - Waiting for Kapro */}
-                {transferStatus === 'pending' && (
-                    <Card className="border-yellow-200 bg-yellow-50">
-                        <CardContent className="pt-6 text-center space-y-4">
-                            <div className="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                                <Clock className="w-8 h-8 text-yellow-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-semibold text-yellow-800">Menunggu Persetujuan</h3>
-                                <p className="text-yellow-700">Permohonan Anda sedang ditinjau oleh Kepala Program (Kapro).</p>
-                            </div>
-                            {/* DEMO ONLY BUTTON */}
-                            <Button variant="outline" size="sm" onClick={handleSimulateApproval} className="mt-4 border-yellow-300 text-yellow-800 hover:bg-yellow-100">
-                                (Demo: Simulate Approval)
-                            </Button>
-                        </CardContent>
-                    </Card>
-                )}
+                                            {!loadingIndustries && (
+                                                <CommandGroup>
+                                                    {industries.map((industri) => (
+                                                        <CommandItem
+                                                            key={industri.id}
+                                                            value={industri.nama} // Use name for internal command filter if enabled, but we use ID
+                                                            onSelect={() => {
+                                                                setSelectedIndustri(industri)
+                                                                setOpen(false)
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    selectedIndustri?.id === industri.id ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            <div className="flex flex-col">
+                                                                <span>{industri.nama}</span>
+                                                                <span className="text-xs text-muted-foreground">{industri.alamat}</span>
+                                                            </div>
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            )}
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                            <p className="text-[0.8rem] text-muted-foreground">
+                                Pilih industri dari daftar mitra yang tersedia.
+                            </p>
+                        </div>
 
-                {/* STATE 3: APPROVED_UPLOAD - Upload Bukti Diterima Baru */}
-                {transferStatus === 'approved_upload' && (
-                    <Card className="border-green-200 bg-green-50">
-                        <CardHeader>
-                            <CardTitle className="text-green-800 flex items-center gap-2">
-                                <CheckCircle2 className="w-5 h-5" />
-                                Permohonan Disetujui
-                            </CardTitle>
-                            <CardDescription className="text-green-700">
-                                Silakan unggah bukti diterima dari tempat baru ({newIndustri}).
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="border-2 border-dashed border-green-300 rounded-lg p-8 text-center bg-white/50">
-                                <Upload className="mx-auto h-8 w-8 text-green-500 mb-2" />
-                                <p className="text-sm text-green-700 mb-2">Upload Surat Penerimaan (.pdf, .jpg)</p>
+                        {/* 2. Alasan */}
+                        <div className="space-y-2">
+                            <Label htmlFor="alasan">Alasan Pindah</Label>
+                            <Textarea
+                                id="alasan"
+                                placeholder="Jelaskan secara rinci alasan Anda mengajukan kepindahan..."
+                                className="min-h-[120px] resize-y"
+                                value={alasan}
+                                onChange={(e) => setAlasan(e.target.value)}
+                            />
+                        </div>
+
+                        {/* 3. Upload File */}
+                        <div className="space-y-4">
+                            <Label>Dokumen Pendukung <span className="text-muted-foreground text-xs font-normal">(Surat permohonan, bukti penerimaan baru, dll)</span></Label>
+
+                            <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors text-center cursor-pointer relative">
                                 <Input
                                     type="file"
-                                    onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                                    className="max-w-xs mx-auto"
+                                    multiple
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    onChange={handleFileChange}
+                                    disabled={files.length >= 5}
                                 />
+                                <div className="flex flex-col items-center justify-center gap-2 pointer-events-none">
+                                    <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                                        <Upload className="h-5 w-5" />
+                                    </div>
+                                    <div className="text-sm font-medium text-gray-900">
+                                        Klik untuk upload atau drag & drop
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        Max 5 files (PDF, JPEG, PNG, max 5MB/file)
+                                    </div>
+                                </div>
                             </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button onClick={handleUpload} disabled={!uploadFile || submitting} className="w-full bg-green-600 hover:bg-green-700">
-                                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Unggah & Selesaikan Perpindahan
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                )}
 
-                {/* STATE 4: COMPLETED */}
-                {transferStatus === 'completed' && (
-                    <Card className="bg-blue-50 border-blue-200">
-                        <CardContent className="pt-6 text-center space-y-4">
-                            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                                <CheckCircle2 className="w-8 h-8 text-blue-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-semibold text-blue-800">Proses Pindah Selesai!</h3>
-                                <p className="text-blue-700">Data magang Anda telah diperbarui ke tempat baru.</p>
-                            </div>
-                            <Button onClick={() => setTransferStatus('idle')} variant="link" className="text-blue-700">
-                                Kembali ke Dashboard
-                            </Button>
-                        </CardContent>
-                    </Card>
-                )}
-
+                            {/* File List */}
+                            {files.length > 0 && (
+                                <div className="grid gap-2">
+                                    {files.map((file, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-md group">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                <div className="h-8 w-8 bg-white border border-gray-200 rounded flex items-center justify-center shrink-0">
+                                                    <FileText className="h-4 w-4 text-blue-500" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-medium truncate">{file.name}</p>
+                                                    <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50"
+                                                onClick={() => removeFile(idx)}
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                    <CardFooter className="pt-2 pb-6">
+                        <Button
+                            className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 h-11 text-base"
+                            onClick={handleSubmit}
+                            disabled={isSubmitting || !selectedIndustri || !alasan || files.length === 0}
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                    Mengirim Permohonan...
+                                </>
+                            ) : (
+                                "Kirim Permohonan Pindah PKL"
+                            )}
+                        </Button>
+                    </CardFooter>
+                </Card>
             </div>
         </div>
     )

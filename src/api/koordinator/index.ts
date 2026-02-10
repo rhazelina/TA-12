@@ -52,3 +52,19 @@ export async function deleteJadwal(id: number) {
     throw error;
   }
 }
+export async function listPindahPklKoordinator() {
+  try {
+    const response = await axiosInstance.get(`/api/pindah-pkl/koordinator`);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
+export async function patchPindahPklKoordinator(id: number) {
+  try {
+    const response = await axiosInstance.patch(`/api/pindah-pkl/${id}/koordinator`);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}

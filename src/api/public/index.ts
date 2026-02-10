@@ -8,3 +8,12 @@ export async function getSekolah() {
     throw error;
   }
 }
+
+export async function detailPindahPkl(id: number) {
+  try {
+    const res = await axiosInstance.get(`/api/pindah-pkl/${id}`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+}

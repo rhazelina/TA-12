@@ -101,3 +101,20 @@ export async function getIzinByPembimbing() {
     throw error
   }
 }
+
+export async function listPindahPklPembimbing() {
+  try {
+    const response = await axiosInstance.get(`/api/pindah-pkl/pembimbing`);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
+export async function patchPindahPklPembimbing(id: number) {
+  try {
+    const response = await axiosInstance.patch(`/api/pindah-pkl/${id}/pembimbing`);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
