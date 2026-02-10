@@ -193,7 +193,7 @@ export default function PindahPklInfoPage() {
                                         <Building2 className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
                                         <div>
                                             <p className="font-semibold text-gray-900">{data.industri_lama?.nama || "Unknown"}</p>
-                                            <p className="text-sm text-gray-500 text-muted-foreground">{data.industri_lama?.alamat || "-"}</p>
+                                            <p className="text-sm text-gray-500">{data.industri_lama?.alamat || "-"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -204,7 +204,7 @@ export default function PindahPklInfoPage() {
                                         <Building2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                                         <div>
                                             <p className="font-semibold text-gray-900">{data.industri_baru?.nama || "Unknown"}</p>
-                                            <p className="text-sm text-gray-500 text-muted-foreground">{data.industri_baru?.alamat || "-"}</p>
+                                            <p className="text-sm text-gray-500">{data.industri_baru?.alamat || "-"}</p>
                                         </div>
                                     </div>
                                 </div>
