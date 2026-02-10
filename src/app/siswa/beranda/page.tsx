@@ -199,13 +199,13 @@ export default function Dashboard() {
     return (
         <div className="min-h-screen bg-gray-50 p-6 space-y-6">
             {/* Notification */}
-            <div className="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-xl text-sm flex items-start gap-3">
+            {/* <div className="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-xl text-sm flex items-start gap-3">
                 <span className="text-xl">ℹ️</span>
                 <p>
                     Batas waktu pendaftaran PKL semakin dekat. Pastikan Anda mengirimkan aplikasi
                     Anda sebelum <strong>15 Maret 2024</strong>.
                 </p>
-            </div>
+            </div> */}
 
             {/* Profile & Status */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
