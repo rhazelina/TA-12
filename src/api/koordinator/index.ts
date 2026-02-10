@@ -60,9 +60,15 @@ export async function listPindahPklKoordinator() {
     throw error
   }
 }
-export async function patchPindahPklKoordinator(id: number) {
+export async function patchPindahPklKoordinator(id: number, data:
+  {
+    catatan: string,
+    status: "approved" | "rejected",
+    tanggal_efektif: string
+  }
+) {
   try {
-    const response = await axiosInstance.patch(`/api/pindah-pkl/${id}/koordinator`);
+    const response = await axiosInstance.patch(`/api/pindah-pkl/${id}/koordinator`, data);
     return response.data;
   } catch (error) {
     throw error

@@ -348,7 +348,7 @@ export default function DaftarPengajuanPindahPKL() {
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-500">Ke:</span>
-                                    <span className="text-gray-900 font-medium text-primary">{selectedItem.industri_baru_nama}</span>
+                                    <span className="text-gray-900 font-medium">{selectedItem.industri_baru_nama}</span>
                                 </div>
                             </div>
 

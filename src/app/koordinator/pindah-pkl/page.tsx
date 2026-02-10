@@ -5,7 +5,7 @@ import { listPindahPklKoordinator, patchPindahPklKoordinator } from "@/api/koord
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { toast } from "sonner";
-import { Loader2, CheckCircle, XCircle, FileText } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, FileText, Calendar, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // --- Types ---
@@ -30,15 +30,13 @@ export default function PindahPklKoordinatorPage() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("Semua Status");
     const [page, setPage] = useState(1);
-    const [stats, setStats] = useState({
-        total: 0,
-        menunggu: 0,
-        disetujui: 0,
-        ditolak: 0
-    });
 
-    // Action State
-    const [processingId, setProcessingId] = useState<number | null>(null);
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<PindahPklItem | null>(null);
+    const [note, setNote] = useState("");
+    const [effectiveDate, setEffectiveDate] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const limit = 5;
     const router = useRouter();
@@ -49,14 +47,6 @@ export default function PindahPklKoordinatorPage() {
             const res: ApiResponse = await listPindahPklKoordinator();
             if (res && res.items) {
                 setData(res.items);
-
-                // Calculate stats based on fetched data
-                const total = res.total || res.items.length;
-                const menunggu = res.items.filter(i => i.status.includes('pending')).length;
-                const disetujui = res.items.filter(i => i.status === 'approved' || i.status === 'disetujui').length;
-                const ditolak = res.items.filter(i => i.status === 'rejected' || i.status === 'ditolak').length;
-
-                setStats({ total, menunggu, disetujui, ditolak });
             }
         } catch (error) {
             console.error("Failed to fetch data", error);
@@ -70,17 +60,45 @@ export default function PindahPklKoordinatorPage() {
         fetchData();
     }, []);
 
-    const handleApprove = async (id: number) => {
-        setProcessingId(id);
+    const openActionModal = (item: PindahPklItem) => {
+        setSelectedItem(item);
+        setNote("");
+        setEffectiveDate(new Date().toISOString().split('T')[0]); // Default to today
+        setIsModalOpen(true);
+    };
+
+    const closeActionModal = () => {
+        setIsModalOpen(false);
+        setSelectedItem(null);
+        setNote("");
+        setEffectiveDate("");
+    };
+
+    const handleAction = async (status: "approved" | "rejected") => {
+        if (!selectedItem) return;
+
+        if (status === "approved" && !effectiveDate) {
+            toast.error("Tanggal efektif wajib diisi untuk persetujuan");
+            return;
+        }
+
+        setIsSubmitting(true);
+        console.log(effectiveDate)
         try {
-            await patchPindahPklKoordinator(id);
-            toast.success("Pengajuan berhasil disetujui");
+            await patchPindahPklKoordinator(selectedItem.id, {
+                catatan: note,
+                status: status,
+                tanggal_efektif: effectiveDate
+            });
+
+            toast.success(status === "approved" ? "Pengajuan disetujui" : "Pengajuan ditolak");
+            closeActionModal();
             fetchData(); // Refresh data
         } catch (error) {
-            console.error("Failed to approve", error);
-            toast.error("Gagal menyetujui pengajuan");
+            console.error(`Failed to ${status}`, error);
+            toast.error(`Gagal memproses pengajuan`);
         } finally {
-            setProcessingId(null);
+            setIsSubmitting(false);
         }
     };
 
@@ -131,33 +149,6 @@ export default function PindahPklKoordinatorPage() {
                     <p className="mt-1 text-sm text-gray-500">
                         Validasi dan kelola permohonan kepindahan tempat PKL.
                     </p>
-                </div>
-
-                {/* Statistik */}
-                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-                    {[
-                        { label: "Total Pengajuan", value: stats.total, bg: "bg-blue-100", text: "text-blue-600", icon: "⇄" },
-                        { label: "Menunggu", value: stats.menunggu, bg: "bg-yellow-100", text: "text-yellow-600", icon: "⏳" },
-                        { label: "Disetujui", value: stats.disetujui, bg: "bg-green-100", text: "text-green-600", icon: "✔" },
-                        { label: "Ditolak", value: stats.ditolak, bg: "bg-red-100", text: "text-red-600", icon: "✖" },
-                    ].map((item) => (
-                        <div
-                            key={item.label}
-                            className="flex items-center justify-between rounded-xl bg-white p-6 shadow-sm border border-gray-100"
-                        >
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">{item.label}</p>
-                                <p className={`text-3xl font-bold ${item.text} mt-1`}>
-                                    {item.value}
-                                </p>
-                            </div>
-                            <div
-                                className={`flex h-12 w-12 items-center justify-center rounded-full ${item.bg} ${item.text}`}
-                            >
-                                <span className="text-xl">{item.icon}</span>
-                            </div>
-                        </div>
-                    ))}
                 </div>
 
                 {/* Main Content Card */}
@@ -238,7 +229,6 @@ export default function PindahPklKoordinatorPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <p className="font-semibold text-gray-900">{item.siswa_nama}</p>
-                                                {/* If NISN available in future, add here */}
                                             </td>
 
                                             <td className="px-6 py-4">
@@ -277,18 +267,12 @@ export default function PindahPklKoordinatorPage() {
                                                 {getStatusLabel(item.status) === "Menunggu" ? (
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
-                                                            onClick={() => handleApprove(item.id)}
-                                                            disabled={processingId === item.id}
-                                                            className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 shadow-sm transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            onClick={() => openActionModal(item)}
+                                                            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 shadow-sm transition-all hover:scale-105"
                                                         >
-                                                            {processingId === item.id ? (
-                                                                <Loader2 className="h-3 w-3 animate-spin" />
-                                                            ) : (
-                                                                <CheckCircle className="h-3 w-3" />
-                                                            )}
-                                                            Setujui
+                                                            <CheckCircle className="h-3 w-3" />
+                                                            Proses
                                                         </button>
-                                                        {/* Assuming no reject endpoint yet as handled in detail/previous pages logic or if needed can add button later */}
                                                     </div>
                                                 ) : (
                                                     <span className="text-xs text-gray-400 font-medium italic">Selesai</span>
@@ -321,8 +305,8 @@ export default function PindahPklKoordinatorPage() {
                                         key={pageNum}
                                         onClick={() => setPage(pageNum)}
                                         className={`w-7 h-7 flex items-center justify-center rounded-md text-xs font-medium transition-colors ${page === pageNum
-                                                ? "bg-gray-900 text-white"
-                                                : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                                            ? "bg-gray-900 text-white"
+                                            : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
                                             }`}
                                     >
                                         {pageNum}
@@ -341,6 +325,92 @@ export default function PindahPklKoordinatorPage() {
 
                 </div>
             </div>
+
+            {/* Approval Modal */}
+            {isModalOpen && selectedItem && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-gray-100">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Proses Pengajuan</h3>
+                                    <p className="text-sm text-gray-500 mt-1">Tentukan status dan tanggal efektif pindah PKL.</p>
+                                </div>
+                                <button
+                                    onClick={closeActionModal}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    <XCircle className="h-6 w-6" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-2">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Nama Siswa:</span>
+                                    <span className="font-semibold text-gray-900">{selectedItem.siswa_nama}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Dari:</span>
+                                    <span className="text-gray-900">{selectedItem.industri_lama_nama}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Ke:</span>
+                                    <span className="text-gray-900 font-medium ">{selectedItem.industri_baru_nama}</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Calendar className="h-4 w-4" />
+                                    Tanggal Efektif
+                                </label>
+                                <input
+                                    type="date"
+                                    className="w-full p-2.5 rounded-lg border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all"
+                                    value={effectiveDate}
+                                    onChange={(e) => setEffectiveDate(e.target.value)}
+                                    required
+                                />
+                                <p className="text-xs text-gray-500">Tanggal siswa mulai aktif di tempat baru.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4" />
+                                    Catatan (Opsional)
+                                </label>
+                                <textarea
+                                    className="w-full min-h-[80px] p-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all"
+                                    placeholder="Tuliskan alasan persetujuan atau penolakan..."
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                            <button
+                                onClick={() => handleAction("rejected")}
+                                disabled={isSubmitting}
+                                className="px-4 py-2 rounded-lg bg-white border border-red-200 text-red-600 font-medium hover:bg-red-50 hover:border-red-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                                Tolak
+                            </button>
+                            <button
+                                onClick={() => handleAction("approved")}
+                                disabled={isSubmitting}
+                                className="px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 shadow-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                                Setujui
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
