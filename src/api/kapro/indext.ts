@@ -88,9 +88,12 @@ export async function listPindahPklKapro() {
     throw error
   }
 }
-export async function patchPindahPklKapro(id: number) {
+export async function patchPindahPklKapro(id: number, data: {
+  catatan: string,
+  status: "approved" | "rejected"
+}) {
   try {
-    const response = await axiosInstance.patch(`/api/pindah-pkl/${id}/kaprog`);
+    const response = await axiosInstance.patch(`/api/pindah-pkl/${id}/kaprog`, data);
     return response.data;
   } catch (error) {
     throw error

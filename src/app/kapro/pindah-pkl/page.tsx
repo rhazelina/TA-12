@@ -5,7 +5,7 @@ import { listPindahPklKapro, patchPindahPklKapro } from "@/api/kapro/indext";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle, FileText, XCircle, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // --- Types ---
@@ -35,6 +35,13 @@ export default function DaftarPengajuanPindahPKL() {
         disetujui: 0,
         ditolak: 0
     });
+
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<PindahPklItem | null>(null);
+    const [note, setNote] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const limit = 5;
     const router = useRouter();
 
@@ -65,14 +72,36 @@ export default function DaftarPengajuanPindahPKL() {
         fetchData();
     }, []);
 
-    const handleApprove = async (id: number) => {
+    const openActionModal = (item: PindahPklItem) => {
+        setSelectedItem(item);
+        setNote("");
+        setIsModalOpen(true);
+    };
+
+    const closeActionModal = () => {
+        setIsModalOpen(false);
+        setSelectedItem(null);
+        setNote("");
+    };
+
+    const handleAction = async (status: "approved" | "rejected") => {
+        if (!selectedItem) return;
+
+        setIsSubmitting(true);
         try {
-            await patchPindahPklKapro(id);
-            toast.success("Pengajuan berhasil disetujui");
+            await patchPindahPklKapro(selectedItem.id, {
+                catatan: note,
+                status: status
+            });
+
+            toast.success(status === "approved" ? "Pengajuan disetujui" : "Pengajuan ditolak");
+            closeActionModal();
             fetchData(); // Refresh data
         } catch (error) {
-            console.error("Failed to approve", error);
-            toast.error("Gagal menyetujui pengajuan");
+            console.error(`Failed to ${status}`, error);
+            toast.error(`Gagal memproses pengajuan`);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -116,38 +145,13 @@ export default function DaftarPengajuanPindahPKL() {
             <div className="mx-auto max-w-7xl p-8">
 
                 {/* Header */}
-                <h1 className="text-2xl font-bold text-gray-800">
-                    Daftar Pengajuan Pindah PKL
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                    Kelola permohonan kepindahan tempat PKL siswa.
-                </p>
-
-                {/* Statistik */}
-                <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4">
-                    {[
-                        { label: "Total Pengajuan", value: stats.total, bg: "bg-blue-100", text: "text-blue-600", icon: "⇄" },
-                        { label: "Menunggu Persetujuan", value: stats.menunggu, bg: "bg-yellow-100", text: "text-yellow-600", icon: "⏳" },
-                        { label: "Disetujui", value: stats.disetujui, bg: "bg-green-100", text: "text-green-600", icon: "✔" },
-                        { label: "Ditolak", value: stats.ditolak, bg: "bg-red-100", text: "text-red-600", icon: "✖" },
-                    ].map((item) => (
-                        <div
-                            key={item.label}
-                            className="flex items-center justify-between rounded-xl bg-white p-6 shadow"
-                        >
-                            <div>
-                                <p className="text-sm text-gray-500">{item.label}</p>
-                                <p className={`text-3xl font-bold ${item.text}`}>
-                                    {item.value}
-                                </p>
-                            </div>
-                            <div
-                                className={`flex h-10 w-10 items-center justify-center rounded-full ${item.bg} ${item.text}`}
-                            >
-                                {item.icon}
-                            </div>
-                        </div>
-                    ))}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-gray-800">
+                        Daftar Pengajuan Pindah PKL
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-500">
+                        Kelola permohonan kepindahan tempat PKL siswa.
+                    </p>
                 </div>
 
                 {/* Filter */}
@@ -209,7 +213,7 @@ export default function DaftarPengajuanPindahPKL() {
                                 </tr>
                             ) : (
                                 paginatedData.map((item) => (
-                                    <tr key={item.id} className="border-t">
+                                    <tr key={item.id} className="border-t hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 text-gray-500">
                                             {formatDate(item.created_at)}
                                         </td>
@@ -227,17 +231,17 @@ export default function DaftarPengajuanPindahPKL() {
 
                                         <td className="px-6 py-4">
                                             {getStatusLabel(item.status) === "Menunggu" && (
-                                                <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">
+                                                <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700 border border-yellow-200">
                                                     Menunggu
                                                 </span>
                                             )}
                                             {getStatusLabel(item.status) === "Disetujui" && (
-                                                <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+                                                <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 border border-green-200">
                                                     Disetujui
                                                 </span>
                                             )}
                                             {getStatusLabel(item.status) === "Ditolak" && (
-                                                <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
+                                                <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700 border border-red-200">
                                                     Ditolak
                                                 </span>
                                             )}
@@ -247,13 +251,12 @@ export default function DaftarPengajuanPindahPKL() {
                                             {getStatusLabel(item.status) === "Menunggu" ? (
                                                 <div className="flex flex-col items-end gap-3">
                                                     <div className="flex gap-2">
-                                                        {/* Since we don't have reject endpoint in the new methods, we might only expose Approve or link to detail */}
-                                                        {/* Assuming patchPindahPklKapro is for approve/proceed */}
                                                         <button
-                                                            onClick={() => handleApprove(item.id)}
-                                                            className="rounded-md bg-green-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-green-700"
+                                                            onClick={() => openActionModal(item)}
+                                                            className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 flex items-center gap-1.5 shadow-sm transition-all hover:scale-105"
                                                         >
-                                                            Setujui
+                                                            <CheckCircle className="h-3 w-3" />
+                                                            Proses
                                                         </button>
                                                     </div>
                                                 </div>
@@ -290,7 +293,7 @@ export default function DaftarPengajuanPindahPKL() {
                                     key={pageNum}
                                     onClick={() => setPage(pageNum)}
                                     className={`h-8 w-8 rounded-lg text-sm font-medium ${page === pageNum
-                                        ? "bg-primary text-primary-foreground" // using primary color variable if typically available, or hardcoded
+                                        ? "bg-primary text-primary-foreground"
                                         : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-300"
                                         }`}
                                     style={page === pageNum ? { backgroundColor: '#641E20', color: 'white' } : {}}
@@ -313,6 +316,77 @@ export default function DaftarPengajuanPindahPKL() {
                 </div>
 
             </div>
+
+            {/* Approval Modal */}
+            {isModalOpen && selectedItem && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-gray-100">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Proses Pengajuan</h3>
+                                    <p className="text-sm text-gray-500 mt-1">Tentukan status pengajuan pindah PKL.</p>
+                                </div>
+                                <button
+                                    onClick={closeActionModal}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    <XCircle className="h-6 w-6" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-2">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Nama Siswa:</span>
+                                    <span className="font-semibold text-gray-900">{selectedItem.siswa_nama}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Dari:</span>
+                                    <span className="text-gray-900">{selectedItem.industri_lama_nama}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Ke:</span>
+                                    <span className="text-gray-900 font-medium text-primary">{selectedItem.industri_baru_nama}</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4" />
+                                    Catatan (Opsional)
+                                </label>
+                                <textarea
+                                    className="w-full min-h-[100px] p-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm transition-all"
+                                    placeholder="Tuliskan alasan persetujuan atau penolakan..."
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                            <button
+                                onClick={() => handleAction("rejected")}
+                                disabled={isSubmitting}
+                                className="px-4 py-2 rounded-lg bg-white border border-red-200 text-red-600 font-medium hover:bg-red-50 hover:border-red-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                                Tolak
+                            </button>
+                            <button
+                                onClick={() => handleAction("approved")}
+                                disabled={isSubmitting}
+                                className="px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 shadow-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                                Setujui
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

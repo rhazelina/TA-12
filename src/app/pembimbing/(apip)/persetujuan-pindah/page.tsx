@@ -156,33 +156,6 @@ export default function PindahPklPembimbingPage() {
                     </p>
                 </div>
 
-                {/* Statistik */}
-                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-                    {[
-                        { label: "Total Pengajuan", value: stats.total, bg: "bg-blue-100", text: "text-blue-600", icon: "⇄" },
-                        { label: "Menunggu", value: stats.menunggu, bg: "bg-yellow-100", text: "text-yellow-600", icon: "⏳" },
-                        { label: "Disetujui", value: stats.disetujui, bg: "bg-green-100", text: "text-green-600", icon: "✔" },
-                        { label: "Ditolak", value: stats.ditolak, bg: "bg-red-100", text: "text-red-600", icon: "✖" },
-                    ].map((item) => (
-                        <div
-                            key={item.label}
-                            className="flex items-center justify-between rounded-xl bg-white p-6 shadow-sm border border-gray-100"
-                        >
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">{item.label}</p>
-                                <p className={`text-3xl font-bold ${item.text} mt-1`}>
-                                    {item.value}
-                                </p>
-                            </div>
-                            <div
-                                className={`flex h-12 w-12 items-center justify-center rounded-full ${item.bg} ${item.text}`}
-                            >
-                                <span className="text-xl">{item.icon}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
                 {/* Main Content Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
