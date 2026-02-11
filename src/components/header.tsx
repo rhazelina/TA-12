@@ -91,8 +91,8 @@ export function Header({ user, onMenuClick }: HeaderProps) {
               <AlertDialogTitle>Apakah Anda Yakin ingin Keluar?</AlertDialogTitle>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-500 hover:bg-red-600 text-white" onClick={logout}>Continue</AlertDialogAction>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction className="bg-red-500 hover:bg-red-600 text-white" onClick={logout}>Lanjutkan</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

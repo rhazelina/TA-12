@@ -30,7 +30,7 @@ interface AdminLayoutProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Beranda', href: '/admin', icon: LayoutDashboard },
   { name: 'Guru', href: '/admin/guru', icon: GraduationCap },
   { name: 'Siswa', href: '/admin/siswa', icon: Users },
   { name: 'Jurusan', href: '/admin/jurusan', icon: BookOpen },
@@ -96,7 +96,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
       }
       return pathname.startsWith(item.href)
     })
-    return activeItem ? activeItem.name : 'Admin Panel'
+    return activeItem ? activeItem.name : 'Panel Admin'
   }
 
   const pageTitle = getPageTitle()

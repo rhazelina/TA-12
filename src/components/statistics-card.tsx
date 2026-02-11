@@ -78,7 +78,7 @@ export function StatisticsCard({
               {trend.isPositive ? '+' : ''}{safeNumber(trend.value)}%
             </Badge>
             <span className="text-xs text-muted-foreground ml-2">
-              from last month
+              dari bulan lalu
             </span>
           </div>
         )}
