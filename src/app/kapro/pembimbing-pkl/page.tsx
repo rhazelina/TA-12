@@ -83,7 +83,7 @@ const DataPembimbingPKL = () => {
                                     <div className="flex items-center gap-3">
                                         <div>
                                             <p className="font-medium text-gray-800">{item.nama}</p>
-                                            <p className="text-gray-500 text-xs">{item.nip}</p>
+                                            <p className="text-gray-500 text-xs">NIP : {item.nip}</p>
                                         </div>
                                     </div>
                                 </td>
