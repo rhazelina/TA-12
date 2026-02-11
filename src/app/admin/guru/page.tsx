@@ -121,7 +121,7 @@ export default function GuruManagement() {
           {row.is_koordinator && <Badge variant="default" className="text-xs">Koordinator</Badge>}
           {row.is_pembimbing && <Badge variant="success" className="text-xs">Pembimbing</Badge>}
           {row.is_wali_kelas && <Badge variant="warning" className="text-xs">Wali Kelas</Badge>}
-          {row.is_kaprog && <Badge variant="destructive" className="text-xs">Kaprog</Badge>}
+          {row.is_kaprog && <Badge variant="destructive" className="text-xs">Kepala Konsentrasi Keahlian</Badge>}
         </div>
       ),
     },
@@ -130,7 +130,7 @@ export default function GuruManagement() {
       label: 'Status',
       render: (value: unknown) => (
         <Badge variant={(value as boolean) ? 'success' : 'destructive'}>
-          {(value as boolean) ? 'Active' : 'Inactive'}
+          {(value as boolean) ? 'Aktif' : 'Tidak Aktif'}
         </Badge>
       ),
     },
@@ -155,7 +155,7 @@ export default function GuruManagement() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <Button onClick={() => loadGuru(searchTerm)}>
-            Try Again
+            Coba Lagi
           </Button>
         </div>
       </div>
@@ -165,8 +165,8 @@ export default function GuruManagement() {
   return (
     <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Guru Management</h1>
-          <p className="text-gray-600">Manage teacher accounts and information</p>
+          <h1 className="text-3xl font-bold text-gray-900">Pengelolaan Data Guru</h1>
+          <p className="text-gray-600">Mengelola data dan informasi akun guru</p>
         </div>
 
         <DataTable
@@ -183,7 +183,7 @@ export default function GuruManagement() {
           onPageChange={handlePageChange}
           searchPlaceholder="Cari berdasarkan nama..."
           title="Guru List"
-          addButtonText="Add New Guru"
+          addButtonText="Tambah Guru Baru"
         />
       </div>
   )

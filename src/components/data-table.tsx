@@ -215,8 +215,7 @@ export function DataTable<T = Record<string, unknown>>({
           variant="outline"
           className="flex items-center gap-2"
         >
-          <Search className="h-4 w-4" />
-          Search
+          Cari
         </Button>
         {onAdd && (
           <Button onClick={onAdd} className="flex items-center gap-2 cursor-pointer">
@@ -302,13 +301,13 @@ export function DataTable<T = Record<string, unknown>>({
                             {onView && (
                               <DropdownMenuItem onClick={() => onView(row)}>
                                 <Eye className="mr-2 h-4 w-4" />
-                                View
+                                Melihat
                               </DropdownMenuItem>
                             )}
                             {onEdit && (
                               <DropdownMenuItem onClick={() => onEdit(row)}>
                                 <Edit className="mr-2 h-4 w-4" />
-                                Edit
+                                Sunting
                               </DropdownMenuItem>
                             )}
                             {onDelete && (
@@ -319,7 +318,7 @@ export function DataTable<T = Record<string, unknown>>({
                                   className="text-destructive"
                                 >
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
+                                  Menghapus
                                 </DropdownMenuItem>
                               </>
                             )}
