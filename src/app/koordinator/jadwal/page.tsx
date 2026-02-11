@@ -119,15 +119,6 @@ export default function JadwalPage() {
                                     status: "Selesai"
                                 },
                                 {
-                                    title: "Pengantaran",
-                                    icon: Truck,
-                                    color: "text-amber-600",
-                                    iconBg: "bg-amber-500/10",
-                                    border: "border-amber-200",
-                                    desc: "Mobilisasi Industri",
-                                    status: "Aktif"
-                                },
-                                {
                                     title: "Monitoring",
                                     icon: Users,
                                     color: "text-blue-600",
@@ -195,7 +186,6 @@ export default function JadwalPage() {
                                 data.map((item, i) => {
                                     const configMap: Record<string, { icon: any, color: string, bg: string, border: string }> = {
                                         Pembekalan: { icon: BookOpen, color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-100" },
-                                        Pengantaran: { icon: Truck, color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100" },
                                         Monitoring: { icon: Users, color: "text-rose-700", bg: "bg-rose-50", border: "border-rose-100" },
                                         Monitoring1: { icon: Users, color: "text-rose-700", bg: "bg-rose-50", border: "border-rose-100" },
                                         Monitoring2: { icon: Users, color: "text-rose-700", bg: "bg-rose-50", border: "border-rose-100" },
@@ -307,12 +297,12 @@ export default function JadwalPage() {
                                 <Plus className="mr-2 h-5 w-5" />
                                 Tambah Jadwal Pembekalan
                             </Button>
-                            <Button onClick={() => {
+                            {/* <Button onClick={() => {
                                 router.push(`${pathname}/pengantaran`)
                             }} variant="outline" className="w-full justify-start h-auto py-3 text-left whitespace-normal" size="lg">
                                 <Truck className="mr-2 h-5 w-5 shrink-0" />
                                 <span>Tambah Jadwal Pengantaran</span>
-                            </Button>
+                            </Button> */}
                             <Button onClick={() => {
                                 router.push(`${pathname}/monitoring`)
                             }} variant="outline" className="w-full justify-start h-auto py-3 text-left whitespace-normal" size="lg">
