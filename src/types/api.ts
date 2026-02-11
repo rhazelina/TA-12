@@ -246,6 +246,10 @@ export interface PostRealisasiKegiatanPkl {
   tanggal_realisasi: string;
 }
 
+export interface UpdateRealisasiKegiatanPkl {
+  bukti_foto_urls: string[];
+}
+
 // 1. Bagian Industri
 interface IIndustri {
   id: number;

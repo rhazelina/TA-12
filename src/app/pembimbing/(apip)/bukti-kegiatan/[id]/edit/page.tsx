@@ -4,7 +4,7 @@ import { getRealisasiKegiatanPklById, updateRealisasiKegiatanPkl } from "@/api/p
 import { uploadImages } from "@/api/upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PostRealisasiKegiatanPkl } from "@/types/api";
+import { PostRealisasiKegiatanPkl, UpdateRealisasiKegiatanPkl } from "@/types/api";
 import { useParams, useRouter } from "next/navigation";
 import { useState, ChangeEvent, useEffect } from "react";
 import { toast } from "sonner";
@@ -27,9 +27,9 @@ export default function EditBuktiKegiatan() {
     const [data, setData] = useState<PostRealisasiKegiatanPkl>({
         bukti_foto_urls: [],
         catatan: "",
-        industri_id: 0, // Will be filled from fetch
-        kegiatan_id: 0, // Will be filled from fetch
-        tanggal_realisasi: "", // Will be filled from fetch
+        industri_id: 0,
+        kegiatan_id: 0,
+        tanggal_realisasi: "",
     })
     const [doneCompress, setDoneCompress] = useState<boolean>(false)
     const [submitting, setSubmitting] = useState(false)
@@ -153,8 +153,7 @@ export default function EditBuktiKegiatan() {
                 return
             }
 
-            const payload: PostRealisasiKegiatanPkl = {
-                ...data,
+            const payload: UpdateRealisasiKegiatanPkl = {
                 bukti_foto_urls: finalImageUrls
             };
 
@@ -227,7 +226,7 @@ export default function EditBuktiKegiatan() {
                             <Label className="text-gray-600">Tambah Foto Baru</Label>
                             <div className="border-2 border-dashed rounded-xl py-8 flex flex-col items-center text-gray-500 px-4 bg-gray-50/50 hover:bg-gray-50 transition-colors">
                                 <div className="w-10 h-10 bg-gray-200 rounded-full mb-3 flex items-center justify-center text-xl">📸</div>
-                                <p className="mb-4 text-center text-sm">Drag & drop file atau klik untuk browse</p>
+                                <p className="mb-4 text-center text-sm">Seret & lepaskan file atau klik untuk browse</p>
                                 <label className="cursor-pointer">
                                     <span className="py-2 px-4 rounded-lg bg-[#8B1E1E] text-white text-sm font-semibold hover:bg-[#7a1a1a] transition-colors shadow-sm">
                                         Pilih File
@@ -268,20 +267,6 @@ export default function EditBuktiKegiatan() {
                                     ))}
                                 </div>
                             )}
-                        </div>
-                    </div>
-
-                    {/* Section Catatan */}
-                    <div className="space-y-4">
-                        <h2 className="text-lg font-semibold border-b pb-2">Catatan Kegiatan</h2>
-                        <div className="space-y-2">
-                            <Label>Deskripsi / Catatan</Label>
-                            <Input
-                                value={data.catatan}
-                                onChange={(e) => setData({ ...data, catatan: e.target.value })}
-                                placeholder="Masukkan catatan kegiatan..."
-                                className="h-12"
-                            />
                         </div>
                     </div>
 

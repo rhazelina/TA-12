@@ -1,4 +1,4 @@
-import { PostRealisasiKegiatanPkl } from "@/types/api";
+import { PostRealisasiKegiatanPkl, UpdateRealisasiKegiatanPkl } from "@/types/api";
 import axiosInstance from "@/utils/axios";
 
 export async function kegiatanPklActive() {
@@ -80,7 +80,7 @@ export async function uploadImages(data: FormData) {
 }
 export async function updateRealisasiKegiatanPkl(
   id: number,
-  data: PostRealisasiKegiatanPkl
+  data: UpdateRealisasiKegiatanPkl
 ) {
   try {
     const res = await axiosInstance.put(
