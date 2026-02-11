@@ -1,20 +1,22 @@
 "use client"
 
 import { getRealisasiKegiatanPklById } from "@/api/pembimbing"
-import { IBuktiKegiatan } from "@/types/api"
+import { IBuktiKegiatan, Industri } from "@/types/api"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
-import { ArrowLeft, Calendar, CheckCircle2, Clock, ImageIcon, User, Building } from "lucide-react"
+import { ArrowLeft, Calendar, CheckCircle2, Clock, ImageIcon, Building } from "lucide-react"
 import Image from "next/image"
+import { getIndustriById } from "@/api/admin/industri"
 
 export default function BuktiKegiatanDetail() {
     const [data, setData] = useState<IBuktiKegiatan | null>(null)
+    const [dataIndustry, setDataIndustry] = useState<Industri | null>(null)
     const [loading, setLoading] = useState(true)
     const { id } = useParams()
     const router = useRouter()
@@ -31,11 +33,29 @@ export default function BuktiKegiatanDetail() {
         }
     }
 
+    const fetchIndustry = async () => {
+        try {
+            setLoading(true)
+            const res = await getIndustriById(Number(data?.industri_id))
+            setDataIndustry(res.data)
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     useEffect(() => {
         if (id) {
             fetch()
         }
     }, [id])
+
+    useEffect(() => {
+        if (data) {
+            fetchIndustry()
+        }
+    }, [data?.industri_id])
 
     if (loading) {
         return (
@@ -121,8 +141,8 @@ export default function BuktiKegiatanDetail() {
                                     <Building className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">PT Damn Bro</p>
-                                    <p className="text-sm font-semibold text-gray-900">{data.nama_industri || data.industri_id}</p>
+                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Nama Industri</p>
+                                    <p className="text-sm font-semibold text-gray-900">{dataIndustry?.nama || "-"}</p>
                                 </div>
                             </div>
                         </div>
