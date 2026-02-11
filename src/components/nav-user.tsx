@@ -141,7 +141,7 @@ export function NavUser({ avatar
               }}>
 
                 <LogOut />
-                Log out
+                Keluar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { createJurusan } from "@/api/admin/jurusan"
+import { createJurusan, getJurusan } from "@/api/admin/jurusan"
 import { ArrowLeft, Save, GraduationCap, AlertCircle, BookOpen, User, ChevronsUpDown, Check } from "lucide-react"
 import { toast } from "sonner"
-import { Guru } from "@/types/api"
+import { Guru, Jurusan } from "@/types/api"
 import { getGuru } from "@/api/admin/guru"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
@@ -34,24 +34,35 @@ export default function CreateJurusanPage() {
     const [formData, setFormData] = useState<JurusanFormData>(initialFormData)
     const [errors, setErrors] = useState<Partial<Record<keyof JurusanFormData, string>>>({})
     const [dataKapro, setDataKapro] = useState<Guru[]>([])
+    const [jurusanList, setJurusanList] = useState<Jurusan[]>([])
     const [loadingKapro, setLoadingKapro] = useState(true)
     const [openKapro, setOpenKapro] = useState(false)
 
     useEffect(() => {
-        async function fetch() {
+        async function fetchInitialData() {
             try {
                 setLoadingKapro(true)
-                const response = await getGuru()
-                const kapro = response.data.data.filter((guru: Guru) => guru.is_kaprog === true)
-                setDataKapro(kapro)
+                const [guruRes, jurusanRes] = await Promise.all([
+                    getGuru(),
+                    getJurusan()
+                ])
+
+                if (guruRes && guruRes.data) {
+                    const kapro = guruRes.data.data.filter((guru: Guru) => guru.is_kaprog === true)
+                    setDataKapro(kapro)
+                }
+
+                if (jurusanRes && jurusanRes.data) {
+                    setJurusanList(jurusanRes.data.data)
+                }
             } catch (error) {
                 console.log(error)
-                toast.error('Gagal memuat data Kaprog')
+                toast.error('Gagal memuat data pendukung')
             } finally {
                 setLoadingKapro(false)
             }
         }
-        fetch()
+        fetchInitialData()
     }, [])
 
     const handleInputChange = (field: keyof JurusanFormData, value: string | number) => {
@@ -93,6 +104,18 @@ export default function CreateJurusanPage() {
 
         if (!formData.kaprog_guru_id || formData.kaprog_guru_id === 0) {
             newErrors.kaprog_guru_id = 'Kepala program studi wajib dipilih'
+        }
+
+        // Duplicate validation (kode AND nama)
+        const isDuplicate = jurusanList.some(jurusanItem =>
+            jurusanItem.kode.toUpperCase() === formData.kode.trim().toUpperCase() &&
+            jurusanItem.nama.toLowerCase() === formData.nama.trim().toLowerCase()
+        )
+
+        if (isDuplicate) {
+            const duplicateError = 'Kombinasi Kode dan Nama Jurusan sudah ada dalam sistem'
+            newErrors.kode = duplicateError
+            newErrors.nama = duplicateError
         }
 
         setErrors(newErrors)
@@ -259,8 +282,8 @@ export default function CreateJurusanPage() {
                                         {selectedKaprog
                                             ? `${selectedKaprog.nama} (${selectedKaprog.kode_guru})`
                                             : loadingKapro
-                                            ? "Memuat..."
-                                            : "Pilih Kepala Program Studi..."}
+                                                ? "Memuat..."
+                                                : "Pilih Kepala Program Studi..."}
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
