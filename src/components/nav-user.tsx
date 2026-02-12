@@ -158,7 +158,7 @@ export function NavUser({ avatar
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={logout}>Logout</AlertDialogAction>
+            <AlertDialogAction onClick={logout}>Keluar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
