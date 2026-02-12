@@ -199,7 +199,7 @@ export function LoginForm({
                         <Input
                           id="admin-username"
                           type="text"
-                          placeholder="Masukkan username"
+                          placeholder="Masukkan Nama Pengguna"
                           value={adminData.username}
                           onChange={(e) => setAdminData({ ...adminData, username: e.target.value })}
                           required
@@ -210,7 +210,7 @@ export function LoginForm({
                         <Input
                           id="admin-password"
                           type="password"
-                          placeholder="Masukkan password"
+                          placeholder="Masukkan Kata Sandi"
                           value={adminData.password}
                           onChange={(e) => setAdminData({ ...adminData, password: e.target.value })}
                           required
