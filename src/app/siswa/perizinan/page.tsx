@@ -245,7 +245,7 @@ export default function PerizinanPage() {
                                                     <SelectContent>
                                                         <SelectItem value="Sakit">Sakit</SelectItem>
                                                         <SelectItem value="Izin">Izin</SelectItem>
-                                                        <SelectItem value="Keperluan Keluarga">Keperluan Keluarga</SelectItem>
+                                                        <SelectItem value="Dispen">Dispen</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                                 <FormMessage />

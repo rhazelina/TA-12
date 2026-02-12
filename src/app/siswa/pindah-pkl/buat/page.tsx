@@ -343,7 +343,7 @@ export default function PindahPklPage() {
                                         <Upload className="h-5 w-5" />
                                     </div>
                                     <div className="text-sm font-medium text-gray-900">
-                                        Klik untuk upload atau drag & drop
+                                        Klik untuk unggah atau geser & letakkan
                                     </div>
                                     <div className="text-xs text-gray-500">
                                         Max 5 files (PDF, JPEG, PNG, max 5MB/file)
