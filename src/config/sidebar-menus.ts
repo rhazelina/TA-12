@@ -144,9 +144,9 @@ export const waliKelasMenus: SidebarMenuItem[] = [
 export const kaproMenus: SidebarMenuItem[] = [
   {
     name: "Beranda",
-    url: "/kapro/dashboard",
+    url: "/kapro/beranda",
     icon: Home,
-    pathName: ["dashboard"],
+    pathName: ["beranda"],
   },
   {
     name: "Tempat Magang",
@@ -199,6 +199,12 @@ export const siswaMenus: SidebarMenuItem[] = [
     url: "/siswa/pengajuan-pkl",
     icon: FileUp,
     pathName: ["pengajuan-pkl"],
+  },
+  {
+    name: "Kelompok",
+    url: "/siswa/kelompok",
+    icon: Users,
+    pathName: ["kelompok"],
   },
   {
     name: "Unggah Dokumen",

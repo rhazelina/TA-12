@@ -22,7 +22,7 @@ export const getGuruRoles = (guruData: GuruRoleData): Array<{
     const label = guruData.kaprog_jurusan
       ? `Kepala Konsentrasi Keahlian (${guruData.kaprog_jurusan})`
       : 'Kepala Konsentrasi Keahlian'
-    roles.push({ key: 'kapro', label, path: '/kapro/dashboard' })
+    roles.push({ key: 'kapro', label, path: '/kapro/beranda' })
   }
   if (guruData.is_koordinator) {
     roles.push({ key: 'koordinator', label: 'Pokja', path: '/koordinator/dashboard' })
@@ -50,7 +50,7 @@ export const hasMultipleRoles = (guruData: GuruRoleData): boolean => {
 }
 
 export const getGuruDefaultPath = (guruData: GuruRoleData): string => {
-  if (guruData.is_kaprog) return '/kapro/dashboard'
+  if (guruData.is_kaprog) return '/kapro/beranda'
   if (guruData.is_koordinator) return '/koordinator/dashboard'
   if (guruData.is_wali_kelas) return '/wali-kelas/dashboard'
   if (guruData.is_pembimbing) return '/pembimbing/dashboard'

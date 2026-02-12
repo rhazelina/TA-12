@@ -125,7 +125,7 @@ export function middleware(request: NextRequest) {
         case "gru":
           if (payload.is_kaprog) {
             return NextResponse.redirect(
-              new URL("/kapro/dashboard", request.url),
+              new URL("/kapro/beranda", request.url),
             );
           }
           if (payload.is_koordinator) {
