@@ -235,7 +235,7 @@ export function LoginForm({
                         <Input
                           id="guru-kode"
                           type="text"
-                          placeholder="Masukkan kode guru"
+                          placeholder="Masukkan Kode Guru"
                           value={guruData.kode_guru}
                           onChange={(e) => setGuruData({ ...guruData, kode_guru: e.target.value })}
                           required
@@ -246,7 +246,7 @@ export function LoginForm({
                         <Input
                           id="guru-password"
                           type="password"
-                          placeholder="Masukkan password"
+                          placeholder="Masukkan Kata Sandi"
                           value={guruData.password}
                           onChange={(e) => setGuruData({ ...guruData, password: e.target.value })}
                           required
@@ -271,7 +271,7 @@ export function LoginForm({
                         <Input
                           id="siswa-nama"
                           type="text"
-                          placeholder="Masukkan nama lengkap"
+                          placeholder="Masukkan Nama Lengkap"
                           value={siswaData.nama_lengkap}
                           onChange={(e) => setSiswaData({ ...siswaData, nama_lengkap: e.target.value })}
                           required

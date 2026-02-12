@@ -151,9 +151,9 @@ export function NavUser({ avatar
       <AlertDialog onOpenChange={setOpen} open={open}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Apakah anda yakin ingin logout?</AlertDialogTitle>
+            <AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
             <AlertDialogDescription>
-              Pastikan data anda tersimpan sebelum logout
+              Pastikan data anda tersimpan sebelum keluar
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -238,7 +238,7 @@ export default function PindahPklPembimbingPage() {
 
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col gap-1">
-                                                    <div className="flex items-center gap-2 text-red-600 text-xs line-through opacity-70">
+                                                    <div className="flex items-center gap-2 text-red-600 text-xs opacity-70">
                                                         <span>{item.industri_lama_nama}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-green-700 font-medium">

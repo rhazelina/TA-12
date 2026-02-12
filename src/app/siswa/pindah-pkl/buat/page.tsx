@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Loader2, Building2, Check, ChevronsUpDown, X, Upload, FileText } from "lucide-react"
 import { getIndustri, getIndustriById } from "@/api/admin/industri"
-import { requestPindahPklSiswa } from "@/api/siswa"
+import { getActivePklBySiswa, requestPindahPklSiswa } from "@/api/siswa"
 import { cn } from "@/lib/utils"
 import {
     Command,
@@ -30,7 +30,6 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useRouter } from "next/navigation"
 
 export default function PindahPklPage() {
-    const { dataPengajuan, loading: loadingPengajuan } = useSiswaPengajuanData()
     const { siswa } = useSiswaDataLogin()
     const { jurusan } = useJurusanSiswaLogin()
     const router = useRouter()
@@ -54,19 +53,26 @@ export default function PindahPklPage() {
 
     const debouncedSearch = useDebounce(searchQuery, 300)
 
+    const [loading, setLoading] = React.useState(true)
+
     // Check for Active PKL
     React.useEffect(() => {
-        if (dataPengajuan) {
-            const approved = dataPengajuan.find(p => p.status === "Approved")
-            setActivePkl(approved || null)
-
-            if (approved) {
-                getIndustriById(approved.industri_id).then(res => {
-                    setCurrentIndustriName(res?.data?.nama || "Unknown Industry")
-                }).catch(() => setCurrentIndustriName("Error loading industry"))
+        setLoading(true)
+        const fetchActivePkl = async () => {
+            try {
+                const res = await getActivePklBySiswa()
+                if (res) {
+                    setActivePkl(res)
+                }
+            } catch (error) {
+                console.error("Failed to fetch active PKL", error)
+                toast.error("Gagal memuat data PKL")
+            } finally {
+                setLoading(false)
             }
         }
-    }, [dataPengajuan])
+        fetchActivePkl()
+    }, [])
 
     // Load Industries (Debounced)
     React.useEffect(() => {
@@ -95,6 +101,15 @@ export default function PindahPklPage() {
         }
     }, [debouncedSearch, open, jurusan?.id])
 
+    React.useEffect(() => {
+        const fetchIndustriById = async () => {
+            if (activePkl?.industri_id) {
+                const industry = await getIndustriById(activePkl.industri_id)
+                setCurrentIndustriName(industry?.data.nama || "")
+            }
+        }
+        fetchIndustriById()
+    }, [activePkl])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -183,7 +198,7 @@ export default function PindahPklPage() {
         }
     }
 
-    if (loadingPengajuan) {
+    if (loading) {
         return (
             <div className="flex h-screen items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -191,11 +206,9 @@ export default function PindahPklPage() {
         )
     }
 
-    console.log(dataPengajuan)
-
     if (!activePkl) {
         return (
-            <div className="p-8 max-w-4xl mx-auto">
+            <div className="p-8 max-w-4xl mx-10">
                 <Card className="bg-orange-50 border-orange-200">
                     <CardHeader>
                         <CardTitle className="text-orange-700 flex items-center gap-2">
