@@ -274,10 +274,6 @@ export default function BuktiDiterimaPage() {
                                                         <Eye className="h-4 w-4" />
                                                         <span className="sr-only">Lihat</span>
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50">
-                                                        <Download className="h-4 w-4" />
-                                                        <span className="sr-only">Unduh</span>
-                                                    </Button>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
