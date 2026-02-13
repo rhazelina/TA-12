@@ -29,12 +29,14 @@ export function RoleSwitcher({ guruData, open }: RoleSwitcherProps) {
   const router = useRouter()
   const pathname = usePathname()
 
-  if (!guruData || !hasMultipleRoles(guruData)) {
+  if (!guruData) {
     return null
   }
 
   const roles = getGuruRoles(guruData)
   const currentRole = roles.find(role => pathname.startsWith(`/${role.key}`))
+
+  console.log(roles)
 
   return (
     <SidebarMenu>
