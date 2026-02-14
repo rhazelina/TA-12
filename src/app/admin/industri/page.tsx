@@ -161,7 +161,7 @@ export default function IndustriManagement() {
       label: 'Status',
       render: (value: unknown) => (
         <Badge variant={(value as boolean) ? 'success' : 'destructive'}>
-          {(value as boolean) ? 'Active' : 'Inactive'}
+          {(value as boolean) ? 'Aktif' : 'Tidak Aktif'}
         </Badge>
       ),
     },

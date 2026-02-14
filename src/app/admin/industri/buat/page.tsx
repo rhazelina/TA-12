@@ -195,301 +195,301 @@ export default function CreateIndustriPage() {
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleBack}
-                            className="flex items-center space-x-2"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            <span>Kembali</span>
-                        </Button>
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Buat Data Industri</h1>
-                            <p className="text-gray-600">Tambahkan mitra industri baru ke sistem</p>
-                        </div>
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleBack}
+                        className="flex items-center space-x-2"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        <span>Kembali</span>
+                    </Button>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Buat Data Industri</h1>
+                        <p className="text-gray-600">Tambahkan mitra industri baru ke sistem</p>
                     </div>
                 </div>
+            </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Basic Information */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center space-x-2">
-                                <Building className="h-5 w-5" />
-                                <span>Informasi Industri</span>
-                            </CardTitle>
-                            <CardDescription>
-                                Data dasar industri/perusahaan mitra
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="nama">
-                                        Nama Industri <span className="text-red-500">*</span>
-                                    </Label>
-                                    <Input
-                                        id="nama"
-                                        type="text"
-                                        value={formData.nama}
-                                        onChange={(e) => handleInputChange('nama', e.target.value)}
-                                        placeholder="e.g., PT. Teknologi Indonesia"
-                                        className={errors.nama ? 'border-red-500' : ''}
-                                        maxLength={100}
-                                    />
-                                    {errors.nama && (
-                                        <p className="text-sm text-red-500 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
-                                            {errors.nama}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="bidang" className="flex items-center space-x-1">
-                                        <Briefcase className="h-4 w-4" />
-                                        <span>Bidang Usaha</span>
-                                    </Label>
-                                    <Input
-                                        id="bidang"
-                                        type="text"
-                                        value={formData.bidang}
-                                        onChange={(e) => handleInputChange('bidang', e.target.value)}
-                                        placeholder="e.g., Teknologi Informasi"
-                                        className={errors.bidang ? 'border-red-500' : ''}
-                                    />
-                                    {errors.bidang && (
-                                        <p className="text-sm text-red-500 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
-                                            {errors.bidang}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="jurusan_id">
-                                        Jurusan Terkait <span className="text-red-500">*</span>
-                                    </Label>
-                                    {loadingJurusan ? (
-                                        <div className="flex items-center justify-center h-10 border rounded-md bg-gray-50">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
-                                            <span className="ml-2 text-sm text-gray-500">Memuat jurusan...</span>
-                                        </div>
-                                    ) : (
-                                        <Popover open={open} onOpenChange={setOpen}>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    role="combobox"
-                                                    aria-expanded={open}
-                                                    className={`w-full justify-between ${errors.jurusan_id ? 'border-red-500' : ''} ${!formData.jurusan_id || formData.jurusan_id === 0 ? 'text-muted-foreground' : ''}`}
-                                                    disabled={loadingJurusan}
-                                                >
-                                                    {formData.jurusan_id && formData.jurusan_id !== 0
-                                                        ? jurusanOptions.find((jurusan) => jurusan.id === formData.jurusan_id)?.nama
-                                                        : "Pilih jurusan..."}
-                                                    <Building className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-full p-0">
-                                                <Command>
-                                                    <CommandInput placeholder="Cari jurusan..." />
-                                                    <CommandList>
-                                                        <CommandEmpty>Jurusan tidak ditemukan.</CommandEmpty>
-                                                        <CommandGroup>
-                                                            {jurusanOptions.map((jurusan) => (
-                                                                <CommandItem
-                                                                    key={jurusan.id}
-                                                                    value={`${jurusan.kode} ${jurusan.nama}`}
-                                                                    onSelect={() => {
-                                                                        handleInputChange('jurusan_id', jurusan.id)
-                                                                        setOpen(false)
-                                                                    }}
-                                                                >
-                                                                    <Check className={`mr-2 h-4 w-4 ${formData.jurusan_id === jurusan.id ? 'opacity-100' : 'opacity-0'}`} />
-                                                                    <div className="flex items-center space-x-2">
-                                                                        <span className="font-mono text-sm font-semibold">
-                                                                            {jurusan.kode}
-                                                                        </span>
-                                                                        <span>-</span>
-                                                                        <span>{jurusan.nama}</span>
-                                                                    </div>
-                                                                </CommandItem>
-                                                            ))}
-                                                        </CommandGroup>
-                                                    </CommandList>
-                                                </Command>
-                                            </PopoverContent>
-                                        </Popover>
-                                    )}
-                                    {errors.jurusan_id && (
-                                        <p className="text-sm text-red-500 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
-                                            {errors.jurusan_id}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="email" className="flex items-center space-x-1">
-                                        <Mail className="h-4 w-4" />
-                                        <span>Email</span>
-                                    </Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => handleInputChange('email', e.target.value)}
-                                        placeholder="e.g., info@perusahaan.com"
-                                        className={errors.email ? 'border-red-500' : ''}
-                                    />
-                                    {errors.email && (
-                                        <p className="text-sm text-red-500 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
-                                            {errors.email}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="no_telp" className="flex items-center space-x-1">
-                                        <Phone className="h-4 w-4" />
-                                        <span>No. Telepon</span>
-                                    </Label>
-                                    <Input
-                                        id="no_telp"
-                                        type="tel"
-                                        value={formData.no_telp}
-                                        onChange={(e) => handleInputChange('no_telp', e.target.value)}
-                                        placeholder="e.g., 021-12345678"
-                                        className={errors.no_telp ? 'border-red-500' : ''}
-                                    />
-                                    {errors.no_telp && (
-                                        <p className="text-sm text-red-500 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
-                                            {errors.no_telp}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Basic Information */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                            <Building className="h-5 w-5" />
+                            <span>Informasi Industri</span>
+                        </CardTitle>
+                        <CardDescription>
+                            Data dasar industri/perusahaan mitra
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="alamat" className="flex items-center space-x-1">
-                                    <MapPin className="h-4 w-4" />
-                                    <span>Alamat <span className="text-red-500">*</span></span>
+                                <Label htmlFor="nama">
+                                    Nama Industri <span className="text-red-500">*</span>
                                 </Label>
-                                <Textarea
-                                    id="alamat"
-                                    value={formData.alamat}
-                                    onChange={(e) => handleInputChange('alamat', e.target.value)}
-                                    placeholder="Masukkan alamat lengkap industri"
-                                    rows={3}
-                                    className={errors.alamat ? 'border-red-500' : ''}
+                                <Input
+                                    id="nama"
+                                    type="text"
+                                    value={formData.nama}
+                                    onChange={(e) => handleInputChange('nama', e.target.value)}
+                                    placeholder="e.g., PT. Teknologi Indonesia"
+                                    className={errors.nama ? 'border-red-500' : ''}
+                                    maxLength={100}
                                 />
-                                {errors.alamat && (
+                                {errors.nama && (
                                     <p className="text-sm text-red-500 flex items-center">
                                         <AlertCircle className="h-4 w-4 mr-1" />
-                                        {errors.alamat}
+                                        {errors.nama}
                                     </p>
                                 )}
                             </div>
-                        </CardContent>
-                    </Card>
 
-                    {/* Contact Person Information */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center space-x-2">
-                                <User className="h-5 w-5" />
-                                <span>Informasi Person in Charge (PIC)</span>
-                            </CardTitle>
-                            <CardDescription>
-                                Data kontak person yang bertanggung jawab
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="pic">Nama PIC</Label>
-                                    <Input
-                                        id="pic"
-                                        type="text"
-                                        value={formData.pic}
-                                        onChange={(e) => handleInputChange('pic', e.target.value)}
-                                        placeholder="e.g., Budi Santoso"
-                                        className={errors.pic ? 'border-red-500' : ''}
-                                    />
-                                    {errors.pic && (
-                                        <p className="text-sm text-red-500 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
-                                            {errors.pic}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="pic_telp" className="flex items-center space-x-1">
-                                        <Phone className="h-4 w-4" />
-                                        <span>No. Telepon PIC</span>
-                                    </Label>
-                                    <Input
-                                        id="pic_telp"
-                                        type="tel"
-                                        value={formData.pic_telp}
-                                        onChange={(e) => handleInputChange('pic_telp', e.target.value)}
-                                        placeholder="e.g., 081234567890"
-                                        className={errors.pic_telp ? 'border-red-500' : ''}
-                                    />
-                                    {errors.pic_telp && (
-                                        <p className="text-sm text-red-500 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
-                                            {errors.pic_telp}
-                                        </p>
-                                    )}
-                                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="bidang" className="flex items-center space-x-1">
+                                    <Briefcase className="h-4 w-4" />
+                                    <span>Bidang Usaha</span>
+                                </Label>
+                                <Input
+                                    id="bidang"
+                                    type="text"
+                                    value={formData.bidang}
+                                    onChange={(e) => handleInputChange('bidang', e.target.value)}
+                                    placeholder="e.g., Teknologi Informasi"
+                                    className={errors.bidang ? 'border-red-500' : ''}
+                                />
+                                {errors.bidang && (
+                                    <p className="text-sm text-red-500 flex items-center">
+                                        <AlertCircle className="h-4 w-4 mr-1" />
+                                        {errors.bidang}
+                                    </p>
+                                )}
                             </div>
-                        </CardContent>
-                    </Card>
 
+                            <div className="space-y-2">
+                                <Label htmlFor="jurusan_id">
+                                    Kosentrasi Keahlian Terkait <span className="text-red-500">*</span>
+                                </Label>
+                                {loadingJurusan ? (
+                                    <div className="flex items-center justify-center h-10 border rounded-md bg-gray-50">
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                                        <span className="ml-2 text-sm text-gray-500">Memuat jurusan...</span>
+                                    </div>
+                                ) : (
+                                    <Popover open={open} onOpenChange={setOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={open}
+                                                className={`w-full justify-between ${errors.jurusan_id ? 'border-red-500' : ''} ${!formData.jurusan_id || formData.jurusan_id === 0 ? 'text-muted-foreground' : ''}`}
+                                                disabled={loadingJurusan}
+                                            >
+                                                {formData.jurusan_id && formData.jurusan_id !== 0
+                                                    ? jurusanOptions.find((jurusan) => jurusan.id === formData.jurusan_id)?.nama
+                                                    : "Pilih Kosentrasi Keahlian..."}
+                                                <Building className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandInput placeholder="Cari jurusan..." />
+                                                <CommandList>
+                                                    <CommandEmpty>Jurusan tidak ditemukan.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {jurusanOptions.map((jurusan) => (
+                                                            <CommandItem
+                                                                key={jurusan.id}
+                                                                value={`${jurusan.kode} ${jurusan.nama}`}
+                                                                onSelect={() => {
+                                                                    handleInputChange('jurusan_id', jurusan.id)
+                                                                    setOpen(false)
+                                                                }}
+                                                            >
+                                                                <Check className={`mr-2 h-4 w-4 ${formData.jurusan_id === jurusan.id ? 'opacity-100' : 'opacity-0'}`} />
+                                                                <div className="flex items-center space-x-2">
+                                                                    <span className="font-mono text-sm font-semibold">
+                                                                        {jurusan.kode}
+                                                                    </span>
+                                                                    <span>-</span>
+                                                                    <span>{jurusan.nama}</span>
+                                                                </div>
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                )}
+                                {errors.jurusan_id && (
+                                    <p className="text-sm text-red-500 flex items-center">
+                                        <AlertCircle className="h-4 w-4 mr-1" />
+                                        {errors.jurusan_id}
+                                    </p>
+                                )}
+                            </div>
 
+                            <div className="space-y-2">
+                                <Label htmlFor="email" className="flex items-center space-x-1">
+                                    <Mail className="h-4 w-4" />
+                                    <span>Email</span>
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    placeholder="e.g., info@perusahaan.com"
+                                    className={errors.email ? 'border-red-500' : ''}
+                                />
+                                {errors.email && (
+                                    <p className="text-sm text-red-500 flex items-center">
+                                        <AlertCircle className="h-4 w-4 mr-1" />
+                                        {errors.email}
+                                    </p>
+                                )}
+                            </div>
 
-                    {/* Submit Buttons */}
-                    <div className="flex justify-end">
-                        <div className="flex space-x-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleReset}
-                                disabled={loading}
-                                className="mr-2"
-                            >
-                                Reset Form
-                            </Button>
+                            <div className="space-y-2">
+                                <Label htmlFor="no_telp" className="flex items-center space-x-1">
+                                    <Phone className="h-4 w-4" />
+                                    <span>No. Telepon</span>
+                                </Label>
+                                <Input
+                                    id="no_telp"
+                                    type="tel"
+                                    value={formData.no_telp}
+                                    onChange={(e) => handleInputChange('no_telp', e.target.value)}
+                                    placeholder="e.g., 021-12345678"
+                                    className={errors.no_telp ? 'border-red-500' : ''}
+                                />
+                                {errors.no_telp && (
+                                    <p className="text-sm text-red-500 flex items-center">
+                                        <AlertCircle className="h-4 w-4 mr-1" />
+                                        {errors.no_telp}
+                                    </p>
+                                )}
+                            </div>
                         </div>
 
-                        <Button
-                            type="submit"
-                            disabled={loading || loadingJurusan}
-                            className="flex items-center space-x-2 min-w-[150px]"
-                        >
-                            {loading ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    <span>Menyimpan...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="h-4 w-4" />
-                                    <span>Simpan Data Industri</span>
-                                </>
+                        <div className="space-y-2">
+                            <Label htmlFor="alamat" className="flex items-center space-x-1">
+                                <MapPin className="h-4 w-4" />
+                                <span>Alamat <span className="text-red-500">*</span></span>
+                            </Label>
+                            <Textarea
+                                id="alamat"
+                                value={formData.alamat}
+                                onChange={(e) => handleInputChange('alamat', e.target.value)}
+                                placeholder="Masukkan alamat lengkap industri"
+                                rows={3}
+                                className={errors.alamat ? 'border-red-500' : ''}
+                            />
+                            {errors.alamat && (
+                                <p className="text-sm text-red-500 flex items-center">
+                                    <AlertCircle className="h-4 w-4 mr-1" />
+                                    {errors.alamat}
+                                </p>
                             )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Contact Person Information */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                            <User className="h-5 w-5" />
+                            <span>Informasi Pembimbing Industri</span>
+                        </CardTitle>
+                        <CardDescription>
+                            Data kontak yang bertanggung jawab
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="pic">Nama Pembimbing</Label>
+                                <Input
+                                    id="pic"
+                                    type="text"
+                                    value={formData.pic}
+                                    onChange={(e) => handleInputChange('pic', e.target.value)}
+                                    placeholder="e.g., Budi Santoso"
+                                    className={errors.pic ? 'border-red-500' : ''}
+                                />
+                                {errors.pic && (
+                                    <p className="text-sm text-red-500 flex items-center">
+                                        <AlertCircle className="h-4 w-4 mr-1" />
+                                        {errors.pic}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="pic_telp" className="flex items-center space-x-1">
+                                    <Phone className="h-4 w-4" />
+                                    <span>No. Telepon Pembimbing</span>
+                                </Label>
+                                <Input
+                                    id="pic_telp"
+                                    type="tel"
+                                    value={formData.pic_telp}
+                                    onChange={(e) => handleInputChange('pic_telp', e.target.value)}
+                                    placeholder="e.g., 081234567890"
+                                    className={errors.pic_telp ? 'border-red-500' : ''}
+                                />
+                                {errors.pic_telp && (
+                                    <p className="text-sm text-red-500 flex items-center">
+                                        <AlertCircle className="h-4 w-4 mr-1" />
+                                        {errors.pic_telp}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+
+
+                {/* Submit Buttons */}
+                <div className="flex justify-end">
+                    <div className="flex space-x-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleReset}
+                            disabled={loading}
+                            className="mr-2"
+                        >
+                            Muat Ulang
                         </Button>
                     </div>
-                </form>
-            </div>
+
+                    <Button
+                        type="submit"
+                        disabled={loading || loadingJurusan}
+                        className="flex items-center space-x-2 min-w-[150px]"
+                    >
+                        {loading ? (
+                            <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <span>Menyimpan...</span>
+                            </>
+                        ) : (
+                            <>
+                                <Save className="h-4 w-4" />
+                                <span>Simpan Data Industri</span>
+                            </>
+                        )}
+                    </Button>
+                </div>
+            </form>
+        </div>
     )
 }

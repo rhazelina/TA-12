@@ -261,7 +261,7 @@ export function DataTable<T = Record<string, unknown>>({
                       </div>
                     </TableHead>
                   ))}
-                  <TableHead className="w-[50px]">Actions</TableHead>
+                  <TableHead className="w-[50px]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

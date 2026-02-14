@@ -237,7 +237,7 @@ export default function EditKelasPage() {
                         <span>Kembali</span>
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Edit Data Kelas</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">Ubah Data Kelas</h1>
                         <p className="text-gray-600">Perbarui informasi kelas dalam sistem</p>
                     </div>
                 </div>
