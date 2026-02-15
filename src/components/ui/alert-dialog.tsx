@@ -5,6 +5,7 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { type VariantProps } from "class-variance-authority"
 
 function AlertDialog({
   ...props
@@ -76,6 +77,19 @@ function AlertDialogHeader({
   )
 }
 
+function AlertDialogHeaderImage({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="alert-dialog-header-image"
+      className={cn("flex items-center justify-center pt-6", className)}
+      {...props}
+    />
+  )
+}
+
 function AlertDialogFooter({
   className,
   ...props
@@ -120,11 +134,14 @@ function AlertDialogDescription({
 
 function AlertDialogAction({
   className,
+  variant,
+  size,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Action> &
+  VariantProps<typeof buttonVariants>) {
   return (
     <AlertDialogPrimitive.Action
-      className={cn(buttonVariants(), className)}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   )
@@ -132,11 +149,14 @@ function AlertDialogAction({
 
 function AlertDialogCancel({
   className,
+  variant = "outline",
+  size,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> &
+  VariantProps<typeof buttonVariants>) {
   return (
     <AlertDialogPrimitive.Cancel
-      className={cn(buttonVariants({ variant: "outline" }), className)}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   )
@@ -149,6 +169,7 @@ export {
   AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
+  AlertDialogHeaderImage,
   AlertDialogFooter,
   AlertDialogTitle,
   AlertDialogDescription,
