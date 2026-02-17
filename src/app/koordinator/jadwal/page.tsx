@@ -298,7 +298,7 @@ export default function JadwalPage() {
                 <AlertDialogContent>
                     <AlertDialogHeaderImage>
                         <div className="p-3">
-                            <img src="/avatars/woman-holding-box.jpg" alt="Error" className=" h-24 object-cover" />
+                            <img src="/avatars/man-trash.png" alt="Error" className=" h-24 object-cover" />
                         </div>
                     </AlertDialogHeaderImage>
                     <AlertDialogHeader>
