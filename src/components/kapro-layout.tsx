@@ -2,33 +2,11 @@
 
 import RoleBasedLayout from "@/components/role-based-layout"
 import { useRoleAccess } from "@/hooks/useRoleAccess"
-
-import { MeKaprog } from "@/api/kapro/indext";
-import { useEffect, useState } from "react";
+import { useDataJurusanByKaporg } from "@/contexts/dataJurusanByKaporg";
 
 export default function KaproLayout({ children, pathname }: { children: React.ReactNode, pathname: string }) {
     const { hasAccess, loading, guruData } = useRoleAccess('kapro')
-    const [departmentName, setDepartmentName] = useState<string>("");
-
-    useEffect(() => {
-        const fetchDepartment = async () => {
-            if (guruData?.is_kaprog) {
-                try {
-                    const res = await MeKaprog();
-                    if (res?.data?.data && res.data.data.length > 0) {
-                        // Assuming response structure: { data: { data: [{ nama: "Teknik Tata Boga", ... }] } }
-                        setDepartmentName(res.data.data[0].kode);
-                    }
-                } catch (error) {
-                    console.error("Failed to fetch department info", error);
-                }
-            }
-        };
-
-        if (guruData) {
-            fetchDepartment();
-        }
-    }, [guruData]);
+    const departmentName = useDataJurusanByKaporg();
 
     if (loading) {
         return <div className="flex items-center justify-center h-screen">Loading...</div>

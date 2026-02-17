@@ -1,10 +1,12 @@
 "use client"
 
 import RoleBasedLayout from "@/components/role-based-layout"
+import { useDataJurusanByKaporg } from "@/contexts/dataJurusanByKaporg";
 import { useRoleAccess } from "@/hooks/useRoleAccess"
 
 export default function PembimbingLayout({ children, pathname }: { children: React.ReactNode, pathname: string }) {
     const { hasAccess, loading, guruData } = useRoleAccess('pembimbing')
+    const departmentName = useDataJurusanByKaporg();
 
     if (loading) {
         return <div className="flex items-center justify-center h-screen">Loading...</div>
@@ -23,6 +25,7 @@ export default function PembimbingLayout({ children, pathname }: { children: Rea
                 is_koordinator: guruData?.is_koordinator,
                 is_wali_kelas: guruData?.is_wali_kelas,
                 is_kaprog: guruData?.is_kaprog,
+                kaprog_jurusan: departmentName
             }}
             breadcrumbTitle={pathname}
         >
