@@ -31,7 +31,7 @@ export const getGuruRoles = (guruData: GuruRoleData): Array<{
     roles.push({ key: 'wali-kelas', label: 'Wali Kelas', path: '/wali-kelas/dashboard' })
   }
   if (guruData.is_pembimbing) {
-    roles.push({ key: 'pembimbing', label: 'Pembimbing', path: '/pembimbing/dashboard' })
+    roles.push({ key: 'pembimbing', label: 'Pembimbing', path: '/pembimbing/beranda' })
   }
 
   return roles

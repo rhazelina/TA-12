@@ -30,9 +30,9 @@ export interface SidebarConfig {
 export const pembimbingMenus: SidebarMenuItem[] = [
   {
     name: "Beranda",
-    url: "/pembimbing/dashboard",
+    url: "/pembimbing/beranda",
     icon: Home,
-    pathName: ["dashboard", "data-industri", "data-siswa", "detail-siswa"],
+    pathName: ["beranda", "data-industri", "data-siswa", "detail-siswa"],
   },
   {
     name: "Jadwal & Unggah Bukti",

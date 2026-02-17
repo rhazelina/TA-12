@@ -60,7 +60,7 @@ export default function Dashboard() {
                   {data?.summary.total_tasks ?? 0}
                 </h2>
                 <p className="text-sm text-yellow-600 mt-3">
-                  {data?.summary.pending_tasks ?? 0} Pending
+                  {data?.summary.pending_tasks ?? 0} tertunda
                 </p>
               </div>
               <div className="w-16 h-16 bg-[#dcefff] rounded-lg flex items-center justify-center">

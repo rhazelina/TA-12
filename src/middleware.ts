@@ -140,7 +140,7 @@ export function middleware(request: NextRequest) {
           }
           if (payload.is_pembimbing) {
             return NextResponse.redirect(
-              new URL("/pembimbing/dashboard", request.url),
+              new URL("/pembimbing/beranda", request.url),
             );
           }
         default:
