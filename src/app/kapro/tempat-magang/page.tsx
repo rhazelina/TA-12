@@ -7,6 +7,17 @@ import { useEffect, useState } from "react";
 import { Building2, Plus, Search, AlertCircle, CheckCircle, Edit, Settings, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogHeaderImage,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import axiosInstance from "@/utils/axios";
 import { toast } from "sonner";
@@ -290,20 +301,25 @@ export default function TempatMagangPage() {
             </Dialog>
 
             {/* Dialog Delete Confirmation */}
-            <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className="text-red-600">Hapus Industri?</DialogTitle>
-                        <DialogDescription>
+            <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeaderImage>
+                        <div className="p-3">
+                            <img src="/avatars/man-trash.png" alt="Error" className="h-24 object-cover" />
+                        </div>
+                    </AlertDialogHeaderImage>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-destructive">Hapus Industri?</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Tindakan ini tidak dapat dibatalkan. Ini akan menghapus data industri
                             <span className="font-bold text-gray-900"> {industryToDelete?.nama} </span>
                             secara permanen.
-                        </DialogDescription>
-                    </DialogHeader>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
 
-                    <div className="py-4">
-                        <p className="text-sm text-gray-600 mb-2">
-                            Ketik <span className="font-bold select-all">{industryToDelete?.nama}</span> untuk konfirmasi.
+                    <div className="py-2">
+                        <p className="text-sm text-muted-foreground mb-2">
+                            Ketik <span className="font-bold select-all text-foreground">{industryToDelete?.nama}</span> untuk konfirmasi.
                         </p>
                         <Input
                             value={deleteConfirmationText}
@@ -313,25 +329,23 @@ export default function TempatMagangPage() {
                         />
                     </div>
 
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
                             onClick={() => setIsDeleteModalOpen(false)}
                             disabled={isDeleting}
                         >
                             Batal
-                        </Button>
-                        <Button
-                            variant="destructive"
+                        </AlertDialogCancel>
+                        <AlertDialogAction
                             onClick={handleDeleteSubmit}
                             disabled={deleteConfirmationText !== industryToDelete?.nama || isDeleting}
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                         >
                             {isDeleting ? "Menghapus..." : "Hapus Industri"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

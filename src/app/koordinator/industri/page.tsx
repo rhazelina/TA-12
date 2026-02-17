@@ -29,12 +29,14 @@ import {
     AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
+    AlertDialogHeaderImage,
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 
 export default function IndustriPage() {
@@ -136,6 +138,7 @@ export default function IndustriPage() {
             fetchIndustriData(1, debouncedSearch, true);
             setDeleteDialogOpen(false);
             setIndustryToDelete(null);
+            toast.success('Industry berhasil dihapus');
         } catch (error) {
             console.error("Failed to delete", error);
         } finally {
@@ -295,6 +298,11 @@ export default function IndustriPage() {
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
+                    <AlertDialogHeaderImage>
+                        <div className="p-3">
+                            <img src="/avatars/man-trash.png" alt="Error" className=" h-24 object-cover" />
+                        </div>
+                    </AlertDialogHeaderImage>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
                         <AlertDialogDescription>

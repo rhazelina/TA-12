@@ -9,6 +9,7 @@ import {
     AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
+    AlertDialogHeaderImage,
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
@@ -447,6 +448,11 @@ export default function PerizinanPage() {
 
             <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                 <AlertDialogContent>
+                    <AlertDialogHeaderImage>
+                        <div className="p-3">
+                            <img src="/avatars/man-trash.png" alt="Error" className=" h-24 object-cover" />
+                        </div>
+                    </AlertDialogHeaderImage>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
                         <AlertDialogDescription>
