@@ -52,7 +52,7 @@ export function RoleSwitcher({ guruData, open }: RoleSwitcherProps) {
                   {currentRole?.label || "Pilih Role"}
                 </span>
                 <span className="text-xs text-white">
-                  Switch role
+                  Ganti Peran
                 </span>
               </div>
               <ChevronsUpDown className="mx-auto" />
