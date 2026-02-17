@@ -34,8 +34,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 
-
-
 const formSchema = z.object({
     jenis: z.string().min(1, "Jenis izin harus dipilih"),
     tanggal: z.date({
