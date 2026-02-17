@@ -3,7 +3,7 @@
 import { getIzinBySiswa, createIzin, deleteIzinBySiswa, updateIzinBySiswa } from "@/api/siswa";
 import { ResponseIzinBySiswa } from "@/types/api";
 import { useEffect, useState } from "react";
-import { Plus, Calendar as CalendarIcon, FileText, Loader2, Clock, CheckCircle, XCircle, Pencil, Trash2 } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, FileText, Loader2, Clock, CheckCircle, XCircle, Pencil, Trash2, Paperclip } from "lucide-react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -321,17 +321,49 @@ export default function PerizinanPage() {
                                             <FormItem>
                                                 <FormLabel>Bukti Foto (Khusus Sakit)</FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        type="file"
-                                                        accept="image/png, image/jpeg"
-                                                        ref={field.ref}
-                                                        name={field.name}
-                                                        onBlur={field.onBlur}
-                                                        onChange={(e) => {
-                                                            field.onChange(e.target.files);
-                                                        }}
-                                                        multiple
-                                                    />
+                                                    <div className="flex flex-col gap-2">
+                                                        <input
+                                                            type="file"
+                                                            accept="image/png, image/jpeg"
+                                                            id="file-upload"
+                                                            className="hidden"
+                                                            ref={field.ref}
+                                                            name={field.name}
+                                                            onBlur={field.onBlur}
+                                                            onChange={(e) => {
+                                                                const files = e.target.files;
+                                                                if (!files) return;
+
+                                                                if (files.length > 3) {
+                                                                    toast.warning("Maksimal 3 file");
+                                                                    return;
+                                                                }
+                                                                for (let i = 0; i < files.length; i++) {
+                                                                    const file = files[i];
+                                                                    if (file.size > 5 * 1024 * 1024) {
+                                                                        toast.warning("File terlalu besar");
+                                                                        return;
+                                                                    }
+                                                                    if (file.type !== "image/png" && file.type !== "image/jpeg") {
+                                                                        toast.warning("File harus berupa gambar");
+                                                                        return;
+                                                                    }
+                                                                }
+                                                                field.onChange(files);
+                                                            }
+                                                            }
+                                                            multiple
+                                                        />
+                                                        <label
+                                                            htmlFor="file-upload"
+                                                            className="flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-muted/50 transition-colors w-full text-sm text-muted-foreground"
+                                                        >
+                                                            <Paperclip className="w-4 h-4" />
+                                                            {field.value && field.value.length > 0
+                                                                ? `${field.value.length} file dipilih`
+                                                                : "Pilih file bukti..."}
+                                                        </label>
+                                                    </div>
                                                 </FormControl>
                                                 <FormDescription>
                                                     Unggah foto surat dokter atau bukti lainnya (Wajib jika Sakit). Maks 3 Foto
