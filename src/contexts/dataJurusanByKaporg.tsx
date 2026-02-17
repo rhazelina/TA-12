@@ -30,7 +30,7 @@ export default function DataJurusanByKaporgProvider({ children }: { children: Re
 
 export function useDataJurusanByKaporg() {
     const ctx = useContext(context)
-    if (!ctx) {
+    if (ctx === null) {
         throw new Error("useDataJurusanByKaporg must be used within a DataJurusanByKaporgProvider")
     }
     return ctx
