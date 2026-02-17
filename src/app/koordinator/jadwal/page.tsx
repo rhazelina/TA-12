@@ -12,6 +12,7 @@ import {
     AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
+    AlertDialogHeaderImage,
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
@@ -43,6 +44,7 @@ import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function JadwalPage() {
     const [data, setData] = useState<jadwalPkl[]>([])
@@ -100,66 +102,38 @@ export default function JadwalPage() {
             </div>
 
             {/* Premium Horizontal Timeline UI */}
-            <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-background via-muted/20 to-muted/50 p-1 shadow-2xl">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent)] pointer-events-none" />
-                <Card className="border-none bg-transparent shadow-none">
-                    <CardContent className="p-10">
-                        <div className="relative flex flex-col md:flex-row justify-between items-center gap-12 md:gap-4 px-4">
-                            {/* Timeline Track */}
-                            <div className="absolute top-[32px] left-8 right-8 h-[2px] bg-gradient-to-r from-rose-200 via-blue-200 to-emerald-200 hidden md:block opacity-30 z-0" />
-
-                            {[
-                                {
-                                    title: "Pembekalan",
-                                    icon: BookOpen,
-                                    color: "text-rose-600",
-                                    iconBg: "bg-rose-500/10",
-                                    border: "border-rose-200",
-                                    desc: "Materi & Persiapan",
-                                    status: "Selesai"
-                                },
-                                {
-                                    title: "Monitoring",
-                                    icon: Users,
-                                    color: "text-blue-600",
-                                    iconBg: "bg-blue-500/10",
-                                    border: "border-blue-200",
-                                    desc: "Pemantauan Berkala",
-                                    status: "Mendatang"
-                                },
-                                {
-                                    title: "Penjemputan",
-                                    icon: Package,
-                                    color: "text-emerald-600",
-                                    iconBg: "bg-emerald-500/10",
-                                    border: "border-emerald-200",
-                                    desc: "Penarikan Peserta",
-                                    status: "Mendatang"
-                                },
-                            ].map((item, i) => (
-                                <div key={i} className="relative z-10 flex flex-col items-center text-center group cursor-default">
-                                    <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl border ${item.border} bg-white dark:bg-zinc-900 border-opacity-50 shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                                        <div className={`absolute inset-0 rounded-2xl ${item.iconBg} opacity-20`} />
-                                        <item.icon className={`h-7 w-7 ${item.color} relative z-10`} />
-
-                                        {item.status === "Aktif" && (
-                                            <div className="absolute -top-1 -right-1 flex h-4 w-4">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500"></span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="mt-6 space-y-1.5 px-2">
-                                        <h3 className="font-bold text-sm tracking-tight text-foreground/90">{item.title}</h3>
-                                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.1em]">{item.desc}</p>
-                                        <div className="mx-auto h-0.5 w-0 transition-all duration-500 group-hover:w-full bg-gradient-to-r from-transparent via-foreground/10 to-transparent mt-1" />
-                                    </div>
-                                </div>
-                            ))}
+            {/* Timeline UI */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                    {
+                        title: "Pembekalan",
+                        image: "/avatars/man-email.jpg",
+                    },
+                    {
+                        title: "Pengantaran",
+                        image: "/avatars/van-conversation.jpg",
+                    },
+                    {
+                        title: "Monitoring",
+                        image: "/avatars/conversation.jpg",
+                    },
+                    {
+                        title: "Penjemputan",
+                        image: "/avatars/woman-holding-box.jpg",
+                    },
+                ].map((item, i) => (
+                    <div key={i} className="flex flex-col items-center justify-center p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="relative w-32 h-32 mb-4">
+                            <Image
+                                src={item.image}
+                                alt={item.title}
+                                fill
+                                className="object-contain"
+                            />
                         </div>
-                    </CardContent>
-                </Card>
+                        <h3 className="font-semibold text-sm md:text-base text-center">{item.title}</h3>
+                    </div>
+                ))}
             </div>
 
             <div className="grid gap-6 md:grid-cols-7">
@@ -322,6 +296,11 @@ export default function JadwalPage() {
 
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <AlertDialogContent>
+                    <AlertDialogHeaderImage>
+                        <div className="p-3">
+                            <img src="/avatars/woman-holding-box.jpg" alt="Error" className=" h-24 object-cover" />
+                        </div>
+                    </AlertDialogHeaderImage>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Jadwal {jadwalToDelete?.jenis_kegiatan}?</AlertDialogTitle>
                         <AlertDialogDescription className="space-y-4 pt-2">
