@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Search, Plus, Edit, Trash2, Eye, AlertTriangle, Filter, ChevronsUpDown, Check } from "lucide-react"
+import { MoreHorizontal, Search, Plus, Edit, Trash2, Eye, AlertTriangle, Filter, ChevronsUpDown, Check, ChevronLeft, ChevronRight } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -347,7 +347,8 @@ export function DataTable<T = Record<string, unknown>>({
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
-              Previous
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              Sebelumnya
             </Button>
 
             {/* Page Numbers */}
@@ -385,7 +386,8 @@ export function DataTable<T = Record<string, unknown>>({
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
-              Next
+              <ChevronRight className="mr-2 h-4 w-4" />
+              Selanjutnya
             </Button>
           </div>
         </div>
