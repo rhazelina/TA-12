@@ -109,7 +109,7 @@ export default function PermasalahanListWaliKelas() {
                                     {issue.status}
                                 </Badge>
                                 <Button size="sm" variant="outline" className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-4" asChild>
-                                    <Link href={`/wali-kelas/permasalahan/${issue.id}`}>
+                                    <Link href={`/wali-kelas/permasalahan-siswa/${issue.id}`}>
                                         Periksa
                                     </Link>
                                 </Button>
