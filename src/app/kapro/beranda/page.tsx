@@ -66,7 +66,7 @@ const DashboardAdminPKL = () => {
                 <div className="bg-white rounded-xl px-6 py-5 flex justify-between items-center shadow-[0_0_0_1px_#e5e5e5]">
                     <div>
                         <h4 className="text-sm font-medium text-gray-500 mb-2">
-                            Menunggu Persetujuan PKL dan Izin
+                            menunggu persetujuan pkl dan pengajuan pindah pkl
                         </h4>
                         <div className="text-4xl font-bold text-gray-900">8</div>
                     </div>
