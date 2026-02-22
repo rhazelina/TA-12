@@ -160,12 +160,12 @@ export const kaproMenus: SidebarMenuItem[] = [
     icon: FileCheck,
     pathName: ["pengajuan-pkl"],
   },
-  {
-    name: "Bukti Diterima",
-    url: "/kapro/bukti-diterima",
-    icon: FileUp,
-    pathName: ["bukti-diterima"],
-  },
+  // {
+  //   name: "Bukti Diterima",
+  //   url: "/kapro/bukti-diterima",
+  //   icon: FileUp,
+  //   pathName: ["bukti-diterima"],
+  // },
   {
     name: "Pembimbing PKL",
     url: "/kapro/pembimbing-pkl",
