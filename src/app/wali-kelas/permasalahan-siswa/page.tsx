@@ -74,7 +74,7 @@ export default function PermasalahanListWaliKelas() {
                         </div>
                     </div>
                     <div className="flex justify-end mt-4">
-                        <Button className="bg-[#5f2a2a] hover:bg-[#4a2020] min-w-[150px]">
+                        <Button className="bg-[#5f2a2a] text-white hover:bg-[#4a2020] min-w-[150px]">
                             <Search className="mr-2 h-4 w-4" /> Cari...
                         </Button>
                     </div>
