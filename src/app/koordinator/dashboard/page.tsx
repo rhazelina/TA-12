@@ -3,7 +3,7 @@ import { GraduationCap, CheckCircle, Hourglass, Building } from "lucide-react";
 export default function DashboardPKL() {
     return (
         <div className="min-h-screen bg-gray-100 font-inter p-6 text-gray-900">
-            <h1 className="text-xl font-semibold mb-6">Dashboard</h1>
+            <h1 className="text-xl font-semibold mb-6">Beranda</h1>
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
