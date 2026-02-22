@@ -107,7 +107,7 @@ export default function JadwalPage() {
                 {[
                     {
                         title: "Pembekalan",
-                        image: "/avatars/man-email.jpg",
+                        image: "/avatars/01 pembekalan (1).png",
                     },
                     {
                         title: "Pengantaran",
@@ -119,7 +119,7 @@ export default function JadwalPage() {
                     },
                     {
                         title: "Penjemputan",
-                        image: "/avatars/woman-holding-box.jpg",
+                        image: "/avatars/04 penjemputan (1).png",
                     },
                 ].map((item, i) => (
                     <div key={i} className="flex flex-col items-center justify-center p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition-shadow">

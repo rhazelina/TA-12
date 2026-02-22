@@ -135,7 +135,7 @@ export function middleware(request: NextRequest) {
           }
           if (payload.is_wali_kelas) {
             return NextResponse.redirect(
-              new URL("/wali-kelas/dashboard", request.url),
+              new URL("/wali-kelas/beranda", request.url),
             );
           }
           if (payload.is_pembimbing) {

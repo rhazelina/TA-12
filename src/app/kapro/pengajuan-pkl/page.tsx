@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Search, User, Building2, Calendar as CalendarIcon, GraduationCap, School, X, ChevronsUpDown, Check } from "lucide-react";
+import { Search, User, Building2, Calendar as CalendarIcon, GraduationCap, School, X, ChevronsUpDown, Check, FileText } from "lucide-react";
 import { DaftarPermohonanPKL, DaftarGuruPembimbing, FormDataPermohonanKapro } from "@/types/api";
 import { ApprovePermohonanPKL, ListGuruPembimbing, ListPermohonanPKL, RejectPermohonanPKL } from "@/api/kapro/indext";
 import { toast } from "sonner";
@@ -46,6 +46,7 @@ export default function PengajuanPKL() {
                 if (!response) {
                     setDataPermohonanPkl([]);
                 } else {
+                    console.log(response.data);
                     setDataPermohonanPkl(response.data);
                 }
             } catch (error) {
@@ -278,21 +279,33 @@ export default function PengajuanPKL() {
                                         </div>
                                     )}
 
+                                    {/* Dokumen */}
+                                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
+                                        <p className="text-xs text-gray-700 font-medium mb-2">Dokumen Pendukung:</p>
+                                        {row.application.dokumen_urls && row.application.dokumen_urls.length > 0 ? (
+                                            <div className="flex flex-wrap gap-2">
+                                                {row.application.dokumen_urls.map((url, index) => (
+                                                    <a
+                                                        key={index}
+                                                        href={url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-md text-xs text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                                                    >
+                                                        <FileText className="w-3.5 h-3.5" />
+                                                        <span>Dokumen {index + 1}</span>
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-gray-500 italic">Tidak ada dokumen yang dilampirkan</p>
+                                        )}
+                                    </div>
+
                                     {/* Footer - Aksi */}
                                     <div className="flex items-center justify-between pt-4 border-t">
-                                        <p className="text-xs text-gray-500">ID Pengajuan: #{row.application.id}</p>
                                         <div className="flex gap-2">
-                                            {row.application.status.toLowerCase() === "approved" ? (
-                                                <div className="flex items-center gap-2 text-green-600 text-sm">
-                                                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                                                    <span className="font-medium">Sudah Disetujui</span>
-                                                </div>
-                                            ) : row.application.status.toLowerCase() === "rejected" ? (
-                                                <div className="flex items-center gap-2 text-red-600 text-sm">
-                                                    <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                                                    <span className="font-medium">Sudah Ditolak</span>
-                                                </div>
-                                            ) : (
+                                            {row.application.status.toLowerCase() === "pending" && (
                                                 <>
                                                     {
                                                         row.application.status.toLowerCase() === "pending" && (

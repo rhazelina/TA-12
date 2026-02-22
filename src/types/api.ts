@@ -163,6 +163,7 @@ export interface DataPengajuan {
   tanggal_mulai: string;
   tanggal_permohonan: string;
   tanggal_selesai: string;
+  dokumen_urls?: string[];
 }
 
 export interface DaftarGuruPembimbing {
@@ -196,6 +197,7 @@ export interface DaftarPermohonanPKL {
     pembimbing_guru_id: number | null;
     decided_at: string | null;
     processed_by: number | null;
+    dokumen_urls?: string[] | null;
   };
   siswa_username: string;
   siswa_nisn: string;
