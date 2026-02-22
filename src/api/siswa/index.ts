@@ -177,3 +177,16 @@ export async function withdrawGroupApplication(id: number) {
         throw error
     }
 }
+
+export async function uploadDokumenSiswa(id: number, data: FormData) {
+    try {
+        const res = await axiosInstance.post(`/api/pkl/${id}/dokumen`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        })
+        return res.data
+    } catch (error) {
+        throw error
+    }
+}

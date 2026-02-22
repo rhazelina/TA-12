@@ -163,6 +163,7 @@ export interface DataPengajuan {
   tanggal_mulai: string;
   tanggal_permohonan: string;
   tanggal_selesai: string;
+  dokumen_urls?: string[];
 }
 
 export interface DaftarGuruPembimbing {
