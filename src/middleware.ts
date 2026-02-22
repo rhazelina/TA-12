@@ -130,7 +130,7 @@ export function middleware(request: NextRequest) {
           }
           if (payload.is_koordinator) {
             return NextResponse.redirect(
-              new URL("/koordinator/dashboard", request.url),
+              new URL("/koordinator/beranda", request.url),
             );
           }
           if (payload.is_wali_kelas) {

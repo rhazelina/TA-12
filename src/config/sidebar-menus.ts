@@ -70,9 +70,9 @@ export const pembimbingMenus: SidebarMenuItem[] = [
 export const koordinatorMenus: SidebarMenuItem[] = [
   {
     name: "Beranda",
-    url: "/koordinator/dashboard",
+    url: "/koordinator/beranda",
     icon: Home,
-    pathName: ["dashboard"],
+    pathName: ["beranda"],
   },
   {
     name: "Jadwal",
