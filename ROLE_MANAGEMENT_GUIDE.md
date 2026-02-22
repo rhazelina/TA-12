@@ -8,7 +8,7 @@ Sistem ini mengelola 3 role utama (Admin, Guru, Siswa) dengan 4 sub-role untuk G
 ### Prioritas Redirect (Tertinggi ke Terendah):
 1. **Kepala Program (Kaprog)** → `/kapro/dashboard`
 2. **Koordinator** → `/koordinator/dashboard`
-3. **Wali Kelas** → `/wali-kelas/dashboard`
+3. **Wali Kelas** → `/wali-kelas/beranda`
 4. **Pembimbing** → `/pembimbing/dashboard`
 
 Ketika guru login, sistem akan redirect ke dashboard **role tertinggi** yang dimiliki.

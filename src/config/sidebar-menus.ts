@@ -122,9 +122,9 @@ export const koordinatorMenus: SidebarMenuItem[] = [
 export const waliKelasMenus: SidebarMenuItem[] = [
   {
     name: "Beranda",
-    url: "/wali-kelas/dashboard",
+    url: "/wali-kelas/beranda",
     icon: Home,
-    pathName: ["dashboard"],
+    pathName: ["beranda"],
   },
   {
     name: "Permasalahan Siswa",
