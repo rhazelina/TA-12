@@ -153,7 +153,7 @@ export async function rejectGroup(id: number, data: { reason: string }) {
 
 export async function generateSuratKapro(id: number) {
   try {
-    const response = await axiosInstance.post(`/kapro/pengajuan-pkl?id=${id}`);
+    const response = await axiosInstance.post(`/api/pkl/${id}/generate-surat`);
     return response.data;
   } catch (error) {
     throw error;

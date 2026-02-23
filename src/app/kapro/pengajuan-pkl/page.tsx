@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search, User, Building2, Calendar as CalendarIcon, GraduationCap, School, X, ChevronsUpDown, Check, FileText } from "lucide-react";
 import { DaftarPermohonanPKL, DaftarGuruPembimbing, FormDataPermohonanKapro } from "@/types/api";
-import { ApprovePermohonanPKL, ListGuruPembimbing, ListPermohonanPKL, RejectPermohonanPKL } from "@/api/kapro/indext";
+import { ApprovePermohonanPKL, generateSuratKapro, ListGuruPembimbing, ListPermohonanPKL, RejectPermohonanPKL } from "@/api/kapro/indext";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import axios from "axios";
 
 export default function PengajuanPKL() {
     const [dataPermohonanPkl, setDataPermohonanPkl] = useState<DaftarPermohonanPKL[]>([]);
@@ -171,6 +172,42 @@ export default function PengajuanPKL() {
         }
     };
 
+    const downloadSurat = async (fileName: string) => {
+        try {
+            const response = await axios.get(`https://sertif.gedanggoreng.com/api/v1/letters/download/${fileName}`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            toast.success("Surat berhasil dihasilkan");
+        } catch (error) {
+            console.error("Error downloading surat:", error);
+            toast.error("Terjadi kesalahan");
+        }
+        finally {
+            setLoadingSubmit(false);
+        }
+    }
+
+    const generateSurat = async (id: number) => {
+        try {
+            setLoadingSubmit(true);
+            const response = await generateSuratKapro(id);
+            if (!response) {
+                toast.warning("Terjadi Kesalahan saat menghasilkan surat");
+                return;
+            }
+            downloadSurat(response.filename);
+        } catch (error) {
+            console.error("Error generating surat:", error);
+            toast.error("Terjadi kesalahan");
+        }
+    };
+
     return (
         <div className="w-full p-6 space-y-6">
             {/* Search & Filter */}
@@ -318,6 +355,16 @@ export default function PengajuanPKL() {
                                                         )
                                                     }
                                                 </>
+                                            )}
+                                            {row.application.status.toLowerCase() === "approved" && (
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                                                    onClick={() => generateSurat(row.application.id)}
+                                                    disabled={loadingSubmit}
+                                                >
+                                                    {loadingSubmit ? "Sedang Memproses..." : "Generate Surat"}
+                                                </Button>
                                             )}
                                         </div>
                                     </div>
