@@ -1,12 +1,26 @@
 import { FormDataPermohonanKapro, ApiResponse, DashboardKaprogData } from "@/types/api";
 import axiosInstance from "@/utils/axios";
 
-export async function dashboardKapro(): Promise<ApiResponse<DashboardKaprogData>> {
+export async function dashboardKapro(
+  pkl_status?: ("pending" | "approved" | "rejected" | "completed")[],
+  pindah_status?: ("pending_pembimbing" | "pending_kaprog" | "pending_koordinator" | "approved" | "rejected")[]
+): Promise<ApiResponse<DashboardKaprogData>> {
   try {
-    const res = await axiosInstance.get<ApiResponse<DashboardKaprogData>>("/api/guru/dashboard/kaprog")
-    return res.data
+    const params = new URLSearchParams();
+    if (pkl_status && pkl_status.length > 0) {
+      pkl_status.forEach((status) => params.append("pkl_status", status));
+    }
+    if (pindah_status && pindah_status.length > 0) {
+      pindah_status.forEach((status) => params.append("pindah_status", status));
+    }
+
+    const queryString = params.toString();
+    const url = queryString ? `/api/guru/dashboard/kaprog?${queryString}` : "/api/guru/dashboard/kaprog";
+
+    const res = await axiosInstance.get<ApiResponse<DashboardKaprogData>>(url);
+    return res.data;
   } catch (error) {
-    throw error
+    throw error;
   }
 }
 

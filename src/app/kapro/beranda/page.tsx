@@ -9,11 +9,15 @@ import { useEffect, useState } from "react";
 const DashboardAdminPKL = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [dataDashboardKapro, setDataDashboardKapro] = useState<DashboardKaprogData | null>(null);
+    const [pklFilter, setPklFilter] = useState<string>("semua");
+    const [pindahFilter, setPindahFilter] = useState<string>("semua");
 
     useEffect(() => {
         async function fetchDashboardKapro() {
             try {
-                const response = await dashboardKapro();
+                const pklStatuses = pklFilter === "all" ? undefined : [pklFilter as any];
+                const pindahStatuses = pindahFilter === "all" ? undefined : [pindahFilter as any];
+                const response = await dashboardKapro(pklStatuses, pindahStatuses);
                 if (!response) {
                     setDataDashboardKapro(null);
                 } else {
@@ -27,7 +31,7 @@ const DashboardAdminPKL = () => {
             }
         }
         fetchDashboardKapro();
-    }, []);
+    }, [pklFilter, pindahFilter]);
 
     if (loading) {
         return <Spinner className="absolute top-1/2 left-1/2 w-7 h-7" />
@@ -93,9 +97,22 @@ const DashboardAdminPKL = () => {
             <div className="grid grid-cols-2 gap-8">
 
                 <div className="bg-white rounded-2xl p-6 shadow-[0_0_0_1px_#e5e5e5]">
-                    <h3 className="text-base font-semibold mb-4">
-                        Pengajuan PKL Terbaru
-                    </h3>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-base font-semibold">
+                            Pengajuan PKL Terbaru
+                        </h3>
+                        <select
+                            value={pklFilter}
+                            onChange={(e) => setPklFilter(e.target.value)}
+                            className="text-sm border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-gray-50 px-3 py-1.5"
+                        >
+                            <option value="all">Semua Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Disetujui</option>
+                            <option value="rejected">Ditolak</option>
+                            <option value="completed">Selesai</option>
+                        </select>
+                    </div>
 
                     <div className="h-px bg-gray-200 mb-5"></div>
 
@@ -135,9 +152,23 @@ const DashboardAdminPKL = () => {
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 shadow-[0_0_0_1px_#e5e5e5]">
-                    <h3 className="text-base font-semibold mb-4">
-                        Pengajuan Pindah PKL Terbaru
-                    </h3>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-base font-semibold">
+                            Pengajuan Pindah PKL Terbaru
+                        </h3>
+                        <select
+                            value={pindahFilter}
+                            onChange={(e) => setPindahFilter(e.target.value)}
+                            className="text-sm border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-gray-50 px-3 py-1.5"
+                        >
+                            <option value="all">Semua Status</option>
+                            <option value="pending_pembimbing">Pending Pembimbing</option>
+                            <option value="pending_kaprog">Pending Kaprog</option>
+                            <option value="pending_koordinator">Pending Koordinator</option>
+                            <option value="approved">Disetujui</option>
+                            <option value="rejected">Ditolak</option>
+                        </select>
+                    </div>
 
                     <div className="h-px bg-gray-200 mb-5"></div>
 
