@@ -96,7 +96,6 @@ export default function MonitorAbsensiPage() {
         return 'default'
     }
 
-    console.log(izinList)
 
     return (
         <div className="p-6 space-y-6">
