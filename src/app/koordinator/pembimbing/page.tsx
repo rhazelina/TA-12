@@ -143,9 +143,9 @@ export default function DataGuruPembimbing() {
                                         <p className="text-xs text-[#717171]">{guru.nip || 'NIP tidak tersedia'}</p>
                                     </div>
                                 </div>
-                                <button className="bg-[#EBF2FF] text-[#3267E3] border-none py-1.5 px-4.5 rounded-md text-xs font-medium cursor-pointer hover:bg-[#dce9ff] transition-colors">
+                                {/* <button className="bg-[#EBF2FF] text-[#3267E3] border-none py-1.5 px-4.5 rounded-md text-xs font-medium cursor-pointer hover:bg-[#dce9ff] transition-colors">
                                     Lihat
-                                </button>
+                                </button> */}
                             </div>
                         ))
                     ) : (
