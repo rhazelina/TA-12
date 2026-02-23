@@ -19,6 +19,32 @@ export interface DashboardStats {
   last_updated: string;
 }
 
+export interface PklPengajuanTerbaruKaprog {
+  id: number;
+  siswa_id: number;
+  siswa_nama: string;
+  siswa_nisn: string;
+  industri_id: number;
+  [key: string]: any;
+}
+
+export interface PindahPklPengajuanTerbaruKaprog {
+  [key: string]: any;
+}
+
+export interface SummaryDashboardKaprog {
+  total_pengajuan_pkl_disetujui: number;
+  total_pengajuan_pkl_menunggu: number;
+  total_siswa_pkl: number;
+  total_tempat_magang: number;
+}
+
+export interface DashboardKaprogData {
+  pindah_pkl_pengajuan_terbaru: PindahPklPengajuanTerbaruKaprog[];
+  pkl_pengajuan_terbaru: PklPengajuanTerbaruKaprog[];
+  summary: SummaryDashboardKaprog;
+}
+
 // Auth Types
 export interface LoginRequest {
   username: string;

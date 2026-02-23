@@ -1,32 +1,32 @@
 'use client'
 
-import { ListPermohonanPKL } from "@/api/kapro/indext";
+import { dashboardKapro } from "@/api/kapro/indext";
 import { Spinner } from "@/components/ui/spinner";
-import { DaftarPermohonanPKL } from "@/types/api";
+import { DashboardKaprogData } from "@/types/api";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const DashboardAdminPKL = () => {
-    const [dataPengajuan, setDataPengajuan] = useState<DaftarPermohonanPKL[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [dataDashboardKapro, setDataDashboardKapro] = useState<DashboardKaprogData | null>(null);
 
     useEffect(() => {
-        async function fetchData() {
+        async function fetchDashboardKapro() {
             try {
-                const response = await ListPermohonanPKL("", 3);
+                const response = await dashboardKapro();
                 if (!response) {
-                    setDataPengajuan([]);
+                    setDataDashboardKapro(null);
                 } else {
-                    setDataPengajuan(response.data);
+                    setDataDashboardKapro(response.data);
                 }
             } catch (error) {
-                setDataPengajuan([]);
-                console.error("Error fetching pengajuan PKL:", error);
+                setDataDashboardKapro(null);
+                console.error("Error fetching dashboard kapro:", error);
             } finally {
                 setLoading(false);
             }
         }
-        fetchData();
+        fetchDashboardKapro();
     }, []);
 
     if (loading) {
@@ -44,7 +44,7 @@ const DashboardAdminPKL = () => {
                         <h4 className="text-sm font-medium text-gray-500 mb-2">
                             Total Siswa PKL
                         </h4>
-                        <div className="text-4xl font-bold text-gray-900">156</div>
+                        <div className="text-4xl font-bold text-gray-900">{dataDashboardKapro?.summary?.total_siswa_pkl || 0}</div>
                     </div>
                     <div className="w-[45px] h-[45px] rounded-lg bg-indigo-100 flex items-center justify-center">
                         👥
@@ -56,7 +56,7 @@ const DashboardAdminPKL = () => {
                         <h4 className="text-sm font-medium text-gray-500 mb-2">
                             Pengajuan PKL Disetujui
                         </h4>
-                        <div className="text-4xl font-bold text-gray-900">142</div>
+                        <div className="text-4xl font-bold text-gray-900">{dataDashboardKapro?.summary?.total_pengajuan_pkl_disetujui || 0}</div>
                     </div>
                     <div className="w-[45px] h-[45px] rounded-lg bg-green-100 flex items-center justify-center">
                         ✔
@@ -66,9 +66,9 @@ const DashboardAdminPKL = () => {
                 <div className="bg-white rounded-xl px-6 py-5 flex justify-between items-center shadow-[0_0_0_1px_#e5e5e5]">
                     <div>
                         <h4 className="text-sm font-medium text-gray-500 mb-2">
-                            menunggu persetujuan pkl dan pengajuan pindah pkl
+                            Menunggu Persetujuan
                         </h4>
-                        <div className="text-4xl font-bold text-gray-900">8</div>
+                        <div className="text-4xl font-bold text-gray-900">{dataDashboardKapro?.summary?.total_pengajuan_pkl_menunggu || 0}</div>
                     </div>
                     <div className="w-[45px] h-[45px] rounded-lg bg-yellow-100 flex items-center justify-center">
                         ⏳
@@ -80,7 +80,7 @@ const DashboardAdminPKL = () => {
                         <h4 className="text-sm font-medium text-gray-500 mb-2">
                             Tempat Magang
                         </h4>
-                        <div className="text-4xl font-bold text-gray-900">45</div>
+                        <div className="text-4xl font-bold text-gray-900">{dataDashboardKapro?.summary?.total_tempat_magang || 0}</div>
                     </div>
                     <div className="w-[45px] h-[45px] rounded-lg bg-red-100 flex items-center justify-center">
                         🏢
@@ -99,34 +99,33 @@ const DashboardAdminPKL = () => {
 
                     <div className="h-px bg-gray-200 mb-5"></div>
 
-                    {dataPengajuan.length > 0 ? dataPengajuan.map((item, index) => (
+                    {dataDashboardKapro?.pkl_pengajuan_terbaru && dataDashboardKapro.pkl_pengajuan_terbaru.length > 0 ? dataDashboardKapro.pkl_pengajuan_terbaru.map((item, index) => (
                         <div
                             key={index}
                             className="bg-gray-50 rounded-xl px-5 py-4 mb-4 flex justify-between items-center"
                         >
                             <div>
                                 <h5 className="text-sm font-semibold mb-1">
-                                    {item.siswa_username}
+                                    {item.siswa_nama}
                                 </h5>
                                 <span className="text-xs text-gray-500">
-                                    {item.kelas_nama} - {item.industri_nama}
+                                    NISN: {item.siswa_nisn}
                                 </span>
                             </div>
 
                             <div className="flex gap-2">
-                                <button className="text-xs px-3 py-1.5 rounded-md bg-green-600 text-white font-medium">
-                                    ✓ Setujui
-                                </button>
-                                <button className="text-xs px-3 py-1.5 rounded-md bg-red-600 text-white font-medium">
-                                    ✕ Tolak
-                                </button>
+                                <Link href="/kapro/pengajuan-pkl">
+                                    <button className="text-xs px-3 py-1.5 rounded-md bg-indigo-600 text-white font-medium">
+                                        Lihat Detail
+                                    </button>
+                                </Link>
                             </div>
                         </div>
                     )) : (
                         <div className="text-sm text-gray-500 text-center py-4">Tidak ada pengajuan PKL</div>
                     )}
 
-                    {dataPengajuan.length > 0 && (
+                    {dataDashboardKapro?.pkl_pengajuan_terbaru && dataDashboardKapro.pkl_pengajuan_terbaru.length > 0 && (
                         <Link href="/kapro/pengajuan-pkl">
                             <div className="text-center mt-4 text-sm text-red-800 font-medium cursor-pointer">
                                 Lihat Semua Pengajuan →
@@ -142,33 +141,35 @@ const DashboardAdminPKL = () => {
 
                     <div className="h-px bg-gray-200 mb-5"></div>
 
-                    {[
-                        { name: "Maya Sari", desc: "Teknologi Digital → Digital Marketing" },
-                        { name: "Riko Permana", desc: "Digital Marketing → Teknologi Digital" },
-                        { name: "Lina Kartika", desc: "Digital Marketing → Teknologi Karya" },
-                    ].map((item, index) => (
+                    {dataDashboardKapro?.pindah_pkl_pengajuan_terbaru && dataDashboardKapro.pindah_pkl_pengajuan_terbaru.length > 0 ? dataDashboardKapro.pindah_pkl_pengajuan_terbaru.map((item, index) => (
                         <div
                             key={index}
                             className="bg-gray-50 rounded-xl px-5 py-4 mb-4 flex justify-between items-center"
                         >
                             <div>
                                 <h5 className="text-sm font-semibold mb-1">
-                                    {item.name}
+                                    {item.siswa?.nama_lengkap || item.siswa?.username || "Siswa"}
                                 </h5>
                                 <span className="text-xs text-gray-500">
-                                    {item.desc}
+                                    {item.industri_lama?.nama || "Industri Lama"} → {item.industri_baru?.nama || "Industri Baru"}
                                 </span>
                             </div>
 
-                            <button className="text-xs px-3 py-1.5 rounded-md bg-red-900 text-white font-medium">
-                                Lihat Detail
-                            </button>
+                            <Link href="/kapro/pindah-pkl">
+                                <button className="text-xs px-3 py-1.5 rounded-md bg-red-900 text-white font-medium">
+                                    Lihat Detail
+                                </button>
+                            </Link>
                         </div>
-                    ))}
+                    )) : (
+                        <div className="text-sm text-gray-500 text-center py-4">Tidak ada pengajuan pindah PKL</div>
+                    )}
 
-                    <div className="text-center mt-4 text-sm text-red-800 font-medium cursor-pointer">
-                        Lihat Semua Pengajuan Pindah PKL →
-                    </div>
+                    <Link href="/kapro/pindah-pkl">
+                        <div className="text-center mt-4 text-sm text-red-800 font-medium cursor-pointer">
+                            Lihat Semua Pengajuan Pindah PKL →
+                        </div>
+                    </Link>
                 </div>
 
             </div>

@@ -1,9 +1,9 @@
-import { FormDataPermohonanKapro } from "@/types/api";
+import { FormDataPermohonanKapro, ApiResponse, DashboardKaprogData } from "@/types/api";
 import axiosInstance from "@/utils/axios";
 
-export async function dashboardKapro() {
+export async function dashboardKapro(): Promise<ApiResponse<DashboardKaprogData>> {
   try {
-    const res = await axiosInstance.get("/api/guru/dashboard/kaprog")
+    const res = await axiosInstance.get<ApiResponse<DashboardKaprogData>>("/api/guru/dashboard/kaprog")
     return res.data
   } catch (error) {
     throw error
