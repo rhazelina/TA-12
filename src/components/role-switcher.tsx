@@ -36,8 +36,6 @@ export function RoleSwitcher({ guruData, open }: RoleSwitcherProps) {
   const roles = getGuruRoles(guruData)
   const currentRole = roles.find(role => pathname.startsWith(`/${role.key}`))
 
-  console.log(roles)
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>

@@ -1,37 +1,56 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { ListPermohonanPKL, ListGuruPembimbing, ApprovePermohonanPKL, RejectPermohonanPKL } from "@/api/kapro/indext";
-import { DaftarPermohonanPKL, DaftarGuruPembimbing } from "@/types/api";
+import { ListGuruPembimbing, ApprovePermohonanPKL, RejectPermohonanPKL } from "@/api/kapro/indext";
+import { listApprovePklKoordinator, PklPengajuanTerbaru } from "@/api/koordinator/index";
+import { getKelas } from "@/api/admin/kelas/index";
+import { getJurusan } from "@/api/admin/jurusan/index";
+import { getIndustri } from "@/api/admin/industri/index";
+import { DaftarGuruPembimbing, Kelas, Jurusan, Industri } from "@/types/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { CalendarIcon, Search, CheckCircle, XCircle, Printer } from "lucide-react";
+import { CalendarIcon, Search, CheckCircle, XCircle, Printer, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
 import { getSekolah } from "@/api/admin/sekolah";
 import { SuratPermohonanModal } from "@/components/koordinator/SuratPermohonanModal";
 
 export default function PengajuanPKLPage() {
-    const [applications, setApplications] = useState<DaftarPermohonanPKL[]>([]);
+    const [applications, setApplications] = useState<PklPengajuanTerbaru[]>([]);
     const [supervisors, setSupervisors] = useState<DaftarGuruPembimbing[]>([]);
+
+    // Filter Option Lists
+    const [kelasList, setKelasList] = useState<Kelas[]>([]);
+    const [jurusanList, setJurusanList] = useState<Jurusan[]>([]);
+    const [industriList, setIndustriList] = useState<Industri[]>([]);
+
     const [loading, setLoading] = useState(true);
+    const [searchLoading, setSearchLoading] = useState(false);
+
+    // Filters and Pagination
     const [search, setSearch] = useState("");
+    const [selectedKelas, setSelectedKelas] = useState("all");
+    const [selectedJurusan, setSelectedJurusan] = useState("all");
+    const [selectedIndustri, setSelectedIndustri] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
 
     // Approve Dialog State
     const [isApproveOpen, setIsApproveOpen] = useState(false);
-    const [selectedApp, setSelectedApp] = useState<DaftarPermohonanPKL | null>(null);
+    const [selectedApp, setSelectedApp] = useState<PklPengajuanTerbaru | null>(null);
     const [supervisorId, setSupervisorId] = useState<string>("");
     const [startDate, setStartDate] = useState<Date | undefined>(undefined);
     const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -44,19 +63,41 @@ export default function PengajuanPKLPage() {
 
     // Letter Modal State
     const [isLetterOpen, setIsLetterOpen] = useState(false);
-    const [schoolData, setSchoolData] = useState<any>(null); // Should type properly but using any for simple integration
+    const [schoolData, setSchoolData] = useState<any>(null);
 
-    const fetchData = async () => {
-        setLoading(true);
+    const loadData = async (
+        searchQuery?: string,
+        page: number = 1,
+        kelasId?: number,
+        jurusanId?: number,
+        industriId?: number,
+        isSearch = false
+    ) => {
         try {
-            const [appsRes, supervisorsRes, schoolRes] = await Promise.all([
-                ListPermohonanPKL(search),
+            if (isSearch) {
+                setSearchLoading(true);
+            } else {
+                setLoading(true);
+            }
+
+            const [appsRes, supervisorsRes, schoolRes, kelasRes, jurusanRes, industriRes] = await Promise.all([
+                listApprovePklKoordinator(page, kelasId, jurusanId, industriId, searchQuery),
                 ListGuruPembimbing(),
-                getSekolah()
+                getSekolah(),
+                getKelas(),
+                getJurusan(),
+                getIndustri()
             ]);
 
             if (appsRes && appsRes.data) {
-                setApplications(appsRes.data);
+                const dataApps = appsRes.data || [];
+                setApplications(dataApps);
+
+                // Determine Pagination 
+                const totalAppCount = appsRes.total || dataApps.length;
+                setTotalItems(totalAppCount);
+                setTotalPages(Math.max(1, Math.ceil(totalAppCount / 10)));
+                setCurrentPage(page);
             }
             if (supervisorsRes && supervisorsRes.data) {
                 setSupervisors(supervisorsRes.data);
@@ -64,20 +105,57 @@ export default function PengajuanPKLPage() {
             if (schoolRes && schoolRes.data) {
                 setSchoolData(schoolRes.data);
             }
+
+            if (kelasRes && (kelasRes.data?.data || kelasRes.data)) {
+                setKelasList(kelasRes.data?.data || kelasRes.data);
+            }
+            if (jurusanRes && (jurusanRes.data?.data || jurusanRes.data)) {
+                setJurusanList(jurusanRes.data?.data || jurusanRes.data);
+            }
+            if (industriRes && (industriRes.data?.data || industriRes.data)) {
+                setIndustriList(industriRes.data?.data || industriRes.data);
+            }
+
         } catch (error) {
             console.error("Error fetching data:", error);
             toast.error("Gagal memuat data pengajuan");
         } finally {
-            setLoading(false);
+            if (isSearch) {
+                setSearchLoading(false);
+            } else {
+                setLoading(false);
+            }
         }
     };
 
+    // Load initial data
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    // Effect for handling search and filters
     useEffect(() => {
         const timer = setTimeout(() => {
-            fetchData();
-        }, 500); // Debounce search
+            const kId = selectedKelas !== "all" ? parseInt(selectedKelas) : undefined;
+            const jId = selectedJurusan !== "all" ? parseInt(selectedJurusan) : undefined;
+            const iId = selectedIndustri !== "all" ? parseInt(selectedIndustri) : undefined;
+
+            // Allow fetch even if it skips first load check
+            loadData(search, 1, kId, jId, iId, true);
+
+        }, 500);
+
         return () => clearTimeout(timer);
-    }, [search]);
+    }, [search, selectedKelas, selectedJurusan, selectedIndustri]);
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage > 0 && newPage <= totalPages) {
+            const kId = selectedKelas !== "all" ? parseInt(selectedKelas) : undefined;
+            const jId = selectedJurusan !== "all" ? parseInt(selectedJurusan) : undefined;
+            const iId = selectedIndustri !== "all" ? parseInt(selectedIndustri) : undefined;
+            loadData(search, newPage, kId, jId, iId, true);
+        }
+    };
 
     const handleApprove = async () => {
         if (!selectedApp || !startDate || !endDate || !supervisorId) {
@@ -87,7 +165,7 @@ export default function PengajuanPKLPage() {
 
         setIsSubmitting(true);
         try {
-            await ApprovePermohonanPKL(selectedApp.application.id, {
+            await ApprovePermohonanPKL(selectedApp.application_id, {
                 pembimbing_guru_id: parseInt(supervisorId),
                 tanggal_mulai: format(startDate, "yyyy-MM-dd"),
                 tanggal_selesai: format(endDate, "yyyy-MM-dd"),
@@ -95,7 +173,12 @@ export default function PengajuanPKLPage() {
             });
             toast.success("Pengajuan berhasil disetujui");
             setIsApproveOpen(false);
-            fetchData();
+
+            // Reload current page data
+            const kId = selectedKelas !== "all" ? parseInt(selectedKelas) : undefined;
+            const jId = selectedJurusan !== "all" ? parseInt(selectedJurusan) : undefined;
+            const iId = selectedIndustri !== "all" ? parseInt(selectedIndustri) : undefined;
+            loadData(search, currentPage, kId, jId, iId, false);
         } catch (error) {
             console.error("Error approving application:", error);
             toast.error("Gagal menyetujui pengajuan");
@@ -112,12 +195,17 @@ export default function PengajuanPKLPage() {
 
         setIsSubmitting(true);
         try {
-            await RejectPermohonanPKL(selectedApp.application.id, {
+            await RejectPermohonanPKL(selectedApp.application_id, {
                 catatan: rejectNotes
             });
             toast.success("Pengajuan berhasil ditolak");
             setIsRejectOpen(false);
-            fetchData();
+
+            // Reload current page data
+            const kId = selectedKelas !== "all" ? parseInt(selectedKelas) : undefined;
+            const jId = selectedJurusan !== "all" ? parseInt(selectedJurusan) : undefined;
+            const iId = selectedIndustri !== "all" ? parseInt(selectedIndustri) : undefined;
+            loadData(search, currentPage, kId, jId, iId, false);
         } catch (error) {
             console.error("Error rejecting application:", error);
             toast.error("Gagal menolak pengajuan");
@@ -126,7 +214,7 @@ export default function PengajuanPKLPage() {
         }
     };
 
-    const openApproveDialog = (app: DaftarPermohonanPKL) => {
+    const openApproveDialog = (app: PklPengajuanTerbaru) => {
         setSelectedApp(app);
         setSupervisorId("");
         setStartDate(undefined);
@@ -135,20 +223,20 @@ export default function PengajuanPKLPage() {
         setIsApproveOpen(true);
     };
 
-    const openRejectDialog = (app: DaftarPermohonanPKL) => {
+    const openRejectDialog = (app: PklPengajuanTerbaru) => {
         setSelectedApp(app);
         setRejectNotes("");
         setIsRejectOpen(true);
     };
 
-    const openLetterModal = (app: DaftarPermohonanPKL) => {
+    const openLetterModal = (app: PklPengajuanTerbaru) => {
         setSelectedApp(app);
         setIsLetterOpen(true);
     };
 
     const filteredApplications = applications.filter(app => {
         if (statusFilter === "all") return true;
-        return app.application.status.toLowerCase() === statusFilter.toLowerCase();
+        return app.status?.toLowerCase() === statusFilter.toLowerCase();
     });
 
     return (
@@ -156,7 +244,7 @@ export default function PengajuanPKLPage() {
             <h1 className="text-3xl font-bold">Pengajuan PKL</h1>
 
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="relative w-full md:w-1/3">
+                <div className="relative w-full md:w-1/4">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Cari nama siswa..."
@@ -165,17 +253,56 @@ export default function PengajuanPKLPage() {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-full md:w-[200px]">
-                        <SelectValue placeholder="Filter Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Semua Status</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="approved">Disetujui</SelectItem>
-                        <SelectItem value="rejected">Ditolak</SelectItem>
-                    </SelectContent>
-                </Select>
+
+                <div className="flex w-full md:w-auto gap-4 flex-wrap">
+                    <Select value={selectedJurusan} onValueChange={setSelectedJurusan}>
+                        <SelectTrigger className="w-[150px]">
+                            <SelectValue placeholder="Jurusan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Semua Jurusan</SelectItem>
+                            {jurusanList.map((j: any) => (
+                                <SelectItem key={j.id} value={j.id.toString()}>{j.nama}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={selectedKelas} onValueChange={setSelectedKelas}>
+                        <SelectTrigger className="w-[150px]">
+                            <SelectValue placeholder="Kelas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Semua Kelas</SelectItem>
+                            {kelasList.map((k: any) => (
+                                <SelectItem key={k.id} value={k.id.toString()}>{k.nama}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={selectedIndustri} onValueChange={setSelectedIndustri}>
+                        <SelectTrigger className="w-[150px]">
+                            <SelectValue placeholder="Industri" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Semua Industri</SelectItem>
+                            {industriList.map((i: any) => (
+                                <SelectItem key={i.id} value={i.id.toString()}>{i.nama}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-[150px]">
+                            <SelectValue placeholder="Filter Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Semua Status</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="approved">Disetujui</SelectItem>
+                            <SelectItem value="rejected">Ditolak</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             <Card>
@@ -190,17 +317,16 @@ export default function PengajuanPKLPage() {
                                 <TableRow>
                                     <TableHead>No</TableHead>
                                     <TableHead>Siswa</TableHead>
-                                    <TableHead>Kelas</TableHead>
                                     <TableHead>Industri</TableHead>
                                     <TableHead>Tanggal Pengajuan</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Aksi</TableHead>
+                                    {/* <TableHead className="text-right">Aksi</TableHead> */}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {loading ? (
+                                {loading || searchLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center py-10">
+                                        <TableCell colSpan={6} className="text-center py-10">
                                             <div className="flex justify-center items-center gap-2">
                                                 <Loader2 className="h-4 w-4 animate-spin" /> Loading...
                                             </div>
@@ -208,44 +334,38 @@ export default function PengajuanPKLPage() {
                                     </TableRow>
                                 ) : filteredApplications.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                                        <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
                                             Tidak ada data pengajuan.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     filteredApplications.map((app, index) => (
-                                        <TableRow key={app.application.id}>
-                                            <TableCell>{index + 1}</TableCell>
+                                        <TableRow key={app.application_id}>
+                                            <TableCell>{(currentPage - 1) * 10 + index + 1}</TableCell>
                                             <TableCell>
                                                 <div className="flex flex-col">
                                                     <span className="font-medium">{app.siswa_username}</span>
                                                     <span className="text-xs text-muted-foreground">{app.siswa_nisn}</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span>{app.kelas_nama}</span>
-                                                    <span className="text-xs text-muted-foreground">{app.jurusan_nama}</span>
-                                                </div>
-                                            </TableCell>
                                             <TableCell>{app.industri_nama}</TableCell>
-                                            <TableCell>{format(new Date(app.application.tanggal_permohonan), "dd MMM yyyy")}</TableCell>
+                                            <TableCell>{format(new Date(app.tanggal_permohonan), "dd MMM yyyy")}</TableCell>
                                             <TableCell>
                                                 <Badge
                                                     variant={
-                                                        app.application.status === "Approved" ? "default" :
-                                                            app.application.status === "Rejected" || app.application.status === "Ditolak" ? "destructive" :
+                                                        app.status === "Approved" ? "default" :
+                                                            app.status === "Rejected" || app.status === "Ditolak" ? "destructive" :
                                                                 "secondary"
                                                     }
                                                     className={
-                                                        app.application.status === "Approved" ? "bg-green-500 hover:bg-green-600" :
-                                                            app.application.status === "Pending" ? "bg-yellow-500 hover:bg-yellow-600 text-white" : ""
+                                                        app.status === "Approved" ? "bg-green-500 hover:bg-green-600" :
+                                                            (app.status === "Pending" || app.status === "Menunggu") ? "bg-yellow-500 hover:bg-yellow-600 text-white" : ""
                                                     }
                                                 >
-                                                    {app.application.status}
+                                                    {app.status}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-right space-x-2">
+                                            {/* <TableCell className="text-right space-x-2">
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
@@ -255,39 +375,35 @@ export default function PengajuanPKLPage() {
                                                     <Printer className="h-4 w-4 mr-1" />
                                                     Surat
                                                 </Button>
-                                                {app.application.status === "Pending" && (
-                                                    <>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-                                                            onClick={() => openApproveDialog(app)}
-                                                        >
-                                                            <CheckCircle className="h-4 w-4 mr-1" />
-                                                            Setujui
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                                                            onClick={() => openRejectDialog(app)}
-                                                        >
-                                                            <XCircle className="h-4 w-4 mr-1" />
-                                                            Tolak
-                                                        </Button>
-                                                    </>
-                                                )}
-                                                {app.application.status !== "Pending" && (
-                                                    <Button size="sm" variant="ghost" disabled>
-                                                        Selesai
-                                                    </Button>
-                                                )}
-                                            </TableCell>
+                                            </TableCell> */}
                                         </TableRow>
                                     ))
                                 )}
                             </TableBody>
                         </Table>
+                    </div>
+
+                    {/* Pagination Controls */}
+                    <div className="flex items-center justify-end space-x-2 p-4">
+                        <div className="text-sm text-muted-foreground mr-4">
+                            Halaman {currentPage} dari {totalPages}
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1 || loading || searchLoading}
+                        >
+                            Sebelumnya
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages || totalPages === 0 || loading || searchLoading}
+                        >
+                            Selanjutnya
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -420,13 +536,29 @@ export default function PengajuanPKLPage() {
                 </DialogContent>
             </Dialog>
 
-            <SuratPermohonanModal
-                isOpen={isLetterOpen}
-                onClose={() => setIsLetterOpen(false)}
-                application={selectedApp}
-                allApplications={applications}
-                schoolData={schoolData}
-            />
+            {/* Support modal compatibility by casting */}
+            {selectedApp && (
+                <SuratPermohonanModal
+                    isOpen={isLetterOpen}
+                    onClose={() => setIsLetterOpen(false)}
+                    application={
+                        {
+                            application: {
+                                id: selectedApp.application_id,
+                                tanggal_permohonan: selectedApp.tanggal_permohonan,
+                                status: selectedApp.status
+                            },
+                            siswa_username: selectedApp.siswa_username,
+                            siswa_nisn: selectedApp.siswa_nisn,
+                            industri_nama: selectedApp.industri_nama,
+                            kelas_nama: "-",
+                            jurusan_nama: "-"
+                        } as any
+                    }
+                    allApplications={applications as any}
+                    schoolData={schoolData}
+                />
+            )}
         </div>
     );
 }

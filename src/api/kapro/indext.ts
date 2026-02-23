@@ -1,6 +1,15 @@
 import { FormDataPermohonanKapro } from "@/types/api";
 import axiosInstance from "@/utils/axios";
 
+export async function dashboardKapro() {
+  try {
+    const res = await axiosInstance.get("/api/guru/dashboard/kaprog")
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}
+
 export async function MeKaprog() {
   try {
     const response = await axiosInstance.get(`/api/jurusan/kaprog/me`);

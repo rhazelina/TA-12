@@ -58,7 +58,6 @@ export function SuratPermohonanModal({ isOpen, onClose, application, allApplicat
 
     // Construct address
     const address = `${schoolData.jalan}, ${schoolData.kelurahan}, ${schoolData.kecamatan}, ${schoolData.kabupaten_kota}, ${schoolData.provinsi}, ${schoolData.kode_pos}`;
-    console.log(schoolData)
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="!max-w-[100vw] lg:h-[100vh] h-screen max-h-screen rounded-none overflow-y-auto bg-muted/80 bg-grey">
@@ -144,8 +143,8 @@ export function SuratPermohonanModal({ isOpen, onClose, application, allApplicat
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {sameIndustryApps.map((app, index) => (
-                                        <tr key={app.application.id}>
+                                    {sameIndustryApps.map((app: any, index: number) => (
+                                        <tr key={app?.application?.id || app?.application_id || index}>
                                             <td className="border border-black px-2 py-1 text-center">{index + 1}.</td>
                                             <td className="border border-black px-2 py-1 uppercase">{app.siswa_username}</td>
                                             <td className="border border-black px-2 py-1 text-center uppercase">{app.kelas_nama}</td>
