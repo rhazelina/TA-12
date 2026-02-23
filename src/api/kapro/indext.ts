@@ -150,3 +150,12 @@ export async function rejectGroup(id: number, data: { reason: string }) {
     throw error;
   }
 }
+
+export async function generateSuratKapro(id: number) {
+  try {
+    const response = await axiosInstance.post(`/kapro/pengajuan-pkl?id=${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
