@@ -91,6 +91,18 @@ export default function SiswaKelompokPage() {
         }
     };
 
+    const getStatusText = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'approved': return 'Disetujui';
+            case 'rejected': return 'Ditolak';
+            case 'submitted': return 'Diajukan';
+            case 'pending': return 'Tertunda';
+            default: return 'Tidak Diketahui';
+        }
+    };
+
+    console.log(groups)
+
     return (
         <Tabs defaultValue="Kelompok">
             <TabsList className="mx-auto">
@@ -152,7 +164,7 @@ export default function SiswaKelompokPage() {
                                             <div className="space-y-3 flex-1">
                                                 <div className="flex items-center gap-3">
                                                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(group.status)} uppercase`}>
-                                                        {group.status || 'Draft'}
+                                                        {getStatusText(group.status)}
                                                     </span>
                                                     <span className="text-xs text-gray-400">
                                                         Dibuat: {format(new Date(group.created_at), "dd MMM yyyy", { locale: idLocale })}
