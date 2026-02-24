@@ -90,6 +90,15 @@ export async function createPklGroup(data: { invited_members: string[] }) {
     }
 }
 
+export async function detailKelompok(id: number) {
+    try {
+        const res = await axiosInstance.get(`/api/pkl/group/${id}`)
+        return res.data
+    } catch (error) {
+        throw error
+    }
+}
+
 export async function getAvailableMembers(query: string) {
     try {
         const res = await axiosInstance.get('/api/pkl/group/available-members', {
