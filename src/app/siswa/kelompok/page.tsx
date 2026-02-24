@@ -101,8 +101,6 @@ export default function SiswaKelompokPage() {
         }
     };
 
-    console.log(groups)
-
     return (
         <Tabs defaultValue="Kelompok">
             <TabsList className="mx-auto">
