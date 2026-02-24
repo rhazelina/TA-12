@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CreateGroupModal from "@/components/siswa/CreateGroupModal";
 
 // --- Types based on provided JSON structure ---
 interface GroupMember {
@@ -65,7 +66,6 @@ export default function SiswaKelompokPage() {
         setLoading(true);
         try {
             const res = await getMyGroups();
-            console.log('res', res)
             // Ensure we handle both direct array or { data: ... } wrapper if existing
             const data = Array.isArray(res) ? res : res.data || [];
             setGroups(data);
@@ -108,13 +108,14 @@ export default function SiswaKelompokPage() {
                                 </p>
                             </div>
 
-                            <Link
-                                href="/siswa/kelompok/buat"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Buat Kelompok
-                            </Link>
+                            <CreateGroupModal onSuccess={fetchData}>
+                                <button
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Buat Kelompok
+                                </button>
+                            </CreateGroupModal>
                         </header>
 
                         {loading ? (
@@ -131,13 +132,14 @@ export default function SiswaKelompokPage() {
                                 <p className="text-gray-500 mt-2 max-w-md mx-auto mb-6">
                                     Anda belum tergabung dalam kelompok manapun. Yuk buat kelompok baru sekarang!
                                 </p>
-                                <Link
-                                    href="/siswa/kelompok/buat"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all shadow-sm hover:shadow-md"
-                                >
-                                    <Plus className="h-4 w-4" />
-                                    Buat Kelompok Baru
-                                </Link>
+                                <CreateGroupModal onSuccess={fetchData}>
+                                    <button
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all shadow-sm hover:shadow-md"
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                        Buat Kelompok Baru
+                                    </button>
+                                </CreateGroupModal>
                             </div>
                         ) : (
                             <div className="space-y-4">
