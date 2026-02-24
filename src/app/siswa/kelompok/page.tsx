@@ -15,7 +15,6 @@ import {
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateGroupModal from "@/components/siswa/CreateGroupModal";
 import { GroupRegistration } from "@/types/detailGrup";
