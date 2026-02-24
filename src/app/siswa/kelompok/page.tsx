@@ -146,8 +146,7 @@ export default function SiswaKelompokPage() {
                                 {groups.map((group) => (
                                     <div
                                         key={group.id}
-                                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group-card"
-                                        onClick={() => router.push(`/siswa/kelompok/${group.id}`)}
+                                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow relative overflow-hidden group-card"
                                     >
                                         <div className="flex flex-col md:flex-row justify-between gap-4">
                                             <div className="space-y-3 flex-1">
@@ -188,7 +187,7 @@ export default function SiswaKelompokPage() {
                                             </div>
 
                                             <div className="flex items-center justify-end">
-                                                <button className="p-2 rounded-full bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                                <button className="p-2 rounded-full bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors" onClick={() => router.push(`/siswa/kelompok/${group.id}`)}>
                                                     <ChevronRight className="h-5 w-5" />
                                                 </button>
                                             </div>
