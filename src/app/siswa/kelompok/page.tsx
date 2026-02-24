@@ -18,47 +18,10 @@ import { id as idLocale } from "date-fns/locale";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateGroupModal from "@/components/siswa/CreateGroupModal";
-
-// --- Types based on provided JSON structure ---
-interface GroupMember {
-    invitation_status: string;
-    is_leader: boolean;
-    joined_at: string;
-    responded_at: string | null;
-    siswa: {
-        id: number;
-        kelas: string;
-        nama: string;
-        nisn: string;
-    };
-}
-
-interface Group {
-    id: number;
-    approved_at: string | null;
-    catatan: string | null;
-    created_at: string;
-    industri: {
-        id: number;
-        nama: string;
-        alamat: string;
-    } | null;
-    leader: {
-        id: number;
-        kelas: string;
-        nama: string;
-        nisn: string;
-    };
-    member_count: number;
-    members: GroupMember[];
-    status: string;
-    submitted_at: string | null;
-    tanggal_mulai: string | null;
-    tanggal_selesai: string | null;
-}
+import { GroupRegistration } from "@/types/detailGrup";
 
 export default function SiswaKelompokPage() {
-    const [groups, setGroups] = useState<Group[]>([]);
+    const [groups, setGroups] = useState<GroupRegistration[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
