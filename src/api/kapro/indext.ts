@@ -1,4 +1,5 @@
 import { FormDataPermohonanKapro, ApiResponse, DashboardKaprogData } from "@/types/api";
+import { GroupRegistration } from "@/types/detailGrup";
 import axiosInstance from "@/utils/axios";
 
 export async function dashboardKapro(
@@ -124,10 +125,10 @@ export async function patchPindahPklKapro(id: number, data: {
 }
 
 // PKL Group APIs (Kapro)
-export async function getGroupsForReview() {
+export async function reviewGroup() {
   try {
-    const response = await axiosInstance.get('/api/pkl/group/review');
-    return response.data;
+    const res = await axiosInstance.get('/api/pkl/group/review');
+    return res.data as GroupRegistration[];
   } catch (error) {
     throw error;
   }
