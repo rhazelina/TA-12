@@ -6,36 +6,65 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Search, RotateCcw, Loader2, Info } from "lucide-react"
+import { Search, RotateCcw, Loader2, Info, ChevronLeft, ChevronRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { getPermasalahanByWaliKelas } from "@/api/wali-kelas"
-import { Item } from "@/types/permasalahan"
+import { Item, Pagination } from "@/types/permasalahan"
 import { toast } from "sonner"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export default function PermasalahanListWaliKelas() {
     const [issues, setIssues] = useState<Item[]>([])
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
+    const [debouncedSearch, setDebouncedSearch] = useState("")
+    const [statusFilter, setStatusFilter] = useState("all")
+    const [page, setPage] = useState(1)
+    const [pagination, setPagination] = useState<Pagination | null>(null)
 
     useEffect(() => {
-        const fetchIssues = async () => {
-            try {
-                const res = await getPermasalahanByWaliKelas()
-                setIssues(res.items || [])
-            } catch (error) {
-                console.error(error)
-                toast.error("Gagal memuat daftar permasalahan siswa")
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchIssues()
-    }, [])
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery)
+            setPage(1)
+        }, 500)
+        return () => clearTimeout(timer)
+    }, [searchQuery])
 
-    const filteredIssues = issues.filter(issue =>
-        issue.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        issue.siswa?.nama.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const fetchIssues = async () => {
+        setLoading(true)
+        try {
+            const res = await getPermasalahanByWaliKelas({
+                page,
+                limit: 10,
+                search: debouncedSearch,
+                status: (statusFilter === "ALL" || statusFilter === "all") ? undefined : statusFilter as "opened" | "in_progress" | "resolved"
+            })
+            setIssues(res.items || [])
+            setPagination(res.pagination || null)
+        } catch (error) {
+            console.error(error)
+            toast.error("Gagal memuat daftar permasalahan siswa")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchIssues()
+    }, [page, debouncedSearch, statusFilter])
+
+    const handleReset = () => {
+        setSearchQuery("")
+        setDebouncedSearch("")
+        setStatusFilter("all")
+        setPage(1)
+    }
 
     const getStatusVariant = (status: string) => {
         const s = status?.toLowerCase() || "";
@@ -68,22 +97,41 @@ export default function PermasalahanListWaliKelas() {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle>Filter Pengaduan</CardTitle>
-                        <Button variant="outline" className="text-sm">
+                        <Button variant="outline" className="text-sm" onClick={handleReset}>
                             Reset Filter <RotateCcw className="ml-2 h-3 w-3" />
                         </Button>
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Cari</label>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input
-                                className="pl-9"
-                                placeholder="Cari judul atau nama siswa..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Cari</label>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Input
+                                    className="pl-9"
+                                    placeholder="Cari judul atau nama siswa..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Status</label>
+                            <Select value={statusFilter} onValueChange={(val) => {
+                                setStatusFilter(val)
+                                setPage(1)
+                            }}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Status</SelectItem>
+                                    <SelectItem value="opened">Belum Diproses</SelectItem>
+                                    <SelectItem value="in_progress">Sedang Diproses</SelectItem>
+                                    <SelectItem value="resolved">Selesai</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                 </CardContent>
@@ -100,8 +148,8 @@ export default function PermasalahanListWaliKelas() {
                         <div className="flex justify-center py-10">
                             <Loader2 className="animate-spin w-8 h-8 text-[#5f2a2a]" />
                         </div>
-                    ) : filteredIssues.length > 0 ? (
-                        filteredIssues.map((issue) => (
+                    ) : issues.length > 0 ? (
+                        issues.map((issue) => (
                             <div key={issue.id} className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-accent/5 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <Avatar className="h-12 w-12 border bg-gray-50 flex items-center justify-center">
@@ -135,6 +183,29 @@ export default function PermasalahanListWaliKelas() {
                     ) : (
                         <div className="text-center py-10 text-muted-foreground">
                             Tidak ada data permasalahan.
+                        </div>
+                    )}
+                    {pagination && pagination.total_pages > 1 && (
+                        <div className="flex items-center justify-end space-x-2 pt-4">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                            >
+                                <ChevronLeft className="h-4 w-4 mr-1" /> Prev
+                            </Button>
+                            <div className="text-sm font-medium">
+                                Halaman {page} dari {pagination.total_pages}
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setPage(p => Math.min(pagination.total_pages, p + 1))}
+                                disabled={page === pagination.total_pages}
+                            >
+                                Next <ChevronRight className="h-4 w-4 ml-1" />
+                            </Button>
                         </div>
                     )}
                 </CardContent>

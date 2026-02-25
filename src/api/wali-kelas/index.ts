@@ -64,16 +64,28 @@ export async function getIzinByWaliKelas() {
 }
 
 // permasalahan
-export async function getPermasalahanByWaliKelas() {
+export async function getPermasalahanByWaliKelas(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: "opened" | "in_progress" | "resolved";
+}) {
   try {
-    const res = await axiosInstance.get('/api/student-issues/wali-kelas')
+    const res = await axiosInstance.get('/api/student-issues/wali-kelas', {
+      params,
+    })
     return res.data as ApiResponsePermasalahan
   } catch (error) {
     throw error
   }
 }
 
-export async function getPermasalahanByIdWaliKelas(id: number) {
+export async function getPermasalahanByIdWaliKelas(id: number, params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: "opened" | "in_progress" | "resolved";
+}) {
   try {
     const res = await axiosInstance.get(`/api/student-issues/${id}`)
     return res.data as Item
