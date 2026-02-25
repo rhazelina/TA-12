@@ -151,7 +151,7 @@ export async function getPermasalahanByPembimbing() {
 export async function createPermasalahanByPembimbing(data: {
   deskripsi: string,
   judul: string,
-  kategori: string,
+  kategori: "kedisiplinan" | "absensi" | "performa" | "lainnya",
   siswa_id: number
 }) {
   try {
@@ -172,11 +172,12 @@ export async function getPermasalahanById(id: number) {
 }
 
 export async function patchPermasalahanByPembimbing(id: number, data: {
-  catatan: string,
-  status: "approved" | "rejected"
+  deskripsi: string,
+  status: string,
+  tindak_lanjut: string
 }) {
   try {
-    const response = await axiosInstance.patch(`/api/student-issues/{id}`, data);
+    const response = await axiosInstance.patch(`/api/student-issues/${id}`, data);
     return response.data;
   } catch (error) {
     throw error
