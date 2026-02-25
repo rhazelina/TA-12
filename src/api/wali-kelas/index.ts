@@ -1,4 +1,4 @@
-import { ApiResponsePermasalahan } from "@/types/permasalahan";
+import { ApiResponsePermasalahan, Item } from "@/types/permasalahan";
 import axiosInstance from "@/utils/axios";
 
 export interface WaliKelasDashboardDto {
@@ -68,6 +68,24 @@ export async function getPermasalahanByWaliKelas() {
   try {
     const res = await axiosInstance.get('/api/student-issues/wali-kelas')
     return res.data as ApiResponsePermasalahan
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function getPermasalahanByIdWaliKelas(id: number) {
+  try {
+    const res = await axiosInstance.get(`/api/student-issues/${id}`)
+    return res.data as Item
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function patchPermasalahanByWaliKelas(id: number, data: { status: string, tindak_lanjut?: string }) {
+  try {
+    const response = await axiosInstance.patch(`/api/student-issues/${id}`, data);
+    return response.data;
   } catch (error) {
     throw error
   }

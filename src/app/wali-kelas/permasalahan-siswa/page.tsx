@@ -6,43 +6,58 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Search, RotateCcw } from "lucide-react"
+import { Search, RotateCcw, Loader2, Info } from "lucide-react"
+import { useEffect, useState } from "react"
+import { getPermasalahanByWaliKelas } from "@/api/wali-kelas"
+import { Item } from "@/types/permasalahan"
+import { toast } from "sonner"
 
 export default function PermasalahanListWaliKelas() {
-    // Mock Data
-    const issues = [
-        {
-            id: 1,
-            user: { name: "Park Jhokuwie", role: "XII RPL 1 • PT. Teknologi Maju", image: "/placeholder-user.jpg" },
-            action: "Mengadukan Masalah",
-            status: "Menunggu",
-        },
-        {
-            id: 2,
-            user: { name: "Kim Shareonni", role: "XII TKJ 2 • CV. Solusi Digital", image: "/placeholder-user.jpg" },
-            action: "Mengadukan Masalah",
-            status: "Disetujui",
-        },
-        {
-            id: 3,
-            user: { name: "Lee Bhouwo", role: "XII MM 1 • Bank Mandiri", image: "/placeholder-user.jpg" },
-            action: "Mengadukan Masalah",
-            status: "Ditolak",
-        },
-        {
-            id: 4,
-            user: { name: "Lee Bhouwo", role: "XII MM 1 • Bank Mandiri", image: "/placeholder-user.jpg" },
-            action: "Mengadukan Masalah",
-            status: "Menunggu",
+    const [issues, setIssues] = useState<Item[]>([])
+    const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+
+    useEffect(() => {
+        const fetchIssues = async () => {
+            try {
+                const res = await getPermasalahanByWaliKelas()
+                setIssues(res.items || [])
+            } catch (error) {
+                console.error(error)
+                toast.error("Gagal memuat daftar permasalahan siswa")
+            } finally {
+                setLoading(false)
+            }
         }
-    ]
+        fetchIssues()
+    }, [])
+
+    const filteredIssues = issues.filter(issue =>
+        issue.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        issue.siswa?.nama.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     const getStatusVariant = (status: string) => {
-        switch (status) {
-            case "Menunggu": return "warning"
-            case "Disetujui": return "success"
-            case "Ditolak": return "destructive"
+        const s = status?.toLowerCase() || "";
+        switch (s) {
+            case "opened": return "warning"
+            case "in_progress": return "default" // or keep warning, maybe blue
+            case "resolved":
+            case "selesai": return "success"
+            case "rejected": return "destructive"
             default: return "secondary"
+        }
+    }
+
+    const getStatusText = (status: string) => {
+        const s = status?.toLowerCase() || "";
+        switch (s) {
+            case "opened": return "Belum Diproses"
+            case "in_progress": return "Sedang Diproses"
+            case "resolved":
+            case "selesai": return "Selesai"
+            case "rejected": return "Ditolak"
+            default: return status || "Pending"
         }
     }
 
@@ -59,24 +74,17 @@ export default function PermasalahanListWaliKelas() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Status</label>
-                            <Input placeholder="Semua Status" />
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Cari</label>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Input
+                                className="pl-9"
+                                placeholder="Cari judul atau nama siswa..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Tanggal Pengaduan</label>
-                            <Input placeholder="DD/MM/YYYY" />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Kelas</label>
-                            <Input placeholder="Pilih Kelas" />
-                        </div>
-                    </div>
-                    <div className="flex justify-end mt-4">
-                        <Button className="bg-[#5f2a2a] text-white hover:bg-[#4a2020] min-w-[150px]">
-                            <Search className="mr-2 h-4 w-4" /> Cari...
-                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -88,34 +96,47 @@ export default function PermasalahanListWaliKelas() {
                     <span className="text-sm text-muted-foreground">Lihat Semua</span>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {issues.map((issue) => (
-                        <div key={issue.id} className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-accent/5 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <Avatar className="h-12 w-12">
-                                    <AvatarImage src={issue.user.image} />
-                                    <AvatarFallback>{issue.user.name[0]}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <div className="font-medium flex items-center gap-2">
-                                        {issue.user.name}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">
-                                        {issue.user.role} <span className="mx-1">|</span> <span className="text-red-500 font-medium">{issue.action}</span>
+                    {loading ? (
+                        <div className="flex justify-center py-10">
+                            <Loader2 className="animate-spin w-8 h-8 text-[#5f2a2a]" />
+                        </div>
+                    ) : filteredIssues.length > 0 ? (
+                        filteredIssues.map((issue) => (
+                            <div key={issue.id} className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-accent/5 transition-colors">
+                                <div className="flex items-center gap-4">
+                                    <Avatar className="h-12 w-12 border bg-gray-50 flex items-center justify-center">
+                                        <Info className="h-5 w-5 text-gray-400" />
+                                    </Avatar>
+                                    <div>
+                                        <div className="font-medium flex items-center gap-2">
+                                            {issue.judul}
+                                        </div>
+                                        <div className="text-sm text-muted-foreground flex gap-2 divide-x">
+                                            <span>Siswa: <span className="text-foreground font-medium">{issue.siswa?.nama}</span></span>
+                                            <span className="pl-2">Kategori: <span className="font-medium capitalize">{issue.kategori}</span></span>
+                                            <span className="pl-2 flex items-center gap-1">
+                                                Tgl: {new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(issue.created_at))}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
+                                <div className="flex items-center gap-2">
+                                    <Badge variant={getStatusVariant(issue.status) as "default" | "secondary" | "destructive" | "outline"} className="capitalize px-4 py-1">
+                                        {getStatusText(issue.status)}
+                                    </Badge>
+                                    <Button size="sm" variant="outline" className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-4" asChild>
+                                        <Link href={`/wali-kelas/permasalahan-siswa/${issue.id}`}>
+                                            Periksa
+                                        </Link>
+                                    </Button>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Badge variant={getStatusVariant(issue.status) as "default" | "secondary" | "destructive" | "outline"} className="capitalize px-4 py-1">
-                                    {issue.status}
-                                </Badge>
-                                <Button size="sm" variant="outline" className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-4" asChild>
-                                    <Link href={`/wali-kelas/permasalahan-siswa/${issue.id}`}>
-                                        Periksa
-                                    </Link>
-                                </Button>
-                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-10 text-muted-foreground">
+                            Tidak ada data permasalahan.
                         </div>
-                    ))}
+                    )}
                 </CardContent>
             </Card>
         </div>
