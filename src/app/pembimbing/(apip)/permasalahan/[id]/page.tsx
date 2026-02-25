@@ -142,7 +142,7 @@ export default function DetailPermasalahanContent() {
                         </Card>
                     </div>
 
-                    {/* Sidebar Area */}
+                    {/* Sidebar Areaa */}
                     <div className="space-y-6">
                         <Card className="border shadow-sm">
                             <CardHeader className="pb-3 border-b bg-gray-50/50">
