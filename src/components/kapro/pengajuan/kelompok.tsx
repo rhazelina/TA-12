@@ -3,15 +3,43 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Building2, Calendar as CalendarIcon } from "lucide-react";
+import { User, Building2, Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { GroupRegistration } from "@/types/detailGrup";
-import { reviewGroup } from "@/api/kapro/indext";
+import { approveGroup, rejectGroup, reviewGroup } from "@/api/kapro/indext";
 import { toast } from "sonner";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
+} from "@/components/ui/alert-dialog"
+import { Input } from "@/components/ui/input";
+import { Field, FieldGroup } from "@/components/ui/field";
+import { useRouter } from "next/navigation";
 
 export default function PengajuanKelompok() {
     const [dataKelompok, setDataKelompok] = useState<GroupRegistration[]>([]);
     const [loadingKelompok, setLoadingKelompok] = useState(true);
     const [refresh, setRefresh] = useState(true);
+    const [open, setOpen] = useState(false);
+    const [openAlert, setOpenAlert] = useState(false);
+    const [idGroup, setIdGroup] = useState<number>();
+    const [catatan, setCatatan] = useState("");
+    const [isReject, setIsReject] = useState(false);
+    const [isApprove, setIsApprove] = useState(false);
+    const router = useRouter()
 
     useEffect(() => {
         async function fetchGroupData() {
@@ -30,6 +58,34 @@ export default function PengajuanKelompok() {
         }
         fetchGroupData();
     }, [refresh]);
+
+    const handleApprove = async (id: number) => {
+        try {
+            setIsApprove(true);
+            await approveGroup(id);
+            toast.success("Pengajuan disetujui");
+            setRefresh(!refresh);
+        } catch (error) {
+            console.error("Error approving group", error);
+            toast.error("Gagal menyetujui pengajuan");
+        } finally {
+            setIsApprove(false);
+        }
+    };
+
+    const handleReject = async (id: number, catatan: string) => {
+        try {
+            setIsReject(true);
+            await rejectGroup(id, { reason: catatan });
+            toast.success("Pengajuan ditolak");
+            setRefresh(!refresh);
+        } catch (error) {
+            console.error("Error rejecting group", error);
+            toast.error("Gagal menolak pengajuan");
+        } finally {
+            setIsReject(false);
+        }
+    };
 
     const badgeStyle = (status: string) => {
         const statusLower = status.toLowerCase();
@@ -125,17 +181,88 @@ export default function PengajuanKelompok() {
 
                             <div className="flex items-center justify-between pt-4 border-t">
                                 <div className="flex gap-2">
-                                    <Button size="sm" variant="outline" onClick={() => {
-                                        toast.info("Fitur kelola kelompok akan segera hadir");
+                                    <Button size="sm" variant="outline" disabled={isApprove} className="bg-green-600 text-white hover:bg-green-700 hover:text-white" onClick={() => {
+                                        setIdGroup(group.id);
+                                        setOpenAlert(true);
                                     }}>
-                                        Kelola Pengajuan
+                                        {
+                                            isApprove ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    Loading...
+                                                </>
+                                            ) : (
+                                                "Setujui"
+                                            )
+                                        }
+                                    </Button>
+                                    <Button size="sm" variant="outline" disabled={isReject} className="bg-red-600 text-white hover:bg-red-700 hover:text-white" onClick={() => {
+                                        setIdGroup(group.id);
+                                        setOpen(true);
+                                    }}>
+                                        {isReject ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                Loading...
+                                            </>
+                                        ) : (
+                                            "Tolak"
+                                        )}
                                     </Button>
                                 </div>
+                                <Button size="sm" variant="outline" onClick={() => {
+                                    router.push(`/kapro/kelompok/${group.id}`);
+                                }}>
+                                    Lihat Kelompok
+                                </Button>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
-        </Card>
+
+            {/* Dialog Setujui */}
+            <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Setujui Pengajuan</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Apakah anda yakin ingin menyetujui pengajuan ini?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction className="bg-green-600 text-white hover:bg-green-700 hover:text-white" onClick={() => {
+                            if (idGroup !== undefined) handleApprove(idGroup)
+                        }}>Setujui</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Dialog Tolak */}
+            <Dialog open={open} onOpenChange={setOpen}>
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (idGroup !== undefined) handleReject(idGroup, catatan);
+                }}>
+                    <DialogContent className="sm:max-w-sm">
+                        <DialogHeader>
+                            <DialogTitle>Catatan Penolakan</DialogTitle>
+                        </DialogHeader>
+                        <FieldGroup>
+                            <Field>
+                                <Input id="catatan" name="catatan" defaultValue="" onChange={(e) => setCatatan(e.target.value)} placeholder="masukan catatan" />
+                            </Field>
+                        </FieldGroup>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Batal</Button>
+                            </DialogClose>
+                            <Button type="submit" className="bg-red-600 text-white hover:bg-red-700 hover:text-white">Tolak</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </form>
+            </Dialog>
+        </Card >
     );
 }
