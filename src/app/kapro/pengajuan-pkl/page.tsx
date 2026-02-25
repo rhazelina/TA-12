@@ -1,6 +1,5 @@
 "use client"
 
-import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PengajuanIndividu from "@/components/kapro/pengajuan/individu";
 import PengajuanKelompok from "@/components/kapro/pengajuan/kelompok";
