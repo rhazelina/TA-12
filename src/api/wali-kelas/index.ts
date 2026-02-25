@@ -61,3 +61,13 @@ export async function getIzinByWaliKelas() {
     throw error
   }
 }
+
+// permasalahan
+export async function getPermasalahanByWaliKelas() {
+  try {
+    const res = await axiosInstance.get('/api/student-issues/wali-kelas')
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}

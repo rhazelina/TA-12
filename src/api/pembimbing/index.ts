@@ -136,3 +136,48 @@ export async function patchPindahPklPembimbing(id: number, data: {
     throw error
   }
 }
+
+
+// permasalahan
+export async function getPermasalahanByPembimbing() {
+  try {
+    const res = await axiosInstance.get('/api/student-issues/me')
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}
+export async function createPermasalahanByPembimbing(data: {
+  deskripsi: string,
+  judul: string,
+  kategori: string,
+  siswa_id: number
+}) {
+  try {
+    const response = await axiosInstance.post(`/api/student-issues`, data);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function getPermasalahanById(id: number) {
+  try {
+    const res = await axiosInstance.get(`/api/student-issues/${id}`)
+    return res.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function patchPermasalahanByPembimbing(id: number, data: {
+  catatan: string,
+  status: "approved" | "rejected"
+}) {
+  try {
+    const response = await axiosInstance.patch(`/api/student-issues/{id}`, data);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
