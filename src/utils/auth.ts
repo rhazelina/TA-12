@@ -13,6 +13,7 @@ export interface User {
   is_koordinator: boolean;
   is_pembimbing: boolean;
   is_wali_kelas: boolean;
+  username: string;
 }
 
 export interface UserSiswa {

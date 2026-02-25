@@ -36,6 +36,7 @@ export const useAuth = () => {
     is_koordinator: false,
     is_pembimbing: false,
     is_wali_kelas: false,
+    username: ""
   });
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -60,6 +61,7 @@ export const useAuth = () => {
               is_koordinator: false,
               is_pembimbing: false,
               is_wali_kelas: false,
+              username: ""
             }
           );
         } else {
@@ -73,6 +75,7 @@ export const useAuth = () => {
             is_koordinator: false,
             is_pembimbing: false,
             is_wali_kelas: false,
+            username: ""
           });
         }
       } catch {
@@ -87,6 +90,7 @@ export const useAuth = () => {
           is_koordinator: false,
           is_pembimbing: false,
           is_wali_kelas: false,
+          username: ""
         });
       } finally {
         setLoading(false);
@@ -124,6 +128,7 @@ export const useAuth = () => {
       is_koordinator: false,
       is_pembimbing: false,
       is_wali_kelas: false,
+      username: ""
     });
     setIsLoggedIn(false);
   };
@@ -143,6 +148,7 @@ export const useAuth = () => {
           is_koordinator: false,
           is_pembimbing: false,
           is_wali_kelas: false,
+          username: ""
         }
       );
       setIsLoggedIn(true);
@@ -157,6 +163,7 @@ export const useAuth = () => {
         is_koordinator: false,
         is_pembimbing: false,
         is_wali_kelas: false,
+        username: ""
       });
       setIsLoggedIn(false);
     }
