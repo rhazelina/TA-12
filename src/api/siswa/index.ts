@@ -1,4 +1,5 @@
 import { PostIzin } from "@/types/api"
+import { ICompanyResponse } from "@/types/availableIndustri"
 import axiosInstance from "@/utils/axios"
 
 export async function getActivePklBySiswa() {
@@ -203,7 +204,7 @@ export async function uploadDokumenSiswa(id: number, data: FormData) {
 export async function getAvailableIndustri() {
     try {
         const res = await axiosInstance.get('/api/pkl/industri/available')
-        return res.data
+        return res.data as ICompanyResponse
     } catch (error) {
         throw error
     }

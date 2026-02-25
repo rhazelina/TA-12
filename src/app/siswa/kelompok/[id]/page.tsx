@@ -1,8 +1,9 @@
 "use client"
 
-import { detailKelompok } from "@/api/siswa";
-import { GroupRegistration, Member } from "@/types/detailGrup";
+import { detailKelompok, submitGroupApplication, getAvailableIndustri, withdrawGroupApplication } from "@/api/siswa";
+import { GroupRegistration, Member, Industri } from "@/types/detailGrup";
 import { use, useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import {
     Loader2,
@@ -15,29 +16,94 @@ import {
     CheckCircle2,
     Clock,
     MapPin,
-    Hash
+    Hash,
+    Send
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { CompanyData, ICompanyResponse } from "@/types/availableIndustri";
 
 export default function DetailKelompokPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
+    const { user } = useAuth();
+
     const [data, setData] = useState<GroupRegistration | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    // Submit Application States
+    const [submitModalOpen, setSubmitModalOpen] = useState(false);
+    const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [notes, setNotes] = useState("");
+    const [industriList, setIndustriList] = useState<CompanyData[]>();
+    const [selectedIndustriId, setSelectedIndustriId] = useState<string>("");
+
+    const fetchIndustriData = async () => {
+        try {
+            // Note: Adust this based on the actual getIndustri response structure
+            const response = await getAvailableIndustri();
+            if (response && response.data && Array.isArray(response.data)) {
+                setIndustriList(response.data);
+            } else if (response && Array.isArray(response.data)) {
+                setIndustriList(response.data);
+            } else if (Array.isArray(response)) {
+                setIndustriList(response);
+            }
+        } catch (error) {
+            console.error("Failed to fetch industri", error);
+        }
+    };
+
+    const fetchGroupData = () => {
         setLoading(true);
         detailKelompok(Number(id)).then((res: GroupRegistration) => {
             setData(res);
+            // Pre-fill form if data already exists
+            if (res.tanggal_mulai) setStartDate(res.tanggal_mulai.split('T')[0]);
+            if (res.tanggal_selesai) setEndDate(res.tanggal_selesai.split('T')[0]);
+            if (res.catatan) setNotes(res.catatan);
+            if (res.industri?.id) setSelectedIndustriId(res.industri.id.toString());
         }).catch((err) => {
             toast.error(err.response?.data?.message || "Gagal memuat data kelompok");
             console.error(err);
         }).finally(() => {
             setLoading(false);
         });
+    };
+
+    useEffect(() => {
+        fetchGroupData();
     }, [id]);
+
+    useEffect(() => {
+        if (submitModalOpen) {
+            fetchIndustriData();
+        }
+    }, [submitModalOpen]);
 
     const getStatusBadge = (status: string) => {
         switch (status?.toLowerCase()) {
@@ -95,8 +161,49 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
         );
     }
 
+    const handleSubmitApplication = async () => {
+        if (!selectedIndustriId && !data?.industri?.id) {
+            toast.error("Harap lengkapi profil industri kelompok Anda terlebih dahulu.");
+            return;
+        }
+        if (!startDate || !endDate) {
+            toast.error("Tanggal mulai dan tanggal selesai wajib diisi.");
+            return;
+        }
 
-    console.log(data);
+        setIsSubmitting(true);
+        try {
+            await submitGroupApplication(Number(id), {
+                catatan: notes,
+                industri_id: Number(selectedIndustriId) || data!.industri!.id,
+                tanggal_mulai: startDate,
+                tanggal_selesai: endDate
+            });
+            toast.success("Pengajuan kelompok PKL berhasil dikirim!");
+            setSubmitModalOpen(false);
+            fetchGroupData(); // Refresh data
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error?.response?.data?.message || "Gagal mengirim pengajuan");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleWithDraw = async () => {
+        try {
+            await withdrawGroupApplication(Number(id));
+            toast.success("Pengajuan kelompok PKL berhasil ditarik!");
+            setWithdrawModalOpen(false);
+            fetchGroupData(); // Refresh data
+        } catch (error) {
+            console.log(error);
+            toast.error("Gagal menarik pengajuan");
+        }
+    }
+
+    console.log(data)
+
     return (
         <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans">
             <div className="max-w-4xl mx-auto space-y-6">
@@ -131,29 +238,50 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
                                     )}
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-4 text-sm">
-                                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg text-gray-700">
-                                        <Users className="w-4 h-4 text-gray-400" />
-                                        <span className="font-medium">{data.member_count} Anggota</span>
+                                <div className="flex flex-wrap items-center justify-between gap-4 mt-4">
+                                    <div className="flex flex-wrap items-center gap-4 text-sm">
+                                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg text-gray-700">
+                                            <Users className="w-4 h-4 text-gray-400" />
+                                            <span className="font-medium">{data.member_count} Anggota</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg text-gray-700">
+                                            <Calendar className="w-4 h-4 text-gray-400" />
+                                            <span className="font-medium">
+                                                {data.tanggal_mulai ? format(new Date(data.tanggal_mulai), "dd MMM yyyy", { locale: idLocale }) : '-'}
+                                                <span className="mx-2 text-gray-400">s/d</span>
+                                                {data.tanggal_selesai ? format(new Date(data.tanggal_selesai), "dd MMM yyyy", { locale: idLocale }) : '-'}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg text-gray-700">
-                                        <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span className="font-medium">
-                                            {data.tanggal_mulai ? format(new Date(data.tanggal_mulai), "dd MMM yyyy", { locale: idLocale }) : '-'}
-                                            <span className="mx-2 text-gray-400">s/d</span>
-                                            {data.tanggal_selesai ? format(new Date(data.tanggal_selesai), "dd MMM yyyy", { locale: idLocale }) : '-'}
-                                        </span>
-                                    </div>
+
+                                    {/* Action Buttons for Leader */}
+                                    {user.username === data.leader?.nama && data.status?.toLowerCase() === 'pending' && (
+                                        <button
+                                            onClick={() => setSubmitModalOpen(true)}
+                                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-colors flex items-center gap-2"
+                                        >
+                                            <Send className="w-4 h-4" />
+                                            Kirim Pengajuan
+                                        </button>
+                                    )}
+                                    {user.username === data.leader?.nama && data.status?.toLowerCase() === 'submitted' && (
+                                        <button
+                                            onClick={() => setWithdrawModalOpen(true)}
+                                            className="px-5 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg shadow-sm transition-colors flex items-center gap-2"
+                                        >
+                                            <Send className="w-4 h-4" />
+                                            Tarik Pengajuan
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
                         {data.catatan && (
-                            <div className="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-100 flex gap-3">
-                                <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0" />
+                            <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100 flex gap-3">
                                 <div>
-                                    <h4 className="text-sm font-semibold text-yellow-800 mb-1">Catatan dari Koordinator</h4>
-                                    <p className="text-sm text-yellow-700 leading-relaxed">{data.catatan}</p>
+                                    <h4 className="text-sm font-semibold text-gray-800 mb-1">Catatan</h4>
+                                    <p className="text-sm text-gray-700 leading-relaxed">{data.catatan}</p>
                                 </div>
                             </div>
                         )}
@@ -234,6 +362,125 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
                     </div>
                 </div>
             </div>
+
+            {/* Submit Document Modal */}
+            <AlertDialog open={submitModalOpen} onOpenChange={setSubmitModalOpen}>
+                <AlertDialogContent className="sm:max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <Send className="w-5 h-5 text-blue-600" />
+                            Kirim Pengajuan Kelompok
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Lengkapi detail pelaksanaan PKL Anda sebelum mengirimkan pengajuan ke koordinator PKL.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="industri" className="text-gray-700 font-semibold">Tempat Industri / Magang <span className="text-red-500">*</span></Label>
+                            <Select
+                                value={selectedIndustriId}
+                                onValueChange={setSelectedIndustriId}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Pilih Industri Tempat PKL" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {industriList?.map((industri) => (
+                                        <SelectItem key={industri.id} value={industri.id.toString()}>
+                                            {industri.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="start-date" className="text-gray-700 font-semibold">Tanggal Mulai <span className="text-red-500">*</span></Label>
+                                <Input
+                                    id="start-date"
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="border-gray-300"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="end-date" className="text-gray-700 font-semibold">Tanggal Selesai <span className="text-red-500">*</span></Label>
+                                <Input
+                                    id="end-date"
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="border-gray-300"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="notes" className="text-gray-700 font-semibold">Catatan / Pesan Tambahan</Label>
+                            <Input
+                                id="notes"
+                                placeholder="Cth: Mengajukan PKL bulan depan"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                className="border-gray-300"
+                            />
+                            <p className="text-xs text-gray-500">Opsional, tinggalkan catatan tambahan untuk koordinator.</p>
+                        </div>
+
+                        {(!data?.industri && !selectedIndustriId) && (
+                            <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm flex gap-2 border border-red-200">
+                                <AlertCircle className="w-5 h-5 shrink-0" />
+                                <p>Anda harus memilih industri tempat PKL terlebih dahulu sebelum dapat mengajukan.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isSubmitting}>Batal</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleSubmitApplication();
+                            }}
+                            disabled={isSubmitting || !startDate || !endDate || (!selectedIndustriId && !data?.industri?.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                            {isSubmitting ? (
+                                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Mengirim...</>
+                            ) : (
+                                "Kirim Pengajuan"
+                            )}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={withdrawModalOpen} onOpenChange={setWithdrawModalOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Tarik Pengajuan</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Apakah Anda yakin ingin menarik pengajuan PKL ini? Tindakan ini tidak dapat dibatalkan.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleWithDraw();
+                            }}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            Tarik Pengajuan
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
