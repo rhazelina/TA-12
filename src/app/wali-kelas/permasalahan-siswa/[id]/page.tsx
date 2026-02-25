@@ -165,11 +165,6 @@ export default function PermasalahanDetailWaliKelas() {
                                     label="NISN"
                                     value={data.siswa?.nisn || "-"}
                                 />
-                                <InfoField
-                                    icon={<BookOpen className="size-4" />}
-                                    label="ID Siswa"
-                                    value={data.siswa?.id?.toString() || "-"}
-                                />
                             </div>
                         </div>
 
