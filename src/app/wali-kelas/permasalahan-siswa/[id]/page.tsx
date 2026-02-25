@@ -98,11 +98,6 @@ export default function PermasalahanDetailWaliKelas() {
                     <ArrowLeft className="size-4" />
                     <span>Kembali</span>
                 </button>
-
-                <Button variant="outline" size="sm" className="gap-2">
-                    <Printer className="size-4" />
-                    Cetak
-                </Button>
             </div>
 
             {/* Main Card */}
