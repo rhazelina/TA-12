@@ -1,3 +1,4 @@
+import { ApiResponsePermasalahan } from "@/types/permasalahan";
 import axiosInstance from "@/utils/axios";
 
 export interface WaliKelasDashboardDto {
@@ -57,6 +58,16 @@ export async function getIzinByWaliKelas() {
   try {
     const res = await axiosInstance.get('/api/izin/wali-kelas')
     return res.data
+  } catch (error) {
+    throw error
+  }
+}
+
+// permasalahan
+export async function getPermasalahanByWaliKelas() {
+  try {
+    const res = await axiosInstance.get('/api/student-issues/wali-kelas')
+    return res.data as ApiResponsePermasalahan
   } catch (error) {
     throw error
   }

@@ -1,4 +1,5 @@
 import { PostRealisasiKegiatanPkl, UpdateRealisasiKegiatanPkl } from "@/types/api";
+import { ApiResponsePermasalahan, Item } from "@/types/permasalahan";
 import axiosInstance from "@/utils/axios";
 
 export async function kegiatanPklActive() {
@@ -131,6 +132,52 @@ export async function patchPindahPklPembimbing(id: number, data: {
 }) {
   try {
     const response = await axiosInstance.patch(`/api/pindah-pkl/${id}/pembimbing`, data);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
+
+
+// permasalahan
+export async function getPermasalahanByPembimbing() {
+  try {
+    const res = await axiosInstance.get('/api/student-issues/me')
+    return res.data as ApiResponsePermasalahan
+  } catch (error) {
+    throw error
+  }
+}
+export async function createPermasalahanByPembimbing(data: {
+  deskripsi: string,
+  judul: string,
+  kategori: "kedisiplinan" | "absensi" | "performa" | "lainnya",
+  siswa_id: number
+}) {
+  try {
+    const response = await axiosInstance.post(`/api/student-issues`, data);
+    return response.data;
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function getPermasalahanById(id: number) {
+  try {
+    const res = await axiosInstance.get(`/api/student-issues/${id}`)
+    return res.data as Item
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function patchPermasalahanByPembimbing(id: number, data: {
+  deskripsi: string,
+  status: "opened" | "in_progress" | "resolved",
+  tindak_lanjut: string
+}) {
+  try {
+    const response = await axiosInstance.patch(`/api/student-issues/${id}`, data);
     return response.data;
   } catch (error) {
     throw error
