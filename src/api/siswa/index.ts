@@ -199,3 +199,12 @@ export async function uploadDokumenSiswa(id: number, data: FormData) {
         throw error
     }
 }
+
+export async function getAvailableIndustri() {
+    try {
+        const res = await axiosInstance.get('/api/pkl/industri/available')
+        return res.data
+    } catch (error) {
+        throw error
+    }
+}
