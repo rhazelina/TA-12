@@ -147,7 +147,7 @@ export default function DetailPermasalahanContent() {
                         <Card className="border shadow-sm">
                             <CardHeader className="pb-3 border-b bg-gray-50/50">
                                 <CardTitle className="text-base flex items-center">
-                                    <User className="w-4 h-4 mr-2" /> Reviewer / Pembimbing
+                                    <User className="w-4 h-4 mr-2" /> Pembimbing
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-4 pt-4">
