@@ -173,7 +173,7 @@ export async function getPermasalahanById(id: number) {
 
 export async function patchPermasalahanByPembimbing(id: number, data: {
   deskripsi: string,
-  status: string,
+  status: "opened" | "in_progress" | "resolved",
   tindak_lanjut: string
 }) {
   try {
