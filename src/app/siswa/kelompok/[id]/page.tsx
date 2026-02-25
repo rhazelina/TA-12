@@ -206,8 +206,6 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
         }
     }
 
-    console.log(data)
-
     return (
         <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans">
             <div className="max-w-4xl mx-auto space-y-6">
