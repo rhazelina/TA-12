@@ -1,4 +1,5 @@
 import { PostRealisasiKegiatanPkl, UpdateRealisasiKegiatanPkl } from "@/types/api";
+import { ApiResponsePermasalahan, Item } from "@/types/permasalahan";
 import axiosInstance from "@/utils/axios";
 
 export async function kegiatanPklActive() {
@@ -142,7 +143,7 @@ export async function patchPindahPklPembimbing(id: number, data: {
 export async function getPermasalahanByPembimbing() {
   try {
     const res = await axiosInstance.get('/api/student-issues/me')
-    return res.data
+    return res.data as ApiResponsePermasalahan
   } catch (error) {
     throw error
   }
@@ -164,7 +165,7 @@ export async function createPermasalahanByPembimbing(data: {
 export async function getPermasalahanById(id: number) {
   try {
     const res = await axiosInstance.get(`/api/student-issues/${id}`)
-    return res.data
+    return res.data as Item
   } catch (error) {
     throw error
   }
