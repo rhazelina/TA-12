@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Building2, Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { User, Building2, Calendar as CalendarIcon, Loader2, Check } from "lucide-react";
 import { GroupRegistration } from "@/types/detailGrup";
-import { approveGroup, rejectGroup, reviewGroup } from "@/api/kapro/indext";
+import { approveGroup, ListGuruPembimbing, rejectGroup, reviewGroup } from "@/api/kapro/indext";
 import { toast } from "sonner";
 import {
     Dialog,
@@ -16,15 +16,16 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle
-} from "@/components/ui/alert-dialog"
+    Command,
+    CommandDialog,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    CommandSeparator,
+    CommandShortcut,
+} from "@/components/ui/command"
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { useRouter } from "next/navigation";
@@ -34,11 +35,20 @@ export default function PengajuanKelompok() {
     const [loadingKelompok, setLoadingKelompok] = useState(true);
     const [refresh, setRefresh] = useState(true);
     const [open, setOpen] = useState(false);
-    const [openAlert, setOpenAlert] = useState(false);
+    const [openApprove, setOpenApprove] = useState(false);
     const [idGroup, setIdGroup] = useState<number>();
     const [catatan, setCatatan] = useState("");
     const [isReject, setIsReject] = useState(false);
     const [isApprove, setIsApprove] = useState(false);
+    const [dataPembimbing, setDataPembimbing] = useState<{
+        "id": number,
+        "nama": string,
+        "nip": string,
+        "no_telp": string
+    }[]>([]);
+    const [loadingPembimbing, setLoadingPembimbing] = useState(false);
+    const [idPembimbing, setIdPembimbing] = useState<number>(0);
+    const [searchPembimbing, setSearchPembimbing] = useState<string>("");
     const router = useRouter()
 
     useEffect(() => {
@@ -59,10 +69,26 @@ export default function PengajuanKelompok() {
         fetchGroupData();
     }, [refresh]);
 
+    const fetchingPembimbing = async () => {
+        try {
+            setLoadingPembimbing(true);
+            const res = await ListGuruPembimbing(searchPembimbing);
+            console.log('[res]', res)
+            if (res) {
+                setDataPembimbing(res);
+            }
+        } catch (error) {
+            console.error("Error fetching pembimbing", error);
+            setDataPembimbing([]);
+        } finally {
+            setLoadingPembimbing(false)
+        }
+    }
+
     const handleApprove = async (id: number) => {
         try {
             setIsApprove(true);
-            await approveGroup(id);
+            await approveGroup(id, { pembimbing_guru_id: idPembimbing });
             toast.success("Pengajuan disetujui");
             setRefresh(!refresh);
         } catch (error) {
@@ -183,7 +209,7 @@ export default function PengajuanKelompok() {
                                 <div className="flex gap-2">
                                     <Button size="sm" variant="outline" disabled={isApprove} className="bg-green-600 text-white hover:bg-green-700 hover:text-white" onClick={() => {
                                         setIdGroup(group.id);
-                                        setOpenAlert(true);
+                                        setOpenApprove(true);
                                     }}>
                                         {
                                             isApprove ? (
@@ -222,22 +248,80 @@ export default function PengajuanKelompok() {
             )}
 
             {/* Dialog Setujui */}
-            <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Setujui Pengajuan</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Apakah anda yakin ingin menyetujui pengajuan ini?
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction className="bg-green-600 text-white hover:bg-green-700 hover:text-white" onClick={() => {
-                            if (idGroup !== undefined) handleApprove(idGroup)
-                        }}>Setujui</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            {/* Dialog Setujui */}
+            <Dialog open={openApprove} onOpenChange={setOpenApprove}>
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Pilih Pembimbing</DialogTitle>
+                    </DialogHeader>
+                    <FieldGroup>
+                        <Command shouldFilter={false}>
+                            <CommandInput
+                                placeholder="Cari pembimbing (Tekan Enter)..."
+                                value={searchPembimbing}
+                                onValueChange={setSearchPembimbing}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        fetchingPembimbing();
+                                    }
+                                }}
+                            />
+                            <CommandList>
+                                <CommandEmpty>Tidak ada hasil.</CommandEmpty>
+                                <CommandGroup>
+                                    {loadingPembimbing ? (
+                                        <CommandItem key="loading">
+                                            <div className="flex flex-col items-center gap-2 justify-center w-full">
+                                                <Loader2 className="mr-2 animate-spin" />
+                                                Loading...
+                                            </div>
+                                        </CommandItem>
+                                    ) : (
+                                        dataPembimbing.map((pembimbing) => (
+                                            <CommandItem
+                                                key={pembimbing.id}
+                                                value={pembimbing.nama}
+                                                onSelect={() => {
+                                                    if (idPembimbing === pembimbing.id) {
+                                                        setIdPembimbing(0);
+                                                    } else {
+                                                        setIdPembimbing(pembimbing.id);
+                                                    }
+                                                }}
+                                                className={idPembimbing === pembimbing.id ? "bg-accent" : ""}
+                                            >
+                                                <span>{pembimbing.nama}</span> {idPembimbing == pembimbing.id && <Check className="ml-2 h-4 w-4" />}
+                                            </CommandItem>
+                                        )))}
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+                    </FieldGroup>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button variant="outline">Batal</Button>
+                        </DialogClose>
+                        <Button
+                            className="bg-green-600 text-white hover:bg-green-700 hover:text-white"
+                            disabled={!idPembimbing || isApprove}
+                            onClick={() => {
+                                if (idGroup !== undefined) handleApprove(idGroup);
+                                setOpenApprove(false);
+                            }}
+                        >
+                            {isApprove ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Loading...
+                                </>
+                            ) : (
+                                "Setujui"
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* Dialog Tolak */}
             <Dialog open={open} onOpenChange={setOpen}>

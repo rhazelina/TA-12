@@ -134,9 +134,9 @@ export async function reviewGroup() {
   }
 }
 
-export async function approveGroup(id: number, id_pembimbing: number) {
+export async function approveGroup(id: number, data: { pembimbing_guru_id: number }) {
   try {
-    const response = await axiosInstance.post(`/api/pkl/group/review/${id}/approve`, { pembimbing_guru_id: id_pembimbing });
+    const response = await axiosInstance.post(`/api/pkl/group/review/${id}/approve`, data);
     return response.data;
   } catch (error) {
     throw error;
