@@ -56,6 +56,7 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
     const [submitModalOpen, setSubmitModalOpen] = useState(false);
     const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [notes, setNotes] = useState("");
@@ -192,6 +193,7 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
 
     const handleWithDraw = async () => {
         try {
+            setIsWithdrawing(true);
             await withdrawGroupApplication(Number(id));
             toast.success("Pengajuan kelompok PKL berhasil ditarik!");
             setWithdrawModalOpen(false);
@@ -199,6 +201,8 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
         } catch (error) {
             console.log(error);
             toast.error("Gagal menarik pengajuan");
+        } finally {
+            setIsWithdrawing(false);
         }
     }
 
@@ -474,9 +478,14 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
                                 e.preventDefault();
                                 handleWithDraw();
                             }}
+                            disabled={isWithdrawing}
                             className="bg-red-600 hover:bg-red-700 text-white"
                         >
-                            Tarik Pengajuan
+                            {isWithdrawing ? (
+                                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Menarik...</>
+                            ) : (
+                                "Tarik Pengajuan"
+                            )}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
