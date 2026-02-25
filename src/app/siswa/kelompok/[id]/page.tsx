@@ -42,13 +42,13 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
     const getStatusBadge = (status: string) => {
         switch (status?.toLowerCase()) {
             case 'approved':
-                return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200 uppercase"><CheckCircle2 className="w-3.5 h-3.5" /> Approved</span>;
+                return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200 uppercase"><CheckCircle2 className="w-3.5 h-3.5" /> Disetujui</span>;
             case 'rejected':
-                return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200 uppercase"><AlertCircle className="w-3.5 h-3.5" /> Rejected</span>;
+                return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200 uppercase"><AlertCircle className="w-3.5 h-3.5" /> Ditolak</span>;
             case 'submitted':
-                return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-200 uppercase"><Clock className="w-3.5 h-3.5" /> Submitted</span>;
-            case 'draft':
-                return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 uppercase"><AlertCircle className="w-3.5 h-3.5" /> Draft</span>;
+                return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-200 uppercase"><Clock className="w-3.5 h-3.5" /> Diajukan</span>;
+            case 'pending':
+                return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 uppercase"><AlertCircle className="w-3.5 h-3.5" /> Tertunda</span>;
             default:
                 return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200 uppercase">{status || 'Unknown'}</span>;
         }
@@ -95,6 +95,8 @@ export default function DetailKelompokPage({ params }: { params: Promise<{ id: s
         );
     }
 
+
+    console.log(data);
     return (
         <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans">
             <div className="max-w-4xl mx-auto space-y-6">
