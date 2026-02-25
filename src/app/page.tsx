@@ -4,11 +4,11 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { 
-  Users, 
-  GraduationCap, 
-  Building2, 
-  BookOpen, 
+import {
+  Users,
+  GraduationCap,
+  Building2,
+  BookOpen,
   School,
   ArrowRight,
   CheckCircle,
@@ -31,6 +31,16 @@ export default function Home() {
               height={32}
               className="h-8 w-auto"
             />
+            <Image
+              src="/logo/logo_skull-removebg-preview.png"
+              alt="SMK Negeri 2 Singosari Logo"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
+            />
+            <span className="text-sm font-bold text-gray-800 tracking-wide hidden sm:inline">
+              SMKN 2 SINGOSARI
+            </span>
           </div>
           <nav className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-sm font-medium text-gray-700 hover:text-[#641E20] transition-colors">
@@ -58,25 +68,52 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 sm:py-32">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl animate-fade-in">
-              Sistem Manajemen
-              <span className="block text-[#641E20]">Magang Terpadu</span>
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600 animate-fade-in-delay-1">
-              Platform komprehensif untuk mengelola data siswa, industri, dan program magang 
-              dengan interface yang modern dan user-friendly.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6 animate-fade-in-delay-2">
-              <Link href="/login">
-                <Button size="lg" className="bg-[#641E20] hover:bg-[#641E20]/90 text-white px-8 py-3 text-base">
-                  Mulai Sekarang
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <a href="#features" className="text-sm font-semibold leading-6 text-gray-900 hover:text-[#641E20] transition-colors">
-                Pelajari Lebih Lanjut <span aria-hidden="true">→</span>
-              </a>
+          <div className="relative flex items-center justify-center">
+            {/* Mascot Left - Ino */}
+            <div className="hidden lg:block absolute left-0 bottom-0 w-[260px] xl:w-[300px] animate-fade-in">
+              <Image
+                src="/logo/ino.png"
+                alt="Ino - Mascot"
+                width={300}
+                height={300}
+                className="w-full h-auto drop-shadow-lg"
+                priority
+              />
+            </div>
+
+            {/* Hero Content */}
+            <div className="mx-auto max-w-2xl text-center z-10">
+              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl animate-fade-in">
+                Sistem Manajemen
+                <span className="block text-[#641E20]">Magang Terpadu</span>
+              </h1>
+              <p className="mt-6 text-lg leading-8 text-gray-600 animate-fade-in-delay-1">
+                Platform komprehensif untuk mengelola data siswa, industri, dan program magang
+                dengan interface yang modern dan user-friendly.
+              </p>
+              <div className="mt-10 flex items-center justify-center gap-x-6 animate-fade-in-delay-2">
+                <Link href="/login">
+                  <Button size="lg" className="bg-[#641E20] hover:bg-[#641E20]/90 text-white px-8 py-3 text-base">
+                    Mulai Sekarang
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <a href="#features" className="text-sm font-semibold leading-6 text-gray-900 hover:text-[#641E20] transition-colors">
+                  Pelajari Lebih Lanjut <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Mascot Right - Rasi */}
+            <div className="hidden lg:block absolute right-0 bottom-0 w-[260px] xl:w-[300px] animate-fade-in">
+              <Image
+                src="/logo/rasi.png"
+                alt="Rasi - Mascot"
+                width={300}
+                height={300}
+                className="w-full h-auto drop-shadow-lg"
+                priority
+              />
             </div>
           </div>
         </div>
