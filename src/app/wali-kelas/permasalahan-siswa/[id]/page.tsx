@@ -220,22 +220,6 @@ export default function PermasalahanDetailWaliKelas() {
                         </>
                     )}
                 </div>
-
-                {/* Action Buttons */}
-                <div className="px-6 py-5 border-t flex items-center justify-end gap-3 bg-gray-50/50">
-                    {!isResolved && !isInProgress && (
-                        <Button onClick={() => handleUpdateStatus("in_progress")} disabled={updating} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-                            {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Clock className="size-4" />}
-                            Tandai Sedang Diproses
-                        </Button>
-                    )}
-                    {!isResolved && (
-                        <Button onClick={() => handleUpdateStatus("resolved")} disabled={updating} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
-                            {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
-                            Tandai Selesai
-                        </Button>
-                    )}
-                </div>
             </div>
         </div>
     )
