@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getPermasalahanByPembimbing, patchPermasalahanByPembimbing } from "@/api/pembimbing";
-import { Item } from "@/types/permasalahan";
+import { Item, Pagination as PaginationType } from "@/types/permasalahan";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Search, Calendar, CheckCircle2, AlertCircle, Clock, Info, Edit } from "lucide-react";
+import { Loader2, Plus, Search, Calendar, CheckCircle2, AlertCircle, Clock, Info, Edit, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
 export default function PermasalahanList() {
   const [permasalahan, setPermasalahan] = useState<Item[]>([]);
+  const [pagination, setPagination] = useState<PaginationType | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchBool, setSearchBool] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
@@ -38,6 +43,26 @@ export default function PermasalahanList() {
     setIsEditModalOpen(true);
   };
 
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      console.log(searchQuery)
+      const res = await getPermasalahanByPembimbing({
+        page: currentPage,
+        limit,
+        search: searchQuery || undefined,
+        status: statusFilter === "all" ? undefined : statusFilter
+      });
+      setPermasalahan(res.items || []);
+      setPagination(res.pagination || null);
+    } catch (error) {
+      console.error(error);
+      toast.error("Gagal memuat data permasalahan");
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, limit, statusFilter, searchBool]);
+
   const handleEditSubmit = async () => {
     if (!editingItem) return;
     setIsSubmitting(true);
@@ -45,8 +70,7 @@ export default function PermasalahanList() {
       await patchPermasalahanByPembimbing(editingItem.id, editForm as any);
       toast.success("Permasalahan berhasil diperbarui");
       setIsEditModalOpen(false);
-      const res = await getPermasalahanByPembimbing();
-      setPermasalahan(res.items || []);
+      fetchData();
     } catch (error) {
       console.error(error);
       toast.error("Gagal memperbarui permasalahan");
@@ -56,25 +80,8 @@ export default function PermasalahanList() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getPermasalahanByPembimbing();
-        setPermasalahan(res.items || []);
-      } catch (error) {
-        console.error(error);
-        toast.error("Gagal memuat data permasalahan");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, []);
-
-  const filteredData = permasalahan.filter(item =>
-    item.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.siswa?.nama.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  }, [fetchData]);
 
   const getStatusBadge = (status: string) => {
     const s = status?.toLowerCase() || "";
@@ -108,15 +115,44 @@ export default function PermasalahanList() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-xl border shadow-sm flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
+        <div className="bg-white p-4 rounded-xl border shadow-sm flex flex-col sm:flex-row items-center gap-4">
+          <div className="relative flex-1 w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               placeholder="Cari judul atau nama siswa..."
-              className="pl-9"
+              className="pl-9 w-full"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+              }}
             />
+            <Button
+              variant="outline"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-7"
+              onClick={() => {
+                setCurrentPage(1);
+                setSearchBool(!searchBool)
+              }}
+            >
+              Cari
+              <Search className="w-3 h-3" />
+            </Button>
+          </div>
+          <div className="w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-gray-500" />
+                  <SelectValue placeholder="Semua Status" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Status</SelectItem>
+                <SelectItem value="opened">Belum Diproses</SelectItem>
+                <SelectItem value="in_progress">Sedang Diproses</SelectItem>
+                <SelectItem value="resolved">Selesai</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -125,9 +161,9 @@ export default function PermasalahanList() {
           <div className="flex justify-center items-center py-20">
             <Loader2 className="animate-spin w-8 h-8 text-[#6B1B1B]" />
           </div>
-        ) : filteredData.length > 0 ? (
+        ) : permasalahan.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredData.map(item => (
+            {permasalahan.map(item => (
               <Card key={item.id} className="hover:shadow-md transition-shadow group flex flex-col">
                 <CardHeader className="pb-3 border-b">
                   <div className="flex justify-between items-start mb-2">
@@ -179,8 +215,60 @@ export default function PermasalahanList() {
             </div>
             <h3 className="text-lg font-semibold text-gray-900">Belum ada permasalahan</h3>
             <p className="text-gray-500 mt-1 max-w-sm">
-              {searchQuery ? "Tidak ada permasalahan yang cocok dengan pencarian Anda." : "Saat ini tidak ada data permasalahan yang dilaporkan."}
+              {searchQuery || statusFilter !== "all" ? "Tidak ada permasalahan yang cocok dengan pencarian Anda." : "Saat ini tidak ada data permasalahan yang dilaporkan."}
             </p>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.total_pages > 1 && (
+          <div className="flex items-center justify-between bg-white px-4 py-3 sm:px-6 rounded-xl border mt-6">
+            <div className="flex flex-1 justify-between sm:hidden">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Sebelumnya
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.total_pages))}
+                disabled={currentPage === pagination.total_pages}
+              >
+                Selanjutnya
+              </Button>
+            </div>
+            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Menampilkan <span className="font-medium">{(currentPage - 1) * limit + 1}</span> hingga <span className="font-medium">{Math.min(currentPage * limit, pagination.total_items)}</span> dari <span className="font-medium">{pagination.total_items}</span> hasil
+                </p>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <div className="text-sm font-medium px-4 py-2 bg-gray-50 rounded-md border">
+                    Halaman {currentPage} dari {pagination.total_pages}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.total_pages))}
+                    disabled={currentPage === pagination.total_pages}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

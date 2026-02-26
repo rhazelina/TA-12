@@ -140,9 +140,14 @@ export async function patchPindahPklPembimbing(id: number, data: {
 
 
 // permasalahan
-export async function getPermasalahanByPembimbing() {
+export async function getPermasalahanByPembimbing(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}) {
   try {
-    const res = await axiosInstance.get('/api/student-issues/me')
+    const res = await axiosInstance.get('/api/student-issues/me', { params })
     return res.data as ApiResponsePermasalahan
   } catch (error) {
     throw error
@@ -162,9 +167,14 @@ export async function createPermasalahanByPembimbing(data: {
   }
 }
 
-export async function getPermasalahanById(id: number) {
+export async function getPermasalahanById(id: number, params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: "opened" | "in_progress" | "resolved";
+}) {
   try {
-    const res = await axiosInstance.get(`/api/student-issues/${id}`)
+    const res = await axiosInstance.get(`/api/student-issues/${id}`, { params })
     return res.data as Item
   } catch (error) {
     throw error
