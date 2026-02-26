@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ListGuruPembimbing, ApprovePermohonanPKL, RejectPermohonanPKL } from "@/api/kapro/indext";
 import { listApprovePklKoordinator, PklPengajuanTerbaru } from "@/api/koordinator/index";
 import { getKelas } from "@/api/admin/kelas/index";
@@ -239,6 +239,15 @@ export default function PengajuanPKLPage() {
         return app.status?.toLowerCase() === statusFilter.toLowerCase();
     });
 
+    const groupedApplications = filteredApplications.reduce((acc, app) => {
+        const industri = app.industri_nama || "Tanpa Industri";
+        if (!acc[industri]) {
+            acc[industri] = [];
+        }
+        acc[industri].push(app);
+        return acc;
+    }, {} as Record<string, PklPengajuanTerbaru[]>);
+
     return (
         <div className="container mx-auto p-6 space-y-6">
             <h1 className="text-3xl font-bold">Pengajuan PKL</h1>
@@ -339,44 +348,45 @@ export default function PengajuanPKLPage() {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    filteredApplications.map((app, index) => (
-                                        <TableRow key={app.application_id}>
-                                            <TableCell>{(currentPage - 1) * 10 + index + 1}</TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium">{app.siswa_username}</span>
-                                                    <span className="text-xs text-muted-foreground">{app.siswa_nisn}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{app.industri_nama}</TableCell>
-                                            <TableCell>{format(new Date(app.tanggal_permohonan), "dd MMM yyyy")}</TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant={
-                                                        app.status === "Approved" ? "default" :
-                                                            app.status === "Rejected" || app.status === "Ditolak" ? "destructive" :
-                                                                "secondary"
-                                                    }
-                                                    className={
-                                                        app.status === "Approved" ? "bg-green-500 hover:bg-green-600" :
-                                                            (app.status === "Pending" || app.status === "Menunggu") ? "bg-yellow-500 hover:bg-yellow-600 text-white" : ""
-                                                    }
-                                                >
-                                                    {app.status}
-                                                </Badge>
-                                            </TableCell>
-                                            {/* <TableCell className="text-right space-x-2">
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                                                    onClick={() => openLetterModal(app)}
-                                                >
-                                                    <Printer className="h-4 w-4 mr-1" />
-                                                    Surat
-                                                </Button>
-                                            </TableCell> */}
-                                        </TableRow>
+                                    Object.entries(groupedApplications).map(([industri, apps], gIndex) => (
+                                        <React.Fragment key={industri}>
+                                            <TableRow className="bg-muted/50">
+                                                <TableCell colSpan={5} className="font-semibold py-3 text-sm">
+                                                    Industri: {industri}
+                                                    <Badge variant="secondary" className="ml-2 font-normal rounded-full">
+                                                        {apps.length} Siswa
+                                                    </Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                            {apps.map((app, index) => (
+                                                <TableRow key={app.application_id}>
+                                                    <TableCell>{index + 1}</TableCell>
+                                                    <TableCell>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{app.siswa_username}</span>
+                                                            <span className="text-xs text-muted-foreground">{app.siswa_nisn}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>{app.industri_nama}</TableCell>
+                                                    <TableCell>{format(new Date(app.tanggal_permohonan), "dd MMM yyyy")}</TableCell>
+                                                    <TableCell>
+                                                        <Badge
+                                                            variant={
+                                                                app.status === "Approved" ? "default" :
+                                                                    app.status === "Rejected" || app.status === "Ditolak" ? "destructive" :
+                                                                        "secondary"
+                                                            }
+                                                            className={
+                                                                app.status === "Approved" ? "bg-green-500 hover:bg-green-600" :
+                                                                    (app.status === "Pending" || app.status === "Menunggu") ? "bg-yellow-500 hover:bg-yellow-600 text-white" : ""
+                                                            }
+                                                        >
+                                                            {app.status}
+                                                        </Badge>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </React.Fragment>
                                     ))
                                 )}
                             </TableBody>
