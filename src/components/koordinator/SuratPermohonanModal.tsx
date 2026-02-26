@@ -10,9 +10,9 @@ import { useReactToPrint } from "react-to-print";
 interface SuratPermohonanProps {
     isOpen: boolean;
     onClose: () => void;
-    application: DaftarPermohonanPKL | null;
-    allApplications: DaftarPermohonanPKL[];
-    schoolData: any; // Using any for now to avoid strict type issues with Partial<SekolahDto>
+    application: any | null; // Allow passing PklPengajuanTerbaru 
+    allApplications: any[];
+    schoolData: any;
 }
 
 export function SuratPermohonanModal({ isOpen, onClose, application, allApplications, schoolData }: SuratPermohonanProps) {
@@ -50,11 +50,12 @@ export function SuratPermohonanModal({ isOpen, onClose, application, allApplicat
     const year = currentDate.getFullYear();
 
     // Helper to format date range
-    // If dates are null, use placeholders
-    const startDate = application.application.tanggal_mulai ? new Date(application.application.tanggal_mulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' }) : "................";
-    const endDate = application.application.tanggal_selesai ? new Date(application.application.tanggal_selesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : "................";
-    // Check if end date year matches
-    const endDateString = application.application.tanggal_selesai ? new Date(application.application.tanggal_selesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : `................ ${year + 1}`;
+    // If dates are null, use placeholders from application or fallback
+    const startTanggal = application?.tanggal_mulai || application?.application?.tanggal_mulai;
+    const endTanggal = application?.tanggal_selesai || application?.application?.tanggal_selesai;
+
+    const startDate = startTanggal ? new Date(startTanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : "................";
+    const endDateString = endTanggal ? new Date(endTanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : `................ ${year + 1}`;
 
     // Construct address
     const address = `${schoolData.jalan}, ${schoolData.kelurahan}, ${schoolData.kecamatan}, ${schoolData.kabupaten_kota}, ${schoolData.provinsi}, ${schoolData.kode_pos}`;
@@ -125,9 +126,9 @@ export function SuratPermohonanModal({ isOpen, onClose, application, allApplicat
                         {/* Body */}
                         <div className="mb-4 text-justify indent-8">
                             <p>
-                                Dengan ini kami sampaikan bahwa kegiatan Pembelajaran Praktik Industri (PJBL) siswa-siswi {schoolData.nama_sekolah} akan dilaksanakan sekitar tanggal {startDate} - {endDateString}.
+                                Dengan ini kami sampaikan bahwa kegiatan Praktik Kerja Lapangan (PKL) siswa-siswi {schoolData.nama_sekolah} akan dilaksanakan sekitar tanggal {startDate} s.d {endDateString}.
                                 Sehubungan dengan hal tersebut, kami mohon agar siswa-siswi kami dapat diterima di Instansi/Industri yang Bapak/Ibu pimpin.
-                                Adapun siswa-siswi yang akan kami ajukan untuk melaksanakan Pembelajaran Praktik Industri (PJBL) di Instansi/Industri yang Bapak/Ibu pimpin adalah sebanyak {sameIndustryApps.length} orang, sebagai berikut:
+                                Adapun siswa-siswi yang akan kami ajukan untuk melaksanakan Praktik Kerja Lapangan (PKL) di Instansi/Industri yang Bapak/Ibu pimpin adalah sebanyak {sameIndustryApps.length} orang, sebagai berikut:
                             </p>
                         </div>
 
@@ -145,10 +146,10 @@ export function SuratPermohonanModal({ isOpen, onClose, application, allApplicat
                                 <tbody>
                                     {sameIndustryApps.map((app: any, index: number) => (
                                         <tr key={app?.application?.id || app?.application_id || index}>
-                                            <td className="border border-black px-2 py-1 text-center">{index + 1}.</td>
-                                            <td className="border border-black px-2 py-1 uppercase">{app.siswa_username}</td>
-                                            <td className="border border-black px-2 py-1 text-center uppercase">{app.kelas_nama}</td>
-                                            <td className="border border-black px-2 py-1 text-center uppercase">{app.jurusan_nama}</td>
+                                            <td className="border border-black px-2 py-1 text-center">{index + 1}</td>
+                                            <td className="border border-black px-2 py-1 uppercase">{app.siswa_username || app.siswa?.nama}</td>
+                                            <td className="border border-black px-2 py-1 uppercase">{app.kelas_nama || app.kelas?.nama || '-'}</td>
+                                            <td className="border border-black px-2 py-1 uppercase">{app.jurusan_nama || app.jurusan?.nama || '-'}</td>
                                         </tr>
                                     ))}
                                 </tbody>

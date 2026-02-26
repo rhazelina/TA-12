@@ -352,10 +352,23 @@ export default function PengajuanPKLPage() {
                                         <React.Fragment key={industri}>
                                             <TableRow className="bg-muted/50">
                                                 <TableCell colSpan={5} className="font-semibold py-3 text-sm">
-                                                    Industri: {industri}
-                                                    <Badge variant="secondary" className="ml-2 font-normal rounded-full">
-                                                        {apps.length} Siswa
-                                                    </Badge>
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            Industri: {industri}
+                                                            <Badge variant="secondary" className="ml-2 font-normal rounded-full">
+                                                                {apps.length} Siswa
+                                                            </Badge>
+                                                        </div>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 h-8"
+                                                            onClick={() => openLetterModal(apps[0])}
+                                                        >
+                                                            <Printer className="h-4 w-4 mr-1" />
+                                                            Cetak Surat
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                             {apps.map((app, index) => (
