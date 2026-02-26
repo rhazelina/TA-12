@@ -194,8 +194,8 @@ export default function CreateJurusanPage() {
                         <span>Kembali</span>
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Buat Data Jurusan</h1>
-                        <p className="text-gray-600">Tambahkan program studi baru ke sistem</p>
+                        <h1 className="text-3xl font-bold text-gray-900">Buat Data Konsentrasi Keahlian</h1>
+                        <p className="text-gray-600">Tambahkan program keahlian baru ke sistem</p>
                     </div>
                 </div>
             </div>
@@ -206,17 +206,17 @@ export default function CreateJurusanPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
                             <GraduationCap className="h-5 w-5" />
-                            <span>Informasi Jurusan</span>
+                            <span>Informasi Konsentrasi Keahlian</span>
                         </CardTitle>
                         <CardDescription>
-                            Data dasar program studi untuk sistem
+                            Data dasar konsentrasi keahlian untuk sistem
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="kode">
-                                    Kode Jurusan <span className="text-red-500">*</span>
+                                    Kode Konsentrasi Keahlian <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="kode"
@@ -241,7 +241,7 @@ export default function CreateJurusanPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="nama" className="flex items-center space-x-1">
                                     <BookOpen className="h-4 w-4" />
-                                    <span>Nama Jurusan <span className="text-red-500">*</span></span>
+                                    <span>Nama Konsentrasi Keahlian <span className="text-red-500">*</span></span>
                                 </Label>
                                 <Input
                                     id="nama"
@@ -265,7 +265,7 @@ export default function CreateJurusanPage() {
                         <div className="space-y-2">
                             <Label className="flex items-center space-x-1">
                                 <User className="h-4 w-4" />
-                                <span>Kepala Program Studi <span className="text-red-500">*</span></span>
+                                <span>Kepala Konsentrasi Keahlian <span className="text-red-500">*</span></span>
                             </Label>
                             <Popover open={openKapro} onOpenChange={setOpenKapro}>
                                 <PopoverTrigger asChild>
@@ -283,7 +283,7 @@ export default function CreateJurusanPage() {
                                             ? `${selectedKaprog.nama} (${selectedKaprog.kode_guru})`
                                             : loadingKapro
                                                 ? "Memuat..."
-                                                : "Pilih Kepala Program Studi..."}
+                                                : "Pilih Kepala Konsentrasi Keahlian..."}
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
@@ -330,7 +330,7 @@ export default function CreateJurusanPage() {
                                 </p>
                             )}
                             <p className="text-sm text-gray-500">
-                                Pilih guru yang akan menjabat sebagai Kepala Program Studi
+                                Pilih guru yang akan menjabat sebagai Kepala Konsentrasi Keahlian
                             </p>
                         </div>
                     </CardContent>
@@ -346,7 +346,7 @@ export default function CreateJurusanPage() {
                             disabled={loading}
                             className="mr-2"
                         >
-                            Reset Form
+                            Memuat Ulang Formulir
                         </Button>
                     </div>
 
@@ -363,7 +363,7 @@ export default function CreateJurusanPage() {
                         ) : (
                             <>
                                 <Save className="h-4 w-4" />
-                                <span>Simpan Data Jurusan</span>
+                                <span>Simpan Data Konsenstrasi Keahlian</span>
                             </>
                         )}
                     </Button>
