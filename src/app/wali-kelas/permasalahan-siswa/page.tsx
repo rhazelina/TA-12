@@ -91,7 +91,7 @@ export default function PermasalahanListWaliKelas() {
     }
 
     return (
-        <div className="space-y-6 mx-10">
+        <div className="space-y-6 mx-10 mb-10">
             {/* Filter Section */}
             <Card>
                 <CardHeader>
@@ -103,8 +103,8 @@ export default function PermasalahanListWaliKelas() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="">
                             <label className="text-sm font-medium">Cari</label>
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
