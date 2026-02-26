@@ -144,12 +144,12 @@ export default function UploadDokumenBukti() {
 
             <div>
               <label className="text-sm font-medium">
-                Upload File <span className="text-red-500">*</span>
+                Mengunggah File <span className="text-red-500">*</span>
               </label>
 
               <div className="mt-2 border-2 border-dashed rounded-xl py-10 flex flex-col items-center text-gray-500 px-4">
                 <div className="w-10 h-10 bg-gray-300 rounded mb-2 text-2xl flex items-center justify-center">📄</div>
-                <p className="mb-4 text-center">Drag & drop file atau klik untuk browse</p>
+                <p className="mb-4 text-center">Seret & Lepas file atau klik untuk jelajahi</p>
                 <label className="max-w-xs cursor-pointer border border-gray-300 rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors">
                   <span className="py-2 px-4 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200 transition-colors">
                     Pilih File

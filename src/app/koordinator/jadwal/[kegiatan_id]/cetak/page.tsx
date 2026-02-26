@@ -115,7 +115,7 @@ const defaultValues: z.infer<typeof formSchema> = {
         {
             label: "Hari / Tanggal",
             separator: ":",
-            value: "Senin, 1 Juli 2024",
+            value: "Senin, 1 Juli 2026",
         },
         {
             label: "Waktu",
